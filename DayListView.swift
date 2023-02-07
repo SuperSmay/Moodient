@@ -22,8 +22,9 @@ struct DayListView: View {
     var body: some View {
         
         NavigationStack(path: $presentedViewIDs) {
-            VStack {
-                List {
+            
+            List {
+                    
                     ForEach(moodDays) { day in
                         
                         let naiveDate: NaiveDate = day.naiveDate
@@ -31,14 +32,16 @@ struct DayListView: View {
                         let moodValue = day.moodDay?.moodPoints.first?.moodValue
                         
                         HStack {
+                            
                             Text(date.formatted(date: .abbreviated, time: .omitted))
                             
                             Spacer()
                             
                             Image(systemName: "chevron.right")
-                            
+                        
                         }
-                        .contentShape(Rectangle())
+                        /// Make the spacer tapable
+                        .containerShape(Rectangle())
                         .listRowBackground(
                             LinearGradient(colors: [colorScheme == .light ? Color.white : Color.gray.opacity(0.1), MoodOptions().colors[moodValue ?? 0].swiftuiColor.opacity(0.2)], startPoint: .center, endPoint: .trailing)
                         )
@@ -65,17 +68,18 @@ struct DayListView: View {
                     .onDelete(perform: removeRows)
                     
                 }
-                .sheet(item: self.$editSheetMoodDay, onDismiss: {
-                    reload()
-                    editSheetMoodDay = nil
-                }) { day in
-                    EditEventView(naiveDate: day.naiveDate, moodValue: day.moodDay?.moodPoints[0].moodValue ?? 0, description: day.moodDay?.description ?? "")
-                }
-                
-                
-                
-                
+            .sheet(item: self.$editSheetMoodDay, onDismiss: {
+                reload()
+                editSheetMoodDay = nil
+            }) { day in
+                EditEventView(naiveDate: day.naiveDate, moodValue: day.moodDay?.moodPoints[0].moodValue ?? 0, description: day.moodDay?.description ?? "")
             }
+            .navigationTitle("Moodient")
+            /// Reload from database when UI loads
+            .onAppear() {
+                reload()
+            }
+            /// Add new item button
             .toolbar {
                 HStack {
                     Button {
@@ -92,13 +96,10 @@ struct DayListView: View {
                     }
                 }
             }
-            .navigationTitle("Moodient")
-            .onAppear() {
-                reload()
-            }
         }
     }
     
+    /// Callback to delete rows from the database when rows are deleted from the UI
     func removeRows(at offsets: IndexSet) {
         let id = offsets.map { self.moodDays[$0].id }.first
 

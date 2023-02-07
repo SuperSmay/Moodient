@@ -18,6 +18,7 @@ struct DayPreview: View {
     @State var moodValue: Int
     @State var description: String
     
+    /// Initialize the view with a date, a mood value, and a description
     init(naiveDate: NaiveDate?, moodValue: Int, description: String) {
         
         var initialDate = Date.now
@@ -34,17 +35,16 @@ struct DayPreview: View {
     }
     
     var body: some View {
+        /// Pretty simple, we got a ZStack with a form and a linear gradient background
         NavigationView {
+            
             ZStack {
-                
                 
                 LinearGradient(colors: [.gray.opacity(0.1), MoodOptions().colors[moodValue].swiftuiColor.opacity(0.25)], startPoint: .top, endPoint: .bottom)
                     .ignoresSafeArea()
                 
-                
-                
                 Form {
-                    
+                    /// Used for display only
                     Picker("Mood", selection: $moodValue) {
                         ForEach(0..<5) { value in
                             Text(MoodOptions().labels[value])
@@ -52,10 +52,10 @@ struct DayPreview: View {
                     }
                     
                     TextField("Description", text: $description, axis: .vertical)
-                }
-                .scrollContentBackground(.hidden)
-                
                     
+                }
+                /// Disables the gray/black default background
+                .scrollContentBackground(.hidden)
             }
             .navigationTitle(date.formatted(date: .abbreviated, time: .omitted))
         }

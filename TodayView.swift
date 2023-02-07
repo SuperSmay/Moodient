@@ -10,8 +10,10 @@ import NaiveDate
 
 struct TodayView: View {
     
+    /// Env variables
     @Environment(\.colorScheme) var colorScheme
     
+    /// Keep track of the state of the screen
     @State var id: Int? = nil
     @State var date: Date = Date.now
     @State var moodValue: Int = 0
@@ -21,85 +23,69 @@ struct TodayView: View {
     
     @FocusState var textBoxFocused
     
-
+    /// Calculates the mood day to insert into the database
     var convertedMoodDay: MoodDay {
         MoodDay(moodPoints: [MoodPoint(naiveTime: NaiveTime(), moodValue: moodValue)], description: description)
     }
     
-    
     private let startDateRange = Calendar.current.date(byAdding: .year, value: -100, to: Date.now) ?? Date.distantPast
     
     var body: some View {
+        
         NavigationView {
-            
+            /// UI with a gradient background
             ZStack {
+                
                 LinearGradient(colors: [.gray.opacity(0.1), MoodOptions().colors[moodValue].swiftuiColor.opacity(0.25)], startPoint: .top, endPoint: .bottom)
                     .ignoresSafeArea()
-                
-                
-                
+                /// Foreground UI
                 VStack(alignment: .leading) {
-                    
-                    
+                  
                     Text(date.formatted(date: .complete, time: .omitted))
                         .padding()
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     
-                    
-                    
+                    /// Fake form row (can't use Form because it doesn't avoid the keyboard)
                     HStack {
+                        
                         Text("Mood")
+                        
                         Spacer()
+                        
                         Picker("Mood", selection: $moodValue) {
                             ForEach(0..<5) { value in
                                 Text(MoodOptions().labels[value])
                             }
                         }
                         .tint(.secondary)
-                        
+                        /// Update database when moodValue is changed
+                        .onChange(of: moodValue) { newValue in
+                            
+                            if date.convertedNaiveDate == nil || id == nil {
+                                
+                                showingDateErrorAlert.toggle()
+                                return
+                            }
+                            
+                            _ = MoodEventStorage.moodEventStore.update(id: id!, naiveDate: date.convertedNaiveDate!, moodDay: convertedMoodDay)
+                        }
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 5)
                     .background(.ultraThickMaterial)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding()
-                    
-                    
-                    
-                    
-                    
-                    
+               
                     TextField("Description", text: $description, axis: .vertical)
-                        
                         .padding()
                         .background(.ultraThickMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding()
                         .padding(.bottom)
-                        
-                    
                         .focused($textBoxFocused)
+                        /// Update database when the text is changed
                         .onChange(of: description) { newValue in
-                            
-                            if date.convertedNaiveDate == nil || id == nil {
-                                
-                                showingDateErrorAlert.toggle()
-                                
-                                return
-                            }
-                            
-                            _ = MoodEventStorage.moodEventStore.update(id: id!, naiveDate: date.convertedNaiveDate!, moodDay: convertedMoodDay)
-                        }
-                        
-                        .alert("There was an error saving the entry for today", isPresented: $showingDateErrorAlert) {
-                            
-                            Button("Ok") { }
-                        } message: {
-                            Text("This really shouldn't happen and if it does something has gone very wrong. Please report this bug")
-                        }
-                    
-                        .onChange(of: moodValue) { newValue in
                             
                             if date.convertedNaiveDate == nil || id == nil {
                                 
@@ -114,11 +100,6 @@ struct TodayView: View {
                     Spacer()
                 }
                 .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
-                
-                
-                
-                
-                
                 
             }
             .navigationTitle("Today")
@@ -143,6 +124,13 @@ struct TodayView: View {
 
                 }
             }
+            /// Save error alert
+            .alert("There was an error saving the entry for today", isPresented: $showingDateErrorAlert) {
+                Button("Ok") { }
+            } message: {
+                Text("This really shouldn't happen and if it does something has gone very wrong. Please report this bug")
+            }
+            /// Reload date and such when UI loads
             .onAppear() {
                 
                 id = nil
