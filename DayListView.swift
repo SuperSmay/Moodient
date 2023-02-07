@@ -32,8 +32,6 @@ struct DayListView: View {
                         
                         HStack {
                             Text(date.formatted(date: .abbreviated, time: .omitted))
-                                
-                                
                             
                             Spacer()
                             

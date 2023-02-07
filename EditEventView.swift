@@ -10,24 +10,26 @@ import NaiveDate
 
 struct EditEventView: View {
     
+    /// Env variables
     @Environment (\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
     
+    /// Keep track of the state of the screen
     @State var date: Date
     @State var dateOpenedTo: Date?
     @State var moodValue: Int
     @State var description: String
     
     @State var showingDateConflictAlert = false
+    @State var showingDateErrorAlert = false
     
+    /// Focus state of the description box, to allow for a done button
     @FocusState var textBoxFocused
     
+    /// Calculates the mood day to insert into the database
     var convertedMoodDay: MoodDay {
         MoodDay(moodPoints: [MoodPoint(naiveTime: NaiveTime(), moodValue: moodValue)], description: description)
     }
-    
-    
-    private let startDateRange = Calendar.current.date(byAdding: .year, value: -100, to: Date.now) ?? Date.distantPast
     
     init(naiveDate: NaiveDate?, moodValue: Int, description: String) {
         
@@ -57,7 +59,7 @@ struct EditEventView: View {
                     
                     VStack {
                         
-                        DatePicker("Date", selection: $date, in: startDateRange...Date.now, displayedComponents: .date)
+                        DatePicker("Date", selection: $date, in: Date.distantPast...Date.now, displayedComponents: .date)
                         
                         Rectangle()
                             .frame(height: 2)
@@ -120,6 +122,9 @@ struct EditEventView: View {
                         Button("Save") {
                             
                             if date.convertedNaiveDate == nil {
+                                
+                                showingDateErrorAlert.toggle()
+                                
                                 return
                             }
                             
@@ -145,13 +150,7 @@ struct EditEventView: View {
                             }
                             
                             dismiss()
-                            
-                            
-                            
-                            
-                            
-                            
-                            
+ 
                         }
                         .alert("You already have an entry on that day", isPresented: $showingDateConflictAlert) {
                             Button("Overwrite", role: .destructive) {
@@ -171,8 +170,14 @@ struct EditEventView: View {
                                 dismiss()
                                 
                             }
-                            
                         }
+                        .alert("There was an error saving to that date", isPresented: $showingDateErrorAlert) {
+                            
+                            Button("Ok") { }
+                        } message: {
+                            Text("Please try a different day")
+                        }
+                        
                     }
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Cancel", role: .cancel) {

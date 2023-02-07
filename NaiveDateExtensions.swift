@@ -58,7 +58,8 @@ extension Date {
         /// Not really sure what to do if this ever fails, hopefully that doesn't happen
 
         /// Lets find out what happens
-        return nil
+        /// edit: Seems to work as expected
+        // return nil
         
         
         let components = Calendar.current.dateComponents([.year, .month, .day], from: self)

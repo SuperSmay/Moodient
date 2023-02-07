@@ -10,16 +10,6 @@ import NaiveDate
 
 struct ContentView: View {
     
-    @State var moodDays = MoodEventStorage.moodEventStore.getAllMoodDays()
-    @State private var editSheetShowing = false
-    @State private var editSheetID = -1
-    
-    @State private var presentedViewIDs = [Int]()
-    
-    
-    
-    
-    
     var body: some View {
         
         TabView {

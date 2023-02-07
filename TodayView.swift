@@ -16,8 +16,8 @@ struct TodayView: View {
     @State var date: Date = Date.now
     @State var moodValue: Int = 0
     @State var description: String = ""
-    
-    @State var today: MoodCalendarDay? = nil
+
+    @State var showingDateErrorAlert = false
     
     @FocusState var textBoxFocused
     
@@ -77,24 +77,34 @@ struct TodayView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding()
                         .padding(.bottom)
-                        //.shadow(color: .white.opacity(0.2), radius: 15)
                         
                     
                         .focused($textBoxFocused)
                         .onChange(of: description) { newValue in
                             
                             if date.convertedNaiveDate == nil || id == nil {
+                                
+                                showingDateErrorAlert.toggle()
+                                
                                 return
                             }
                             
                             _ = MoodEventStorage.moodEventStore.update(id: id!, naiveDate: date.convertedNaiveDate!, moodDay: convertedMoodDay)
                         }
                         
-                    
+                        .alert("There was an error saving the entry for today", isPresented: $showingDateErrorAlert) {
+                            
+                            Button("Ok") { }
+                        } message: {
+                            Text("This really shouldn't happen and if it does something has gone very wrong. Please report this bug")
+                        }
                     
                         .onChange(of: moodValue) { newValue in
                             
                             if date.convertedNaiveDate == nil || id == nil {
+                                
+                                showingDateErrorAlert.toggle()
+                                
                                 return
                             }
                             
@@ -144,7 +154,8 @@ struct TodayView: View {
                     return
                 }
                 
-                today = MoodEventStorage.moodEventStore.findMoodDay(searchNaiveDate: date.convertedNaiveDate)
+                var today: MoodCalendarDay? = MoodEventStorage.moodEventStore.findMoodDay(searchNaiveDate: date.convertedNaiveDate)
+                
                 if today == nil {
                     
                     id = MoodEventStorage.moodEventStore.insert(naiveDate: date.convertedNaiveDate!, moodDay: convertedMoodDay)
