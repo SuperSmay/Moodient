@@ -61,7 +61,7 @@ struct MoodPoint: Codable {
 }
 
 // MARK: - MoodCalendarDay
-
+/// Not meant to be stored in the database, only created when loading from the database
 struct MoodCalendarDay: Identifiable {
     
     var naiveDate: NaiveDate
@@ -71,45 +71,3 @@ struct MoodCalendarDay: Identifiable {
 }
 
 
-// MARK: - NaiveDate extension for SQLite compatability
-
-extension NaiveDate: Value {
-    
-    /// Tell SQLite.swift to use strings to store/load NaiveDates
-    public static var declaredDatatype: String {
-        String.declaredDatatype
-    }
-    
-    /// Load a NaiveDate from a stored string
-    public static func fromDatatypeValue(_ stringValue: String) -> NaiveDate? {
-        
-        /// First, try decoding the base64 encoded string into data. If the data is nil, then something bad happened
-        guard let decodedData = Data(base64Encoded: stringValue) else {
-            print("Error decoding NaiveDate from database: \(stringValue) decoded to nil")
-            return nil
-        }
-        
-        /// Try to decode the data back into a NaiveDate
-        do {
-            return try JSONDecoder().decode(self, from: decodedData)
-        } catch {
-            print("Error loading NaiveDate from database: \(error)")
-        }
-        
-        return nil
-        
-    }
-        
-        
-    
-
-    /// Convert a NaiveDate into base64EncodedString JSON
-    public var datatypeValue: String {
-        do {
-            return try JSONEncoder().encode(self).base64EncodedString()
-        } catch {
-            print("Encoding \(self) to JSON failed")
-            return ""
-        }
-    }
-}

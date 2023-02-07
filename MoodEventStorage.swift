@@ -68,6 +68,7 @@ class MoodEventStorage {
         }
     }
     
+    /// Yeet the table (this is for testing and that's pretty much it)
     func deleteTable() {
         guard let database = db else {
             print("Database is nil, unable to create table")
@@ -81,6 +82,9 @@ class MoodEventStorage {
         }
     }
     
+    // MARK: - Database operations
+    /// Pretty straight forward in how these work, got them from
+    /// https://blog.canopas.com/ios-persist-data-using-sqlite-swift-library-with-swiftui-example-c5baefc04334
     func insert(naiveDate: NaiveDate, moodDay: MoodDay) -> Int? {
         guard let database = db else { return nil }
 
@@ -130,11 +134,16 @@ class MoodEventStorage {
         return foundMoodDay
     }
     
-    func findMoodDay(searchNaiveDate: NaiveDate) -> MoodCalendarDay? {
+    func findMoodDay(searchNaiveDate: NaiveDate?) -> MoodCalendarDay? {
+        
+        if searchNaiveDate == nil {
+            return nil
+        }
+        
         var foundMoodDay: MoodCalendarDay? = nil
         guard let database = db else { return nil }
 
-        let filter = self.moodDaysTable.filter(naiveDate == searchNaiveDate)
+        let filter = self.moodDaysTable.filter(naiveDate == searchNaiveDate!)
         do {
             for m in try database.prepare(filter) {
                 foundMoodDay = MoodCalendarDay(naiveDate: m[naiveDate], moodDay: m[moodDay], id: m[id])

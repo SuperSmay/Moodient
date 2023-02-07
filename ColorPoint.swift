@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 
+/// Just a baic struct to hold a color that can be converted to a SwiftUI color
 struct ColorPoint: Codable {
     let hue: Double
     let saturation: Double

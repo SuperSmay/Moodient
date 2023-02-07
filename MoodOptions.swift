@@ -8,7 +8,7 @@
 import Foundation
 
 struct MoodOptions: Codable {
-    
+    /// The labels used to display the moods
     var labels = [
         "Very Happy",
         "Happy",
@@ -17,6 +17,7 @@ struct MoodOptions: Codable {
         "Very Sad"
     ]
     
+    /// The colors used to represent the moods
     var colors = [
         ColorPoint(hue: 0.894, saturation: 0.91, brightness: 0.27),
         ColorPoint(hue: 0.877, saturation: 0.96, brightness: 0.5),

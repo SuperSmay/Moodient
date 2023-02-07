@@ -8,22 +8,29 @@
 import SwiftUI
 import NaiveDate
 
+/// Used for a quick preview of the day. Not meant to be interactive
 struct DayPreview: View {
     
-    let id: Int
+    @Environment(\.colorScheme) var colorScheme
     
-    @State var date: Date = Date.now
-    @State var moodValue: Int = 0
-    @State var description: String = ""
+    @State var date: Date
+    @State var dateOpenedTo: Date?
+    @State var moodValue: Int
+    @State var description: String
     
-    var convertedNaiveDate: NaiveDate {
-        let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
+    init(naiveDate: NaiveDate?, moodValue: Int, description: String) {
         
-        let year = components.year ?? 0
-        let month = components.month ?? 1
-        let day = components.day ?? 1
+        var initialDate = Date.now
+        if naiveDate != nil {
+            initialDate = Calendar.current.date(from: naiveDate!) ?? Date.now
+        }
         
-        return NaiveDate(year: year, month: month, day: day)
+        self._date = State(initialValue: initialDate)
+        if naiveDate != nil {
+            self._dateOpenedTo = State(initialValue: initialDate)
+        }
+        self._moodValue = State(initialValue: moodValue)
+        self._description = State(initialValue: description)
     }
     
     var body: some View {
@@ -54,26 +61,7 @@ struct DayPreview: View {
         }
         .onAppear() {
             
-            let moodCalendarDay = MoodEventStorage.moodEventStore.findMoodDay(eventId: id)
             
-            var initialDate = Date.now
-            if moodCalendarDay != nil && moodCalendarDay?.naiveDate != nil {
-                initialDate = Calendar.current.date(from: moodCalendarDay!.naiveDate)!
-            }
-            
-            var initialValue = 0
-            if moodCalendarDay != nil && moodCalendarDay?.moodDay?.moodPoints[0].moodValue != nil && !(moodCalendarDay?.moodDay?.moodPoints.isEmpty)! {
-                initialValue = (moodCalendarDay?.moodDay!.moodPoints[0].moodValue)!
-            }
-            
-            var initialDescription = ""
-            if moodCalendarDay != nil && moodCalendarDay?.moodDay != nil {
-                initialDescription = (moodCalendarDay?.moodDay!.description)!
-            }
-            
-            date = initialDate
-            moodValue = initialValue
-            description = initialDescription
             
         }
     }
@@ -82,6 +70,6 @@ struct DayPreview: View {
 
 struct DayPreview_Previews: PreviewProvider {
     static var previews: some View {
-        DayPreview(id: -1)
+        DayPreview(naiveDate: NaiveDate(year: 2022, month: 1, day: 1), moodValue: 0, description: "")
     }
 }

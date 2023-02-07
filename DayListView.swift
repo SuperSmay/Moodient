@@ -60,7 +60,7 @@ struct DayListView: View {
                             })
                         } preview: {
                             
-                            DayPreview(id: day.id)
+                            DayPreview(naiveDate: day.naiveDate, moodValue: day.moodDay?.moodPoints[0].moodValue ?? 0, description: day.moodDay?.description ?? "")
                             
                         }
                     }
@@ -71,7 +71,7 @@ struct DayListView: View {
                     reload()
                     editSheetMoodDay = nil
                 }) { day in
-                    EditEventView(id: day.id, naiveDate: day.naiveDate, moodValue: day.moodDay?.moodPoints[0].moodValue ?? 0, description: day.moodDay?.description ?? "")
+                    EditEventView(naiveDate: day.naiveDate, moodValue: day.moodDay?.moodPoints[0].moodValue ?? 0, description: day.moodDay?.description ?? "")
                 }
                 
                 
@@ -84,34 +84,14 @@ struct DayListView: View {
                         newSheetShowing.toggle()
                     } label: {
                         Image(systemName: "plus")
-//                        Text("Add New")
-//                            .bold()
-//                            .padding()
-//                            .background(.secondary)
-//                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                     }
                     .sheet(isPresented: $newSheetShowing, onDismiss: {
                         reload()
                         editSheetMoodDay = nil
                     })
                     {
-                        EditEventView(id: -1, naiveDate: nil, moodValue: 0, description: "")
+                        EditEventView(naiveDate: nil, moodValue: 0, description: "")
                     }
-                    
-                    
-                    
-                    
-//                    Button(role: .destructive, action: {
-//                        MoodEventStorage.moodEventStore.deleteTable()
-//                        reload()
-//                    }, label: {
-//                        Text("Drop table")
-//                            .bold()
-//                            .padding()
-//                            .background(.secondary)
-//                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-//                    })
-                    
                 }
             }
             .navigationTitle("Moodient")
@@ -119,7 +99,6 @@ struct DayListView: View {
                 reload()
             }
         }
-        
     }
     
     func removeRows(at offsets: IndexSet) {

@@ -10,28 +10,18 @@ import NaiveDate
 
 struct TodayView: View {
     
+    @Environment(\.colorScheme) var colorScheme
+    
+    @State var id: Int? = nil
     @State var date: Date = Date.now
     @State var moodValue: Int = 0
     @State var description: String = ""
     
-    @FocusState var textBoxFocused
-    
-    @State var id: Int? = nil
-    
     @State var today: MoodCalendarDay? = nil
     
-    @Environment(\.colorScheme) var colorScheme
+    @FocusState var textBoxFocused
     
-    var convertedNaiveDate: NaiveDate {
-        let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
-        
-        let year = components.year ?? 0
-        let month = components.month ?? 1
-        let day = components.day ?? 1
-        
-        return NaiveDate(year: year, month: month, day: day)
-    }
-    
+
     var convertedMoodDay: MoodDay {
         MoodDay(moodPoints: [MoodPoint(naiveTime: NaiveTime(), moodValue: moodValue)], description: description)
     }
@@ -92,13 +82,23 @@ struct TodayView: View {
                     
                         .focused($textBoxFocused)
                         .onChange(of: description) { newValue in
-                            _ = MoodEventStorage.moodEventStore.update(id: id ?? -1, naiveDate: convertedNaiveDate, moodDay: convertedMoodDay)
+                            
+                            if date.convertedNaiveDate == nil || id == nil {
+                                return
+                            }
+                            
+                            _ = MoodEventStorage.moodEventStore.update(id: id!, naiveDate: date.convertedNaiveDate!, moodDay: convertedMoodDay)
                         }
                         
                     
                     
                         .onChange(of: moodValue) { newValue in
-                            _ = MoodEventStorage.moodEventStore.update(id: id ?? -1, naiveDate: convertedNaiveDate, moodDay: convertedMoodDay)
+                            
+                            if date.convertedNaiveDate == nil || id == nil {
+                                return
+                            }
+                            
+                            _ = MoodEventStorage.moodEventStore.update(id: id!, naiveDate: date.convertedNaiveDate!, moodDay: convertedMoodDay)
                         }
                     
                     Spacer()
@@ -135,15 +135,20 @@ struct TodayView: View {
             }
             .onAppear() {
                 
+                id = nil
                 date = Date.now
                 moodValue = 0
                 description = ""
                 
-                today = MoodEventStorage.moodEventStore.findMoodDay(searchNaiveDate: convertedNaiveDate)
+                if date.convertedNaiveDate == nil {
+                    return
+                }
+                
+                today = MoodEventStorage.moodEventStore.findMoodDay(searchNaiveDate: date.convertedNaiveDate)
                 if today == nil {
                     
-                    id = MoodEventStorage.moodEventStore.insert(naiveDate: convertedNaiveDate, moodDay: convertedMoodDay)
-                    today = MoodEventStorage.moodEventStore.findMoodDay(searchNaiveDate: convertedNaiveDate)
+                    id = MoodEventStorage.moodEventStore.insert(naiveDate: date.convertedNaiveDate!, moodDay: convertedMoodDay)
+                    today = MoodEventStorage.moodEventStore.findMoodDay(searchNaiveDate: date.convertedNaiveDate)
                     
                 } else {
                     
