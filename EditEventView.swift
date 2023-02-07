@@ -11,6 +11,7 @@ import NaiveDate
 struct EditEventView: View {
     
     @Environment (\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
     
     @State var id: Int = -1
     
@@ -75,63 +76,51 @@ struct EditEventView: View {
         NavigationView {
             ZStack {
                 
-                
                 LinearGradient(colors: [.gray.opacity(0.1), MoodOptions().colors[moodValue].swiftuiColor.opacity(0.25)], startPoint: .top, endPoint: .bottom)
                     .ignoresSafeArea()
                 
-            
                 
-                Form {
+                VStack(alignment: .leading) {
                     
-                    DatePicker("Date", selection: $date, in: startDateRange...Date.now, displayedComponents: .date)
+                    VStack {
                         
-//                        .onAppear() {
-//
-//                            print(id)
-//
-//                            let moodCalendarDay = MoodEventStorage.moodEventStore.findMoodDay(eventId: id)
-//
-//                            var initialDate = Date.now
-//                            if moodCalendarDay != nil && moodCalendarDay?.naiveDate != nil {
-//                                initialDate = Calendar.current.date(from: moodCalendarDay!.naiveDate)!
-//                            }
-//
-//                            var initialValue = 0
-//                            if moodCalendarDay != nil && moodCalendarDay?.moodDay?.moodPoints[0].moodValue != nil && !(moodCalendarDay?.moodDay?.moodPoints.isEmpty)! {
-//                                initialValue = (moodCalendarDay?.moodDay!.moodPoints[0].moodValue)!
-//                            }
-//
-//                            var initialDescription = ""
-//                            if moodCalendarDay != nil && moodCalendarDay?.moodDay != nil {
-//                                initialDescription = (moodCalendarDay?.moodDay!.description)!
-//                            }
-//
-//                            date = initialDate
-//
-//                            if moodCalendarDay != nil {
-//                                dateOpenedTo = initialDate
-//                            }
-//
-//                            moodValue = initialValue
-//                            description = initialDescription
-//
-//                            print(date.formatted())
-//                        }
-                 
-                    
-                    Picker("Mood", selection: $moodValue) {
-                        ForEach(0..<5) { value in
-                            Text(MoodOptions().labels[value])
+                        DatePicker("Date", selection: $date, in: startDateRange...Date.now, displayedComponents: .date)
+                        
+                        Rectangle()
+                            .frame(height: 2)
+                            .foregroundStyle(.thinMaterial)
+                        
+                        HStack {
+                            Text("Mood")
+                            Spacer()
+                            Picker("Mood", selection: $moodValue) {
+                                ForEach(0..<5) { value in
+                                    Text(MoodOptions().labels[value])
+                                }
+                            }
+                            .tint(.secondary)
                         }
                     }
-                    
+                    .padding(.horizontal)
+                    .padding(.vertical, 5)
+                    .background(.ultraThickMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding()
+                             
                     TextField("Description", text: $description, axis: .vertical)
+                        .padding()
+                        .background(.ultraThickMaterial)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding()
+                        .padding(.bottom)
                         .focused($textBoxFocused)
-                        .lineLimit(10)
-                       
+                        
+                    
+                    Spacer()
                 }
+                .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
                 
-                .scrollContentBackground(.hidden)
+                
                 .toolbar {
                     ToolbarItemGroup(placement: .keyboard) {
                         

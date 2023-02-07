@@ -20,6 +20,8 @@ struct TodayView: View {
     
     @State var today: MoodCalendarDay? = nil
     
+    @Environment(\.colorScheme) var colorScheme
+    
     var convertedNaiveDate: NaiveDate {
         let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
         
@@ -77,20 +79,22 @@ struct TodayView: View {
                     
                     
                     
+                    
                     TextField("Description", text: $description, axis: .vertical)
                         
                         .padding()
                         .background(.ultraThickMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding()
-                    
+                        .padding(.bottom)
+                        //.shadow(color: .white.opacity(0.2), radius: 15)
                         
                     
                         .focused($textBoxFocused)
                         .onChange(of: description) { newValue in
                             _ = MoodEventStorage.moodEventStore.update(id: id ?? -1, naiveDate: convertedNaiveDate, moodDay: convertedMoodDay)
                         }
-                        .lineLimit(10)
+                        
                     
                     
                         .onChange(of: moodValue) { newValue in
@@ -99,6 +103,7 @@ struct TodayView: View {
                     
                     Spacer()
                 }
+                .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
                 
                 
                 
@@ -131,12 +136,17 @@ struct TodayView: View {
             .onAppear() {
                 
                 date = Date.now
+                moodValue = 0
+                description = ""
                 
                 today = MoodEventStorage.moodEventStore.findMoodDay(searchNaiveDate: convertedNaiveDate)
                 if today == nil {
+                    
                     id = MoodEventStorage.moodEventStore.insert(naiveDate: convertedNaiveDate, moodDay: convertedMoodDay)
                     today = MoodEventStorage.moodEventStore.findMoodDay(searchNaiveDate: convertedNaiveDate)
+                    
                 } else {
+                    
                     id = today!.id
                 }
                 
