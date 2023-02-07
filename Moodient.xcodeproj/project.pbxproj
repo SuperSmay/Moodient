@@ -7,18 +7,38 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9F100E932990B83B00A8CD4F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F100E922990B83B00A8CD4F /* SettingsView.swift */; };
 		9F1829E6298C65AB00686202 /* MoodientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829E5298C65AB00686202 /* MoodientApp.swift */; };
 		9F1829E8298C65AB00686202 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829E7298C65AB00686202 /* ContentView.swift */; };
 		9F1829EA298C65AD00686202 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9F1829E9298C65AD00686202 /* Assets.xcassets */; };
 		9F1829ED298C65AD00686202 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9F1829EC298C65AD00686202 /* Preview Assets.xcassets */; };
+		9F1829F4298C66AE00686202 /* MoodDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829F3298C66AE00686202 /* MoodDay.swift */; };
+		9F1829F6298C6B0E00686202 /* EditEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829F5298C6B0E00686202 /* EditEventView.swift */; };
+		9F1829F8298C746900686202 /* MoodEventStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829F7298C746900686202 /* MoodEventStorage.swift */; };
+		9F1829FA298C7C9F00686202 /* MoodOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829F9298C7C9F00686202 /* MoodOptions.swift */; };
+		9F1829FC298C7EA900686202 /* ColorPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829FB298C7EA900686202 /* ColorPoint.swift */; };
+		9F1829FF298CCEA200686202 /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 9F1829FE298CCEA200686202 /* SQLite */; };
+		9F182A06298E0D0700686202 /* NaiveDate in Frameworks */ = {isa = PBXBuildFile; productRef = 9F182A05298E0D0700686202 /* NaiveDate */; };
+		9FF1D136298F61D200299E2D /* DayPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF1D135298F61D200299E2D /* DayPreview.swift */; };
+		9FF1D138298F666E00299E2D /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF1D137298F666E00299E2D /* TodayView.swift */; };
+		9FF1D13A298F6E8B00299E2D /* DayListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF1D139298F6E8B00299E2D /* DayListView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9F100E922990B83B00A8CD4F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		9F1829E2298C65AB00686202 /* Moodient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Moodient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F1829E5298C65AB00686202 /* MoodientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodientApp.swift; sourceTree = "<group>"; };
 		9F1829E7298C65AB00686202 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		9F1829E9298C65AD00686202 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9F1829EC298C65AD00686202 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		9F1829F3298C66AE00686202 /* MoodDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodDay.swift; sourceTree = "<group>"; };
+		9F1829F5298C6B0E00686202 /* EditEventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventView.swift; sourceTree = "<group>"; };
+		9F1829F7298C746900686202 /* MoodEventStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodEventStorage.swift; sourceTree = "<group>"; };
+		9F1829F9298C7C9F00686202 /* MoodOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodOptions.swift; sourceTree = "<group>"; };
+		9F1829FB298C7EA900686202 /* ColorPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPoint.swift; sourceTree = "<group>"; };
+		9FF1D135298F61D200299E2D /* DayPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPreview.swift; sourceTree = "<group>"; };
+		9FF1D137298F666E00299E2D /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
+		9FF1D139298F6E8B00299E2D /* DayListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -26,6 +46,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9F182A06298E0D0700686202 /* NaiveDate in Frameworks */,
+				9F1829FF298CCEA200686202 /* SQLite in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -35,6 +57,15 @@
 		9F1829D9298C65AB00686202 = {
 			isa = PBXGroup;
 			children = (
+				9F100E922990B83B00A8CD4F /* SettingsView.swift */,
+				9FF1D139298F6E8B00299E2D /* DayListView.swift */,
+				9FF1D137298F666E00299E2D /* TodayView.swift */,
+				9FF1D135298F61D200299E2D /* DayPreview.swift */,
+				9F1829FB298C7EA900686202 /* ColorPoint.swift */,
+				9F1829F9298C7C9F00686202 /* MoodOptions.swift */,
+				9F1829F7298C746900686202 /* MoodEventStorage.swift */,
+				9F1829F5298C6B0E00686202 /* EditEventView.swift */,
+				9F1829F3298C66AE00686202 /* MoodDay.swift */,
 				9F1829E4298C65AB00686202 /* Moodient */,
 				9F1829E3298C65AB00686202 /* Products */,
 			);
@@ -83,6 +114,10 @@
 			dependencies = (
 			);
 			name = Moodient;
+			packageProductDependencies = (
+				9F1829FE298CCEA200686202 /* SQLite */,
+				9F182A05298E0D0700686202 /* NaiveDate */,
+			);
 			productName = Moodient;
 			productReference = 9F1829E2298C65AB00686202 /* Moodient.app */;
 			productType = "com.apple.product-type.application";
@@ -111,6 +146,10 @@
 				Base,
 			);
 			mainGroup = 9F1829D9298C65AB00686202;
+			packageReferences = (
+				9F1829FD298CCEA200686202 /* XCRemoteSwiftPackageReference "SQLite.swift" */,
+				9F182A04298E0D0700686202 /* XCRemoteSwiftPackageReference "NaiveDate" */,
+			);
 			productRefGroup = 9F1829E3298C65AB00686202 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -137,8 +176,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9F1829FC298C7EA900686202 /* ColorPoint.swift in Sources */,
 				9F1829E8298C65AB00686202 /* ContentView.swift in Sources */,
+				9F1829FA298C7C9F00686202 /* MoodOptions.swift in Sources */,
+				9FF1D136298F61D200299E2D /* DayPreview.swift in Sources */,
+				9FF1D138298F666E00299E2D /* TodayView.swift in Sources */,
+				9FF1D13A298F6E8B00299E2D /* DayListView.swift in Sources */,
+				9F1829F4298C66AE00686202 /* MoodDay.swift in Sources */,
+				9F1829F6298C6B0E00686202 /* EditEventView.swift in Sources */,
 				9F1829E6298C65AB00686202 /* MoodientApp.swift in Sources */,
+				9F1829F8298C746900686202 /* MoodEventStorage.swift in Sources */,
+				9F100E932990B83B00A8CD4F /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,6 +323,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -304,6 +353,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -339,6 +389,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9F1829FD298CCEA200686202 /* XCRemoteSwiftPackageReference "SQLite.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stephencelis/SQLite.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.2;
+			};
+		};
+		9F182A04298E0D0700686202 /* XCRemoteSwiftPackageReference "NaiveDate" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/CreateAPI/NaiveDate";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9F1829FE298CCEA200686202 /* SQLite */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9F1829FD298CCEA200686202 /* XCRemoteSwiftPackageReference "SQLite.swift" */;
+			productName = SQLite;
+		};
+		9F182A05298E0D0700686202 /* NaiveDate */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9F182A04298E0D0700686202 /* XCRemoteSwiftPackageReference "NaiveDate" */;
+			productName = NaiveDate;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 9F1829DA298C65AB00686202 /* Project object */;
 }
