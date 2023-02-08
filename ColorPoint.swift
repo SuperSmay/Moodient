@@ -15,7 +15,7 @@ struct ColorPoint: Codable {
     let brightness: Double
     
     var swiftuiColor: Color {
-        Color(hue: hue, saturation: saturation, brightness: brightness)
+         Color(hue: hue, saturation: saturation, brightness: brightness)
     }
     
 }

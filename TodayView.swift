@@ -36,7 +36,7 @@ struct TodayView: View {
             /// UI with a gradient background
             ZStack {
                 
-                LinearGradient(colors: [.gray.opacity(0.1), MoodOptions().colors[moodValue].swiftuiColor.opacity(0.25)], startPoint: .top, endPoint: .bottom)
+                LinearGradient(colors: [.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue].opacity(0.25)], startPoint: .top, endPoint: .bottom)
                     .ignoresSafeArea()
                 /// Foreground UI
                 VStack(alignment: .leading) {
@@ -55,7 +55,7 @@ struct TodayView: View {
                         
                         Picker("Mood", selection: $moodValue) {
                             ForEach(0..<5) { value in
-                                Text(MoodOptions().labels[value])
+                                Text(MoodOptions.options.moodLabels[value])
                             }
                         }
                         .tint(.secondary)

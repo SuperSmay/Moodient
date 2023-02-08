@@ -43,7 +43,7 @@ struct DayListView: View {
                         /// Make the spacer tapable
                         .containerShape(Rectangle())
                         .listRowBackground(
-                            LinearGradient(colors: [colorScheme == .light ? Color.white : Color.gray.opacity(0.1), MoodOptions().colors[moodValue ?? 0].swiftuiColor.opacity(0.2)], startPoint: .center, endPoint: .trailing)
+                            LinearGradient(colors: [colorScheme == .light ? Color.white : Color.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue ?? 0].opacity(0.2)], startPoint: .center, endPoint: .trailing)
                         )
                         .onTapGesture {
                             if editSheetMoodDay == nil {

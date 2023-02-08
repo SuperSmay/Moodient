@@ -40,14 +40,14 @@ struct DayPreview: View {
             
             ZStack {
                 
-                LinearGradient(colors: [.gray.opacity(0.1), MoodOptions().colors[moodValue].swiftuiColor.opacity(0.25)], startPoint: .top, endPoint: .bottom)
+                LinearGradient(colors: [.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue].opacity(0.25)], startPoint: .top, endPoint: .bottom)
                     .ignoresSafeArea()
                 
                 Form {
                     /// Used for display only
                     Picker("Mood", selection: $moodValue) {
                         ForEach(0..<5) { value in
-                            Text(MoodOptions().labels[value])
+                            Text(MoodOptions.options.moodLabels[value])
                         }
                     }
                     
