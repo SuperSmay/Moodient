@@ -31,26 +31,26 @@ struct DayListView: View {
                         let date = Calendar.current.date(from: naiveDate) ?? Date.now
                         let moodValue = day.moodDay?.moodPoints.first?.moodValue
                         
-                        HStack {
-                            
-                            Text(date.formatted(date: .abbreviated, time: .omitted))
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                        
-                        }
-                        /// Make the spacer tapable
-                        .containerShape(Rectangle())
-                        .listRowBackground(
-                            LinearGradient(colors: [colorScheme == .light ? Color.white : Color.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue ?? 0].opacity(0.2)], startPoint: .center, endPoint: .trailing)
-                        )
-                        .onTapGesture {
+                        Button {
                             if editSheetMoodDay == nil {
                                 editSheetMoodDay = day
                                 editSheetShowing.toggle()
                             }
+                        } label: {
+                            HStack {
+                                
+                                Text(date.formatted(date: .abbreviated, time: .omitted))
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                            
+                            }
                         }
+                        .tint(.primary)
+                        .listRowBackground(
+                            LinearGradient(colors: [colorScheme == .light ? Color.white : Color.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue ?? 0].opacity(0.2)], startPoint: .center, endPoint: .trailing)
+                        )
                         .contextMenu {
                             Button(action: {
                                 editSheetMoodDay = day
