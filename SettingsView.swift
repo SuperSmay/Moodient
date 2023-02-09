@@ -38,6 +38,7 @@ struct SettingsView: View {
                     ForEach(0..<5) { index in
                         HStack {
                             TextField("Test", text: moodLabels[index])
+                                .submitLabel(.done)
                             ColorPicker("Color", selection: moodColors[index], supportsOpacity: false)
                                 .labelsHidden()
                                 
