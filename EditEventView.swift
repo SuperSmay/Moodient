@@ -142,7 +142,7 @@ struct EditEventView: View {
                         
                         let moodEvent = MoodEventStorage.moodEventStore.findMoodDay(searchNaiveDate: date.convertedNaiveDate!)
                         
-                        if date.convertedNaiveDate == dateOpenedTo?.convertedNaiveDate {
+                        if date.convertedNaiveDate != dateOpenedTo?.convertedNaiveDate && moodEvent?.naiveDate == date.convertedNaiveDate {
                             
                             showingDateConflictAlert.toggle()
                             
