@@ -42,58 +42,76 @@ struct MonthDayView: View {
         
         GeometryReader { geo in
 
-                /// The whole date icon
+            /// The whole date icon
+            ZStack {
+                
+                /// Background for after they fall
+                RoundedRectangle(cornerRadius: geo.size.width * 0.2, style: .continuous)
+                    .foregroundColor(
+                        Color.secondary.opacity(0.25)
+                    )
+                
+                /// The normal view
                 ZStack {
-                    
-                    RoundedRectangle(cornerRadius: geo.size.width * 0.2, style: .continuous)
-                    
-                        .foregroundColor(
-                            moodValue == nil ? Color.secondary.opacity(0.5) : moodColor
-                        )
-                    
-                    let components = Calendar.current.dateComponents([.day], from: date)
-                    
-                    Text(String(components.day ?? 1))
-                    
-                        .font(.system(size: geo.size.width * 0.75, design: .rounded))
-                    
-                        .bold()
-                    //.foregroundStyle(.thinMaterial)
-                        .foregroundColor(colorScheme == .light ? .white.opacity(0.65) : .black.opacity(0.45))
-                    
-                }
-                /// Fun things
-                .onTapGesture {
-                    doAnimation()
-                }
-                /// The real easteregg
-                .onShake {
-                    
-                    /// Hardcoded and kinda bad, but works for now
-                    if selectedTabeTitle != "Day List" || didFall {
-                        return
+                        
+                        RoundedRectangle(cornerRadius: geo.size.width * 0.2, style: .continuous)
+                        
+                            .foregroundColor(
+                                moodValue == nil ? Color.secondary.opacity(0.25) : moodColor
+                            )
+                        
+                        let components = Calendar.current.dateComponents([.day], from: date)
+                        
+                        Text(String(components.day ?? 1))
+                        
+                            .font(.system(size: geo.size.width * 0.75, design: .rounded))
+                        
+                            .bold()
+                        //.foregroundStyle(.thinMaterial)
+                            .foregroundColor(colorScheme == .light ? .white.opacity(0.65) : .black.opacity(0.45))
+                        
                     }
-                    
-                    /// Run the animation after a random delay
-                    let randomDelay = Double.random(in: 0.0..<0.4)
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + randomDelay) {
-                        /// Increment to make some of the icons fall after shaking
-                        willFallCount += 1
+                    /// Fun things
+                    .onTapGesture {
                         doAnimation()
                     }
+                    /// The real easteregg
+                    .onShake {
+                        
+                        /// Hardcoded and kinda bad, but works for now
+                        if selectedTabeTitle != "Day List" || didFall {
+                            return
+                        }
+                        
+                        /// Run the animation after a random delay
+                        let randomDelay = Double.random(in: 0.0..<0.4)
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + randomDelay) {
+                            /// Increment to make some of the icons fall after shaking
+                            willFallCount += 1
+                            let fallRandom = Double.random(in: 0..<1)
+                            if willFallCount != 1 && fallRandom < Double((willFallCount * 10))/100.0 {
+                                didFall = true
+                            }
+                            doAnimation()
+                        }
 
-                }
-                ///
-                /// Fun animation stuff
-                ///
-                .rotationEffect(Angle.degrees(animationAmount))
-                .animation(
-                    .spring(dampingFraction: 0.2),
-                    value: animationAmount
-                )
-                .offset(y: didFall ? mainWindowSize.height + geo.size.height * 2 - geo.frame(in: .global).origin.y : 0)
-                .animation(didFall ? .easeIn : .spring(dampingFraction: 0.5), value: didFall)
+                    }
+                    ///
+                    /// Fun animation stuff
+                    ///
+                    
+                    .offset(y: didFall ? mainWindowSize.height + geo.size.height * 2 - geo.frame(in: .global).origin.y : 0)
+                    .animation(didFall ? .easeIn : .spring(dampingFraction: 0.5), value: didFall)
+            }
+            ///
+            /// More fun animation stuff (Down here so that the background rotates too)
+            ///
+            .rotationEffect(Angle.degrees(animationAmount))
+            .animation(
+                .spring(dampingFraction: 0.2),
+                value: animationAmount
+            )
                 
             
             
@@ -152,11 +170,6 @@ struct MonthDayView: View {
     func doAnimation() {
         
         UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-        
-        let fallRandom = Double.random(in: 0..<1)
-        if willFallCount != 1 && fallRandom < Double((willFallCount * 10))/100.0 {
-            didFall = true
-        }
         
         else if animationAmount == 0 {
             animationAmount += Double.random(in: -45..<45)
