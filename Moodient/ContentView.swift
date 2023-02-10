@@ -10,25 +10,37 @@ import NaiveDate
 
 struct ContentView: View {
     
+    @State private var selectedTab = ""
+    
     var body: some View {
         
-        TabView {
+        
+        
+        GeometryReader { geo in
             
-            TodayView()
-                .tabItem {
-                    Label("Today", systemImage: "clock")
-                }
-            
-            DayListView()
-                .tabItem {
-                    Label("Day List", systemImage: "calendar")
-                }
-            
-            SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gear")
-                }
+            TabView(selection: $selectedTab) {
+                
+                TodayView()
+                    .tabItem {
+                        Label("Today", systemImage: "clock")
+                    }
+                    .tag("Today")
+                
+                FullEventView()
+                    .tabItem {
+                        Label("Day List", systemImage: "calendar")
+                    }
+                    .tag("Day List")
+                
+                SettingsView()
+                    .tabItem {
+                        Label("Settings", systemImage: "gear")
+                    }
+                    .tag("Settings")
 
+            }
+            .environment(\.mainWindowSize, geo.size)
+            .environment(\.selectedTabTitle, selectedTab)
         }
     }
     
@@ -36,6 +48,8 @@ struct ContentView: View {
     
     
 }
+
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {

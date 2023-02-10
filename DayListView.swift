@@ -25,7 +25,7 @@ struct DayListView: View {
             
             List {
                     
-                    ForEach(moodDays) { day in
+                ForEach(moodDays) { day in
                         
                         let naiveDate: NaiveDate = day.naiveDate
                         let date = Calendar.current.date(from: naiveDate) ?? Date.now
@@ -49,7 +49,9 @@ struct DayListView: View {
                         }
                         .tint(.primary)
                         .listRowBackground(
-                            LinearGradient(colors: [colorScheme == .light ? Color.white : Color.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue ?? 0].opacity(0.2)], startPoint: .center, endPoint: .trailing)
+                            
+                            LinearGradient(stops: [.init(color: colorScheme == .light ? Color.white : Color.gray.opacity(0.1), location: 0.25), .init(color: MoodOptions.options.moodColors[moodValue ?? 0].opacity(0.5), location: 1)], startPoint: .leading, endPoint: .trailing)
+         
                         )
                         .contextMenu {
                             Button(action: {
@@ -117,9 +119,9 @@ struct DayListView: View {
     
 }
 
-extension Int: Identifiable {
-    public var id: Int { return self }
-}
+//extension Int: Identifiable {
+//    public var id: Int { return self }
+//}
 
 struct DayListView_Previews: PreviewProvider {
     static var previews: some View {

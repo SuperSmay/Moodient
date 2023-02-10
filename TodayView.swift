@@ -28,15 +28,13 @@ struct TodayView: View {
         MoodDay(moodPoints: [MoodPoint(naiveTime: NaiveTime(), moodValue: moodValue)], description: description)
     }
     
-    private let startDateRange = Calendar.current.date(byAdding: .year, value: -100, to: Date.now) ?? Date.distantPast
-    
     var body: some View {
         
         NavigationView {
             /// UI with a gradient background
             ZStack {
                 
-                LinearGradient(colors: [.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue].opacity(0.25)], startPoint: .top, endPoint: .bottom)
+                LinearGradient(colors: [.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue].opacity(0.5)], startPoint: .top, endPoint: .bottom)
                     .ignoresSafeArea()
                 /// Foreground UI
                 VStack(alignment: .leading) {
