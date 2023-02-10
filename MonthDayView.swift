@@ -101,15 +101,15 @@ struct MonthDayView: View {
                     /// Fun animation stuff
                     ///
                     
-                    .offset(y: didFall ? mainWindowSize.height + geo.size.height * 2 - geo.frame(in: .global).origin.y : 0)
-                    .animation(didFall ? .easeIn : .spring(dampingFraction: 0.5), value: didFall)
+                    .offset(y: didFall ? mainWindowSize.height + geo.size.height * 3 - geo.frame(in: .global).origin.y : 0)
+                    .animation(didFall ? .easeIn(duration: 4) : .spring(dampingFraction: 0.5), value: didFall)
             }
             ///
             /// More fun animation stuff (Down here so that the background rotates too)
             ///
             .rotationEffect(Angle.degrees(animationAmount))
             .animation(
-                .spring(dampingFraction: 0.2),
+                didFall ? .spring(response: 2, dampingFraction: 0.2, blendDuration: 2) : .spring(dampingFraction: 0.2),
                 value: animationAmount
             )
                 
@@ -171,7 +171,7 @@ struct MonthDayView: View {
         
         UIImpactFeedbackGenerator(style: .soft).impactOccurred()
         
-        else if animationAmount == 0 {
+        if animationAmount == 0 {
             animationAmount += Double.random(in: -45..<45)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 animationAmount = 0
