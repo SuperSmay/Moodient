@@ -10,6 +10,9 @@ import NaiveDate
 
 struct MonthView: View {
     
+    /// The size of the window this view is being displayed in
+    @Environment(\.mainWindowSize) var mainWindowSize
+    
     private var days = [Date]()
     private var weeks = [[Date]]()
     private var daysToSkipInFirstWeek = 0
@@ -32,7 +35,18 @@ struct MonthView: View {
 
                     ForEach(week, id: \.self) { day in
                         
-                        MonthDayView(date: day)
+                        
+                            
+//                            let delayWeek = week.firstIndex(of: day) ?? 0
+//                            let delayMonth = weeks.firstIndex(of: week) ?? 0
+//                            let totalMonthDelay = delayMonth * week.count
+                            
+                            MonthDayView(date: day)
+//                                .offset(y: isTransitioning ? mainWindowSize.height + geo.size.height * 3 - geo.frame(in: .global).origin.y : 0)
+//                                .animation(.easeOut(duration: 0.25).delay(Double(totalMonthDelay + delayWeek)/100), value: isTransitioning)
+                        
+                        
+                            
                         
                     }
                 }

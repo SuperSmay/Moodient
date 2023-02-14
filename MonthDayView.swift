@@ -102,7 +102,7 @@ struct MonthDayView: View {
                     ///
                     
                     .offset(y: didFall ? mainWindowSize.height + geo.size.height * 3 - geo.frame(in: .global).origin.y : 0)
-                    .animation(didFall ? .easeIn(duration: 4) : .spring(dampingFraction: 0.5), value: didFall)
+                    .animation(didFall ? .easeIn(duration: 4) : .easeIn(duration: 2), value: didFall)
             }
             ///
             /// More fun animation stuff (Down here so that the background rotates too)
