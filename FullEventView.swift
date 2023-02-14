@@ -25,7 +25,13 @@ struct FullEventView: View {
     
     /// Transitions
     @State private var isTransitioningUp = false
-    @State private var monthID = UUID()
+    @State private var monthID = UUID() /// This is to store the current ID of the month being shown, so that we can change it later and use transitions
+    
+    /// Button hold stuff
+    @State var timeRemaining = 0.5
+    let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+    @State var userIsPressing = false //detecting whether user is long pressing the screen
+    @State private var buttonWasHeld = false
 
     @Environment(\.colorScheme) var colorScheme
     /// The size of the window this view is being displayed in
@@ -39,9 +45,7 @@ struct FullEventView: View {
                 let monthIndex = Calendar.current.dateComponents([.month], from: month).month
                 
                 Button() {
-                    withAnimation(.spring(dampingFraction: 0.7, blendDuration: 0.5)) {
-                        backOneMonth()
-                    }
+                    
                 } label: {
                     let newDate = Calendar.current.date(byAdding: .month, value: -1, to: month) ?? Date.now
                     
@@ -49,22 +53,66 @@ struct FullEventView: View {
                     
                     
                     Label(Calendar.current.monthSymbols[(newIndex ?? 1) - 1] + " " + String(Calendar.current.component(.year, from: month)), systemImage: "chevron.down")
-                                .padding()
-                                .background(Color.secondary.opacity(0.5))
-                                //.foregroundColor(.primary)
-                                .background {
-                                    GeometryReader { geo in
-                                        let frameWidth = changeRatio > 0 ? geo.frame(in: .global).width * changeRatio : 0
-                                        Color.primary
-                                            .frame(width: frameWidth, alignment: .leading)
-                                    }
-                                }
-                                .animation(.easeInOut, value: month)
-                                .animation(.easeInOut, value: changeRatio)
-                    
+                        .padding()
+                        .background(Color.secondary.opacity(0.5))
+                    //.foregroundColor(.primary)
+                        .background {
+                            GeometryReader { geo in
+                                let frameWidth = changeRatio > 0 ? geo.frame(in: .global).width * changeRatio : 0
+                                Color.primary
+                                    .frame(width: frameWidth, alignment: .leading)
+                            }
+                        }
+                        .animation(.easeInOut, value: month)
+                        .animation(.easeInOut, value: changeRatio)
+                        
+                                            
+                
                         
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 100, style: .continuous))
+                .onReceive(self.timer) { _ in
+                    if self.userIsPressing {
+                        if self.timeRemaining > 0 {
+                            self.timeRemaining -= 0.5
+                        }
+                        //resetting the timer every 0.5 secdonds and executing code whenever //timer reaches 0
+                        
+                        if self.timeRemaining == 0 {
+                            withAnimation(.spring(dampingFraction: 0.7, blendDuration: 0.5)) {
+                                if buttonWasHeld {
+                                    backOneMonth()
+                                } else {
+                                    buttonWasHeld = true
+                                }
+                                
+                            }
+                            self.timeRemaining = 0.5
+                        }
+                    }
+                }
+                .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity, pressing: { value in
+                    
+                    
+                    if !buttonWasHeld && !value {
+
+                        withAnimation(.spring(dampingFraction: 0.7, blendDuration: 0.5)) {
+                            backOneMonth()
+                        }
+                        
+                    }
+                    
+                    self.userIsPressing = value
+                    
+                    if !userIsPressing {
+                        buttonWasHeld = false
+                    }
+                   
+                        
+                    
+                }, perform: {
+                    
+                } )
                 
                 Spacer()
                 
