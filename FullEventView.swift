@@ -49,7 +49,7 @@ struct FullEventView: View {
             
             VStack {
                 
-                let monthIndex = Calendar.current.dateComponents([.month], from: month).month
+                let monthIndex = Calendar.autoupdatingCurrent.dateComponents([.month], from: month).month
                 
                 Button() { } label: {
                     
@@ -89,7 +89,7 @@ struct FullEventView: View {
                 MonthView(dayInMonth: month)
                     .id(monthID) /// https://sakunlabs.com/blog/swiftui-identity-transitions/ THATS IT
                     .padding()
-                    .navigationTitle("\(Calendar.current.monthSymbols[(monthIndex ?? 1) - 1]) \(String(Calendar.current.component(.year, from: month)))")
+                    .navigationTitle("\(Calendar.autoupdatingCurrent.monthSymbols[(monthIndex ?? 1) - 1]) \(String(Calendar.autoupdatingCurrent.component(.year, from: month)))")
                     .offset(y: dragOffset.height)
                     .zIndex(-1)
                     /// These two make the whole area around the month swipeable
@@ -121,8 +121,8 @@ struct FullEventView: View {
 
                 Spacer()
                 
-                let currentMonthAndYear = Calendar.current.dateComponents([.year, .month], from: Date.now)
-                let displayMonthAndYear = Calendar.current.dateComponents([.year, .month], from: month)
+                let currentMonthAndYear = Calendar.autoupdatingCurrent.dateComponents([.year, .month], from: Date.now)
+                let displayMonthAndYear = Calendar.autoupdatingCurrent.dateComponents([.year, .month], from: month)
                 if (currentMonthAndYear != displayMonthAndYear) {
                     Button() {
                         withAnimation(springTransition) {
@@ -216,7 +216,7 @@ struct FullEventView: View {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         isTransitioningUp = change > 0
         monthID = UUID()
-        let newDate = Calendar.current.date(byAdding: .month, value: change, to: month) ?? Date.now
+        let newDate = Calendar.autoupdatingCurrent.date(byAdding: .month, value: change, to: month) ?? Date.now
         month = newDate
     }
     
@@ -248,10 +248,10 @@ struct MonthChangeButton: View {
     
     var body: some View {
         
-        let newDate = Calendar.current.date(byAdding: .month, value: direction == .forward ? 1 : -1, to: month) ?? Date.now
-        let newIndex = Calendar.current.dateComponents([.month], from: newDate).month
-        let monthName = Calendar.current.monthSymbols[(newIndex ?? 1) - 1]
-        let year = Calendar.current.component(.year, from: newDate)
+        let newDate = Calendar.autoupdatingCurrent.date(byAdding: .month, value: direction == .forward ? 1 : -1, to: month) ?? Date.now
+        let newIndex = Calendar.autoupdatingCurrent.dateComponents([.month], from: newDate).month
+        let monthName = Calendar.autoupdatingCurrent.monthSymbols[(newIndex ?? 1) - 1]
+        let year = Calendar.autoupdatingCurrent.component(.year, from: newDate)
         
         Label("\(monthName) \(year.formatted(.number.grouping(.never)))", systemImage: "chevron.\(direction == .forward ? "up" : "down")")
             .padding()

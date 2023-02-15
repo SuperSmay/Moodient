@@ -34,19 +34,8 @@ struct MonthView: View {
                     }
 
                     ForEach(week, id: \.self) { day in
-                        
-                        
                             
-//                            let delayWeek = week.firstIndex(of: day) ?? 0
-//                            let delayMonth = weeks.firstIndex(of: week) ?? 0
-//                            let totalMonthDelay = delayMonth * week.count
-                            
-                            MonthDayView(date: day)
-//                                .offset(y: isTransitioning ? mainWindowSize.height + geo.size.height * 3 - geo.frame(in: .global).origin.y : 0)
-//                                .animation(.easeOut(duration: 0.25).delay(Double(totalMonthDelay + delayWeek)/100), value: isTransitioning)
-                        
-                        
-                            
+                        MonthDayView(utcDate: day.convertedUtcDate ?? day)
                         
                     }
                 }
@@ -58,8 +47,8 @@ struct MonthView: View {
     init(dayInMonth givenDate: Date) {
         
         /// Set the first day of the month
-        let components = Calendar.current.dateComponents([.year, .month], from: givenDate)
-        firstDayOfMonth = Calendar.current.date(from: DateComponents(year: components.year ?? 1, month: components.month, day: 1)) ?? Date.now
+        let components = Calendar.autoupdatingCurrent.dateComponents([.year, .month], from: givenDate)
+        firstDayOfMonth = Calendar.autoupdatingCurrent.date(from: DateComponents(year: components.year ?? 1, month: components.month, day: 1)) ?? Date.now
         
         /// Save the month
         let month = components.month
@@ -71,19 +60,19 @@ struct MonthView: View {
         
         /// Start with the first day of the month, then loop untill the month is no longer the same, filling days with the days in that month
         var currentDay: Date? = firstDayOfMonth
-        while (currentDay != nil && Calendar.current.dateComponents([.month], from: currentDay!).month == month) {
+        while (currentDay != nil && Calendar.autoupdatingCurrent.dateComponents([.month], from: currentDay!).month == month) {
             days.append(currentDay!)
-            currentDay = Calendar.current.date(byAdding: .day, value: 1, to: currentDay!)
+            currentDay = Calendar.autoupdatingCurrent.date(byAdding: .day, value: 1, to: currentDay!)
         }
         
         /// Fill the week with days, then reset at the start of each new week
         var currentWeek = [Date]()
         
-        daysToSkipInFirstWeek = (Calendar.current.dateComponents([.weekday], from: firstDayOfMonth).weekday ?? 0) - 1
+        daysToSkipInFirstWeek = (Calendar.autoupdatingCurrent.dateComponents([.weekday], from: firstDayOfMonth).weekday ?? 0) - 1
         
         for day in days {
             /// The index of a day in the current calender's week (Starts at 1, eg Sunday = 1)
-            let weekIndex = Calendar.current.dateComponents([.weekday], from: day).weekday
+            let weekIndex = Calendar.autoupdatingCurrent.dateComponents([.weekday], from: day).weekday
             
             /// If the day is not the first day of the week, just add it to the week
             if weekIndex != 1 {

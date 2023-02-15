@@ -52,25 +52,45 @@ extension NaiveDate: Value {
     }
 }
 
-// MARK: - Date extension for converting to Date to a NaiveDate
+// MARK: - Date extension for converting Date to midnight UTC on that day
 extension Date {
-    var convertedNaiveDate: NaiveDate? {
+    var convertedUtcDate: Date? {
         /// Not really sure what to do if this ever fails, hopefully that doesn't happen
 
         /// Lets find out what happens
         /// edit: Seems to work as expected
         // return nil
         
+        let secondsOffset = TimeZone.current.secondsFromGMT()
         
-        let components = Calendar.current.dateComponents([.year, .month, .day], from: self)
-        let year = components.year
-        let month = components.month
-        let day = components.day
+        var realDate = Calendar.autoupdatingCurrent.date(bySettingHour: 0, minute: 0, second: 0, of: self)
         
-        if year == nil || month == nil || day == nil {
+        if realDate == nil {
             return nil
         }
         
-        return NaiveDate(year: year!, month: month!, day: day!)
+        realDate = Calendar.autoupdatingCurrent.date(byAdding: .second, value: secondsOffset, to: realDate!)
+        
+        return realDate
+    }
+    
+    var convertedCurrentTimezoneDate: Date? {
+        /// Not really sure what to do if this ever fails, hopefully that doesn't happen
+
+        /// Lets find out what happens
+        /// edit: Seems to work as expected
+        // return nil
+        
+        let secondsOffset = TimeZone.current.secondsFromGMT()
+        
+        //var realDate = Calendar.autoupdatingCurrent.date(bySettingHour: 0, minute: 0, second: 0, of: self)
+        
+        //if realDate == nil {
+         //   return nil
+        //}
+        
+        let realDate = Calendar.autoupdatingCurrent.date(byAdding: .second, value: -1 * secondsOffset, to: self)
+        
+        return realDate
     }
 }

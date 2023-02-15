@@ -30,7 +30,7 @@ struct MonthDayView: View {
     @State private var didFall = false;
     
     /// The actual date
-    let date: Date
+    let utcDate: Date
     
     
     
@@ -60,9 +60,17 @@ struct MonthDayView: View {
                                 moodValue == nil ? Color.secondary.opacity(0.25) : moodColor
                             )
                         
-                        let components = Calendar.current.dateComponents([.day], from: date)
+                    let components = Calendar.autoupdatingCurrent.dateComponents([.day], from: utcDate.convertedCurrentTimezoneDate ?? Date.now)
                         
                         Text(String(components.day ?? 1))
+                    
+//                    VStack {
+//                        Text(String(TimeZone.current.secondsFromGMT()/3600))
+//                        Text(utcDate.ISO8601Format())
+//                        Text(utcDate.convertedCurrentTimezoneDate!.ISO8601Format())
+//                        Text(utcDate.convertedUtcDate!.ISO8601Format())
+//                    }
+                    
                         
                             .font(.system(size: geo.size.width * 0.75, design: .rounded))
                         
@@ -127,7 +135,7 @@ struct MonthDayView: View {
         /// Touch and hold menu
         .contextMenu {
             /// If the date should be able to be edited, then show the edit button
-            if (date.convertedNaiveDate != nil && Date.now.convertedNaiveDate != nil && date.convertedNaiveDate! <= Date.now.convertedNaiveDate!) {
+            if (Date.now.convertedUtcDate != nil && utcDate <= Date.now.convertedUtcDate!) {
                 Button(action: {
                     if moodCalenderDay?.moodDay == nil {
                         newSheetShowing.toggle()
@@ -141,7 +149,7 @@ struct MonthDayView: View {
             /// Otherwise, show a disabled button (Text doesn't work so this was the best option) that has a fun message
             } else {
 
-                let daysAway = (Calendar.current.dateComponents([.day], from: Date.now, to: date).day ?? -2) + 1
+                let daysAway = (Calendar.autoupdatingCurrent.dateComponents([.day], from: Date.now.convertedUtcDate ?? Date.now, to: utcDate).day ?? -1)
                 let daysAwayText = daysAway == 1 ? "tomorrow!" : "\(daysAway) days from now"
                 Button("That's \(daysAwayText)") {}
                     .disabled(true)
@@ -153,14 +161,14 @@ struct MonthDayView: View {
             reload()
         }) {
             /// Force unwraps ok because that value is checked for nil before this sheet is presented
-            EditEventView(naiveDate: moodCalenderDay!.naiveDate, moodValue: moodCalenderDay!.moodDay?.moodPoints[0].moodValue ?? 0, description: moodCalenderDay!.moodDay?.description ?? "")
+            EditEventView(utcDate: moodCalenderDay!.utcDate, moodValue: moodCalenderDay!.moodDay?.moodPoints[0].moodValue ?? 0, description: moodCalenderDay!.moodDay?.description ?? "")
         }
         /// Edit sheet but when there wasn't already an entry
         .sheet(isPresented: $newSheetShowing, onDismiss: {
             reload()
         })
         {
-            EditEventView(naiveDate: date.convertedNaiveDate, moodValue: 0, description: "")
+            EditEventView(utcDate: utcDate, moodValue: 0, description: "")
         }
         
         
@@ -180,7 +188,7 @@ struct MonthDayView: View {
     }
     
     func reload() {
-        moodCalenderDay = MoodEventStorage.moodEventStore.findMoodDay(searchNaiveDate: date.convertedNaiveDate)
+        moodCalenderDay = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate)
     }
     
 }
@@ -188,7 +196,7 @@ struct MonthDayView: View {
 struct MonthDayView_Previews: PreviewProvider {
     static var previews: some View {
         GeometryReader { geo in
-            MonthDayView(date: Date.now)
+            MonthDayView(utcDate: Date.now.convertedUtcDate ?? Date.now)
                 .environment(\.mainWindowSize, geo.size)
         }
     }

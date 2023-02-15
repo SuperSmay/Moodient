@@ -64,7 +64,7 @@ struct MoodPoint: Codable {
 /// Not meant to be stored in the database, only created when loading from the database
 struct MoodCalendarDay: Identifiable {
     
-    var naiveDate: NaiveDate
+    var utcDate: Date
     var moodDay: MoodDay?
     var id: Int
     

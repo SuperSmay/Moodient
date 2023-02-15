@@ -27,8 +27,7 @@ struct DayListView: View {
                     
                 ForEach(moodDays) { day in
                         
-                        let naiveDate: NaiveDate = day.naiveDate
-                        let date = Calendar.current.date(from: naiveDate) ?? Date.now
+                    let date = day.utcDate.convertedCurrentTimezoneDate ?? Date.now
                         let moodValue = day.moodDay?.moodPoints.first?.moodValue
                         
                         Button {
@@ -61,10 +60,6 @@ struct DayListView: View {
                             }, label: {
                                 Label("Edit", systemImage: "pencil")
                             })
-                        } preview: {
-                            
-                            DayPreview(naiveDate: day.naiveDate, moodValue: day.moodDay?.moodPoints[0].moodValue ?? 0, description: day.moodDay?.description ?? "")
-                            
                         }
                     }
                     .onDelete(perform: removeRows)
@@ -74,7 +69,7 @@ struct DayListView: View {
                 reload()
                 editSheetMoodDay = nil
             }) { day in
-                EditEventView(naiveDate: day.naiveDate, moodValue: day.moodDay?.moodPoints[0].moodValue ?? 0, description: day.moodDay?.description ?? "")
+                EditEventView(utcDate: day.utcDate.convertedCurrentTimezoneDate, moodValue: day.moodDay?.moodPoints[0].moodValue ?? 0, description: day.moodDay?.description ?? "")
             }
             .navigationTitle("Moodient")
             /// Reload from database when UI loads
@@ -94,7 +89,7 @@ struct DayListView: View {
                         editSheetMoodDay = nil
                     })
                     {
-                        EditEventView(naiveDate: nil, moodValue: 0, description: "")
+                        EditEventView(utcDate: nil, moodValue: 0, description: "")
                     }
                 }
             }

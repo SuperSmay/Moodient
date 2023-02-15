@@ -23,7 +23,7 @@ struct DayPreview: View {
         
         var initialDate = Date.now
         if naiveDate != nil {
-            initialDate = Calendar.current.date(from: naiveDate!) ?? Date.now
+            initialDate = Calendar.autoupdatingCurrent.date(from: naiveDate!) ?? Date.now
         }
         
         self._date = State(initialValue: initialDate)

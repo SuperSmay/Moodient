@@ -19,7 +19,7 @@ class MoodEventStorage {
     private let moodDaysTable = Table("moodEvents")
     
     private let id = Expression<Int>("id")
-    private let naiveDate = Expression<NaiveDate>("naiveDate")
+    private let utcDate = Expression<Date>("utcDate")
     private let moodDay = Expression<MoodDay>("moodEvent")
     
     /// Singleton moment
@@ -56,15 +56,70 @@ class MoodEventStorage {
             return
         }
         do {
+            
+            if db?.userVersion == 1 {
+                /// Convert NaiveDate to Date
+                var moodDays = [MoodCalendarDay]()
+                let naiveDate = Expression<NaiveDate>("naiveDate")
+                for entry in try database.prepare(self.moodDaysTable) {
+                    do {
+                        let naiveDate = try entry.get(naiveDate)
+                        let secondsOffset = TimeZone.current.secondsFromGMT()
+                        
+                        var realDate = Calendar.autoupdatingCurrent.date(from: naiveDate)
+                        
+                        realDate = Calendar.autoupdatingCurrent.date(bySettingHour: 0, minute: 0, second: 0, of: realDate ?? Date.now)
+                        
+                        realDate = Calendar.autoupdatingCurrent.date(byAdding: .second, value: secondsOffset, to: realDate ?? Date.now)
+                        
+                        let newDay = MoodCalendarDay(utcDate: realDate ?? Date.now, moodDay: try entry.get(moodDay), id: try entry.get(id))
+                        
+                        moodDays.append(newDay)
+                        
+                        if realDate == Date.now {
+                            print("NaiveDate \(naiveDate) failed to translate into date")
+                        }
+                        
+                    } catch {
+                        print(error)
+                    }
+                }
+                
+                let schemaChanger = SchemaChanger(connection: db!)
+                try schemaChanger.alter(table: "moodEvents") { table in
+                    table.drop(column: "naiveDate")
+                }
+                try db?.run(moodDaysTable.addColumn(Expression<String?>("utcDate")))
+                
+                for day in moodDays {
+                    if day.moodDay == nil {
+                        continue
+                    }
+                    if !update(id: day.id, utcDate: day.utcDate, moodDay: day.moodDay!) {
+                        print("Error updating id: \(day.id) to \(String(describing: day))")
+                    }
+                }
+
+                db?.userVersion = 2
+            } else {
+                db?.userVersion = 2
+            }
+            
+            
+            print("Database version \(String(describing: db?.userVersion))")
+            
             /// Setup columns
             try database.run(moodDaysTable.create { table in
                 table.column(id, primaryKey: .autoincrement)
-                table.column(naiveDate)
+                table.column(utcDate)
                 table.column(moodDay)
             })
+            
             print("Table created")
+        } catch is Result {
+            print("Table exists")
         } catch {
-            print("Table create error: \(error)")
+            print("Table create error: \(error) \(type(of: error))")
         }
     }
     
@@ -85,10 +140,10 @@ class MoodEventStorage {
     // MARK: - Database operations
     /// Pretty straight forward in how these work, got them from
     /// https://blog.canopas.com/ios-persist-data-using-sqlite-swift-library-with-swiftui-example-c5baefc04334
-    func insert(naiveDate: NaiveDate, moodDay: MoodDay) -> Int? {
+    func insert(utcDate: Date, moodDay: MoodDay) -> Int? {
         guard let database = db else { return nil }
 
-        let insert = moodDaysTable.insert(self.naiveDate <- naiveDate, self.moodDay <- moodDay)
+        let insert = moodDaysTable.insert(self.utcDate <- utcDate, self.moodDay <- moodDay)
     
         do {
             let rowID = try database.run(insert)
@@ -106,7 +161,7 @@ class MoodEventStorage {
         do {
             for entry in try database.prepare(self.moodDaysTable) {
                 do {
-                    let newDay = MoodCalendarDay(naiveDate: try entry.get(naiveDate), moodDay: try entry.get(moodDay), id: try entry.get(id))
+                    let newDay = MoodCalendarDay(utcDate: try entry.get(utcDate), moodDay: try entry.get(moodDay), id: try entry.get(id))
                     moodDays.append(newDay)
                 } catch {
                     print(error)
@@ -126,7 +181,7 @@ class MoodEventStorage {
         let filter = self.moodDaysTable.filter(id == eventId)
         do {
             for m in try database.prepare(filter) {
-                foundMoodDay = MoodCalendarDay(naiveDate: m[naiveDate], moodDay: m[moodDay], id: m[id])
+                foundMoodDay = MoodCalendarDay(utcDate: m[utcDate], moodDay: m[moodDay], id: m[id])
             }
         } catch {
             print(error)
@@ -134,19 +189,19 @@ class MoodEventStorage {
         return foundMoodDay
     }
     
-    func findMoodDay(searchNaiveDate: NaiveDate?) -> MoodCalendarDay? {
+    func findMoodDay(searchUtcDate: Date?) -> MoodCalendarDay? {
         
-        if searchNaiveDate == nil {
+        if searchUtcDate == nil {
             return nil
         }
         
         var foundMoodDay: MoodCalendarDay? = nil
         guard let database = db else { return nil }
 
-        let filter = self.moodDaysTable.filter(naiveDate == searchNaiveDate!)
+        let filter = self.moodDaysTable.filter(utcDate == searchUtcDate!)
         do {
             for m in try database.prepare(filter) {
-                foundMoodDay = MoodCalendarDay(naiveDate: m[naiveDate], moodDay: m[moodDay], id: m[id])
+                foundMoodDay = MoodCalendarDay(utcDate: m[utcDate], moodDay: m[moodDay], id: m[id])
             }
         } catch {
             print(error)
@@ -154,13 +209,13 @@ class MoodEventStorage {
         return foundMoodDay
     }
 
-    func update(id: Int, naiveDate: NaiveDate, moodDay: MoodDay) -> Bool {
+    func update(id: Int, utcDate: Date, moodDay: MoodDay) -> Bool {
         guard let database = db else { return false }
 
         let moodEvent = moodDaysTable.filter(self.id == id)
         do {
             let update = moodEvent.update([
-                self.naiveDate <- naiveDate,
+                self.utcDate <- utcDate,
                 self.moodDay <- moodDay
             ])
             if try database.run(update) > 0 {
@@ -186,9 +241,9 @@ class MoodEventStorage {
         }
     }
     
-    func delete(naiveDate: NaiveDate?) -> Bool {
+    func delete(utcDate: Date?) -> Bool {
         
-        if naiveDate == nil {
+        if utcDate == nil {
             return false
         }
         
@@ -196,7 +251,7 @@ class MoodEventStorage {
             return false
         }
         do {
-            let filter = moodDaysTable.filter(self.naiveDate == naiveDate!)
+            let filter = moodDaysTable.filter(self.utcDate == utcDate!)
             try database.run(filter.delete())
             return true
         } catch {

@@ -32,17 +32,17 @@ struct EditEventView: View {
     }
     
     /// Initializes the date, mood value, and description
-    init(naiveDate: NaiveDate?, moodValue: Int, description: String) {
+    init(utcDate: Date?, moodValue: Int, description: String) {
         
         var initialDate = Date.now
         
-        if naiveDate != nil {
-            initialDate = Calendar.current.date(from: naiveDate!) ?? Date.now
+        if utcDate != nil {
+            initialDate = utcDate!.convertedCurrentTimezoneDate ?? Date.now
         }
    
         self._date = State(initialValue: initialDate)
         
-        if naiveDate != nil {
+        if utcDate != nil {
             self._dateOpenedTo = State(initialValue: initialDate)
         }
         
@@ -133,16 +133,10 @@ struct EditEventView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         
-                        if date.convertedNaiveDate == nil {
-                            
-                            showingDateErrorAlert.toggle()
-                            
-                            return
-                        }
                         
-                        let moodEvent = MoodEventStorage.moodEventStore.findMoodDay(searchNaiveDate: date.convertedNaiveDate!)
+                        let moodEvent = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: date.convertedUtcDate)
                         
-                        if date.convertedNaiveDate != dateOpenedTo?.convertedNaiveDate && moodEvent?.naiveDate == date.convertedNaiveDate {
+                        if date != dateOpenedTo && moodEvent?.utcDate == date.convertedUtcDate {
                             
                             showingDateConflictAlert.toggle()
                             
@@ -150,15 +144,20 @@ struct EditEventView: View {
                             
                         }
                         
+                        if date.convertedUtcDate == nil {
+                            showingDateErrorAlert.toggle()
+                            return
+                        }
+                        
                         if moodEvent == nil {
-                            _ = MoodEventStorage.moodEventStore.insert(naiveDate: date.convertedNaiveDate!, moodDay: self.convertedMoodDay)
+                            _ = MoodEventStorage.moodEventStore.insert(utcDate: date.convertedUtcDate!, moodDay: self.convertedMoodDay)
                         } else {
-                            _ = MoodEventStorage.moodEventStore.update(id: moodEvent!.id, naiveDate: date.convertedNaiveDate!, moodDay: self.convertedMoodDay)
+                            _ = MoodEventStorage.moodEventStore.update(id: moodEvent!.id, utcDate: date.convertedUtcDate!, moodDay: self.convertedMoodDay)
                             
                         }
                         
-                        if date.convertedNaiveDate != dateOpenedTo?.convertedNaiveDate {
-                            _ = MoodEventStorage.moodEventStore.delete(naiveDate: dateOpenedTo?.convertedNaiveDate)
+                        if date != dateOpenedTo {
+                            _ = MoodEventStorage.moodEventStore.delete(utcDate: dateOpenedTo?.convertedUtcDate)
                         }
                         
                         dismiss()
@@ -177,16 +176,21 @@ struct EditEventView: View {
             .alert("You already have an entry on that day", isPresented: $showingDateConflictAlert) {
                 Button("Overwrite", role: .destructive) {
                     
-                    let moodEvent = MoodEventStorage.moodEventStore.findMoodDay(searchNaiveDate: date.convertedNaiveDate)
+                    let moodEvent = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: date.convertedUtcDate)
                     
                     if moodEvent == nil {
                         return
                     }
                     
-                    _ = MoodEventStorage.moodEventStore.update(id: moodEvent!.id, naiveDate: date.convertedNaiveDate!, moodDay: self.convertedMoodDay)
+                    if date.convertedUtcDate == nil {
+                        showingDateErrorAlert.toggle()
+                        return
+                    }
                     
-                    if date.convertedNaiveDate != dateOpenedTo?.convertedNaiveDate {
-                        _ = MoodEventStorage.moodEventStore.delete(naiveDate: dateOpenedTo?.convertedNaiveDate)
+                    _ = MoodEventStorage.moodEventStore.update(id: moodEvent!.id, utcDate: date.convertedUtcDate!, moodDay: self.convertedMoodDay)
+                    
+                    if date != dateOpenedTo {
+                        _ = MoodEventStorage.moodEventStore.delete(utcDate: dateOpenedTo?.convertedUtcDate)
                     }
                     
                     dismiss()
@@ -205,6 +209,6 @@ struct EditEventView: View {
 
 struct EditEventView_Preview: PreviewProvider {
     static var previews: some View {
-        EditEventView(naiveDate: NaiveDate(year: 2022, month: 1, day: 1), moodValue: 0, description: "")
+        EditEventView(utcDate: Date.now.convertedUtcDate, moodValue: 0, description: "")
     }
 }

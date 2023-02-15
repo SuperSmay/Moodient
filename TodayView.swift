@@ -60,13 +60,13 @@ struct TodayView: View {
                         /// Update database when moodValue is changed
                         .onChange(of: moodValue) { newValue in
                             
-                            if date.convertedNaiveDate == nil || id == nil {
+                            if date.convertedUtcDate == nil || id == nil {
                                 
                                 showingDateErrorAlert.toggle()
                                 return
                             }
                             
-                            _ = MoodEventStorage.moodEventStore.update(id: id!, naiveDate: date.convertedNaiveDate!, moodDay: convertedMoodDay)
+                            _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: date.convertedUtcDate!, moodDay: convertedMoodDay)
                         }
                     }
                     .padding(.horizontal)
@@ -85,14 +85,14 @@ struct TodayView: View {
                         /// Update database when the text is changed
                         .onChange(of: description) { newValue in
                             
-                            if date.convertedNaiveDate == nil || id == nil {
+                            if date.convertedUtcDate == nil || id == nil {
                                 
                                 showingDateErrorAlert.toggle()
                                 
                                 return
                             }
                             
-                            _ = MoodEventStorage.moodEventStore.update(id: id!, naiveDate: date.convertedNaiveDate!, moodDay: convertedMoodDay)
+                            _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: date.convertedUtcDate!, moodDay: convertedMoodDay)
                         }
                     
                     Spacer()
@@ -136,16 +136,16 @@ struct TodayView: View {
                 moodValue = 0
                 description = ""
                 
-                if date.convertedNaiveDate == nil {
+                if date.convertedUtcDate == nil {
                     return
                 }
                 
-                var today: MoodCalendarDay? = MoodEventStorage.moodEventStore.findMoodDay(searchNaiveDate: date.convertedNaiveDate)
+                var today: MoodCalendarDay? = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: date.convertedUtcDate)
                 
                 if today == nil {
                     
-                    id = MoodEventStorage.moodEventStore.insert(naiveDate: date.convertedNaiveDate!, moodDay: convertedMoodDay)
-                    today = MoodEventStorage.moodEventStore.findMoodDay(searchNaiveDate: date.convertedNaiveDate)
+                    id = MoodEventStorage.moodEventStore.insert(utcDate: date.convertedUtcDate!, moodDay: convertedMoodDay)
+                    today = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: date.convertedUtcDate)
                     
                 } else {
                     
