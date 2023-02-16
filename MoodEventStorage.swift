@@ -30,7 +30,7 @@ class MoodEventStorage: ObservableObject {
     
     
     // MARK: - Live updated list of every mood day
-    @Published var moodDays = [MoodCalendarDay]()
+    @Published var moodDays = [Date: MoodCalendarDay]()
     @Published var reloadCount = 0 /// Please help this is so jank
     /// reloadCount is needed because the ForEach grid that makes the calendar view does not want to reload from a change of the array
     /// Each day has an invisible reloadCount text view that gets updated, which triggers the rest of that view to reload.
@@ -119,15 +119,15 @@ class MoodEventStorage: ObservableObject {
         }
     }
 
-    func getAllMoodDays() -> [MoodCalendarDay] {
-        var moodDays = [MoodCalendarDay]()
-        guard let database = db else { return [] }
+    func getAllMoodDays() -> [Date: MoodCalendarDay] {
+        var moodDays = [Date: MoodCalendarDay]()
+        guard let database = db else { return [:] }
 
         do {
             for entry in try database.prepare(self.moodDaysTable) {
                 do {
                     let newDay = MoodCalendarDay(utcDate: try entry.get(utcDate), moodDay: try entry.get(moodDay), id: try entry.get(id))
-                    moodDays.append(newDay)
+                    moodDays[try entry.get(utcDate)] = newDay
                 } catch {
                     print(error)
                 }

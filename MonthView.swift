@@ -28,35 +28,55 @@ struct MonthView: View {
                 ForEach(weeks, id: \.self) { week in
                     GridRow {
                         
-                        /// Add blank spots to the first part of the month
-                        if weeks.first == week {
-                            ForEach(0..<daysToSkipInFirstWeek, id: \.self) { _ in
-                                /// Empty cell (https://sarunw.com/posts/swiftui-grid/)
-                                Color.clear
-                                    .gridCellUnsizedAxes([.horizontal, .vertical])
-                            }
-                        }
-
-                        ForEach(week, id: \.self) { day in
-                            
-                            /// Retrieve the actual info for this day from the list loaded earlier
-                            /// If this day does not have an entry, then a blank entry is used
-                            let moodCalendarDay = moodDays.moodDays.first(where: { $0.utcDate == day.convertedUtcDate}) ?? MoodCalendarDay(utcDate: day.convertedUtcDate ?? Date.now, id: -1)
-                            
-                            MonthDayView(moodCalendarDay: moodCalendarDay)
-                                /// This *sucks.* The array change does not seem to be sufficient to trigger a reload of this view.
-                                /// This text overlay does reload as expected, and when it reloads it triggers the rest of the view to reload.
-                                /// This is probably a result of jank associated with how I'm fetching/storing this data.
-                                /// Anyway, if reloadCount is not updated for some reason, these days won't update :D
-                                .overlay(Text(String(moodDays.reloadCount))
-                                    .foregroundColor(.clear))
+                        weekView(weeks: weeks, week: week, daysToSkipInFirstWeek: daysToSkipInFirstWeek)
                         
-                        }
                     }
                 }
             }
         }
         
+    }
+    
+    struct weekView: View {
+        
+        @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
+        
+        
+        let weeks: [[Date]]
+        let week: [Date]
+        let daysToSkipInFirstWeek: Int
+        
+               
+        
+        var body: some View {
+            
+            /// Add blank spots to the first part of the month
+            if weeks.first == week {
+                ForEach(0..<daysToSkipInFirstWeek, id: \.self) { _ in
+                    /// Empty cell (https://sarunw.com/posts/swiftui-grid/)
+                    Color.clear
+                        .gridCellUnsizedAxes([.horizontal, .vertical])
+                }
+            }
+            
+            ForEach(week, id: \.self) { day in
+                
+                /// Retrieve the actual info for this day from the list loaded earlier
+                /// If this day does not have an entry, then a blank entry is used
+                let moodCalendarDay = moodDays.moodDays[day.convertedUtcDate ?? Date.now] ?? MoodCalendarDay(utcDate: day.convertedUtcDate ?? Date.now, id: -1)
+                
+                MonthDayView(moodCalendarDay: moodCalendarDay)
+                /// This *sucks.* The array change does not seem to be sufficient to trigger a reload of this view.
+                /// This text background does reload as expected, and when it reloads it triggers the rest of the view to reload.
+                /// This is probably a result of jank associated with how I'm fetching/storing this data.
+                /// Anyway, if reloadCount is not updated for some reason, these days won't update :D
+                    .background(Text(String(moodDays.reloadCount))
+                        .foregroundColor(.clear))
+                
+                
+            }
+            
+        }
     }
     
     init(dayInMonth givenDate: Date) {
@@ -113,6 +133,8 @@ struct MonthView: View {
     }
 
 }
+
+
 
 
 

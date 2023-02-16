@@ -28,7 +28,6 @@
 		9F7568012995C41500341798 /* SelectedTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7568002995C41500341798 /* SelectedTabExtension.swift */; };
 		9FF1D136298F61D200299E2D /* DayPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF1D135298F61D200299E2D /* DayPreview.swift */; };
 		9FF1D138298F666E00299E2D /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF1D137298F666E00299E2D /* TodayView.swift */; };
-		9FF1D13A298F6E8B00299E2D /* DayListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF1D139298F6E8B00299E2D /* DayListView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,7 +51,6 @@
 		9F7568002995C41500341798 /* SelectedTabExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedTabExtension.swift; sourceTree = "<group>"; };
 		9FF1D135298F61D200299E2D /* DayPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPreview.swift; sourceTree = "<group>"; };
 		9FF1D137298F666E00299E2D /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
-		9FF1D139298F6E8B00299E2D /* DayListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,7 +77,6 @@
 				9F7567F62994751700341798 /* FullEventView.swift */,
 				9F100E972992C81100A8CD4F /* NaiveDateExtensions.swift */,
 				9F100E922990B83B00A8CD4F /* SettingsView.swift */,
-				9FF1D139298F6E8B00299E2D /* DayListView.swift */,
 				9FF1D137298F666E00299E2D /* TodayView.swift */,
 				9FF1D135298F61D200299E2D /* DayPreview.swift */,
 				9F1829FB298C7EA900686202 /* ColorPoint.swift */,
@@ -203,7 +200,6 @@
 				9F1829FA298C7C9F00686202 /* MoodOptions.swift in Sources */,
 				9FF1D136298F61D200299E2D /* DayPreview.swift in Sources */,
 				9FF1D138298F666E00299E2D /* TodayView.swift in Sources */,
-				9FF1D13A298F6E8B00299E2D /* DayListView.swift in Sources */,
 				9F1829F4298C66AE00686202 /* MoodDay.swift in Sources */,
 				9F1829F6298C6B0E00686202 /* EditEventView.swift in Sources */,
 				9F7567FD2995B2D000341798 /* ShakeEvent.swift in Sources */,

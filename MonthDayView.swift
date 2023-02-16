@@ -147,11 +147,14 @@ struct MonthDayView: View {
                 }, label: {
                     Label("Edit", systemImage: "pencil")
                 })
-                Button(role: .destructive) {
-                    deleteAlertUtcDate = moodCalendarDay.utcDate
-                    deleteAlertShowing.toggle()
-                } label: {
-                    Label("Delete", systemImage: "trash")
+                
+                if (moodCalendarDay.moodDay != nil) {
+                    Button(role: .destructive) {
+                        deleteAlertUtcDate = moodCalendarDay.utcDate
+                        deleteAlertShowing.toggle()
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
                 }
                 
 

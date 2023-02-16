@@ -17,7 +17,8 @@ struct FullEventView: View {
     
     @State private var month = Date.now
     
-    let springTransition = Animation.spring(dampingFraction: 0.7, blendDuration: 0.5)
+    let springTransition = Animation.easeInOut
+    //Animation.spring(dampingFraction: 0.7, blendDuration: 0.5)
     
     /// Drag stuff
     @State private var dragOffset = CGSize.zero
@@ -86,38 +87,71 @@ struct FullEventView: View {
                 
                 Spacer()
                                 
-                MonthView(dayInMonth: month)
-                    .id(monthID) /// https://sakunlabs.com/blog/swiftui-identity-transitions/ THATS IT
-                    .padding()
-                    .navigationTitle("\(Calendar.autoupdatingCurrent.monthSymbols[(monthIndex ?? 1) - 1]) \(String(Calendar.autoupdatingCurrent.component(.year, from: month)))")
-                    .offset(y: dragOffset.height)
-                    .zIndex(-1)
-                    /// These two make the whole area around the month swipeable
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .contentShape(Rectangle())
-                    /// The drag gesture
-                    .gesture(
-                        DragGesture()
-                            .onChanged({ gesture in
-                                dragOffset = gesture.translation
-                                changeRatio = gesture.translation.height/mainWindowSize.height * 2 * 2
-                            })
-                            .onEnded({ gesture in
-                                withAnimation(springTransition) {
-                                    if changeRatio >= 1 {
-                                        changeMonth(by: -1)
+                GeometryReader { geo in
+                    MonthView(dayInMonth: month)
+                        .id(monthID) /// https://sakunlabs.com/blog/swiftui-identity-transitions/ THATS IT
+                        .padding()
+                        .navigationTitle("\(Calendar.autoupdatingCurrent.monthSymbols[(monthIndex ?? 1) - 1]) \(String(Calendar.autoupdatingCurrent.component(.year, from: month)))")
+                        // Move the view with the drag
+                        .offset(y: dragOffset.height)
+                        /// These two make the whole area around the month swipeable
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .contentShape(Rectangle())
+                        
+                        
+                        /// Layer it behind the buttons
+                        .zIndex(-1)
+                        
+                        /// The drag gesture
+                        .gesture(
+                            DragGesture()
+                                .onChanged({ gesture in
+                                    
+                                    dragOffset = gesture.translation
+                                        
+                                    /// If the translation is larger than the half the height of the view, then reduce the amount the offset changes by
+                                    if gesture.translation.height > geo.frame(in: .global).height/2 {
+                                        dragOffset = CGSize(width: 0, height: geo.frame(in: .global).height/2)
+                                        if gesture.translation.height < mainWindowSize.height {
+                                            dragOffset.height += (gesture.translation.height - geo.frame(in: .global).height/2) * 0.5
+                                        }
+                                    }
+                                    if gesture.translation.height < geo.frame(in: .global).height/2 * -1 {
+                                        dragOffset = CGSize(width: 0, height: geo.frame(in: .global).height/2 * -1)
+                                        if gesture.translation.height * -1 < mainWindowSize.height {
+                                            dragOffset.height -= (gesture.translation.height * -1 - geo.frame(in: .global).height/2) * 0.5
+                                        }
                                     }
                                     
-                                    if changeRatio <= -1 {
-                                        changeMonth(by: 1)
-                                    }
+                                    changeRatio = dragOffset.height/geo.frame(in: .global).height * 4
                                     
-                                    dragOffset = CGSize.zero
-                                    changeRatio = 0
-                                }
-      
-                            }))
-                    .transition(.asymmetric(insertion: .offset(y: isTransitioningUp ? mainWindowSize.height : mainWindowSize.height * -1), removal: .opacity.combined(with: .scale)))
+                                })
+                                .onEnded({ gesture in
+                                    withAnimation(springTransition) {
+                                        if changeRatio >= 1 {
+                                            changeMonth(by: -1)
+                                            
+                                        }
+                                        
+                                        if changeRatio <= -1 {
+                                            changeMonth(by: 1)
+                                            
+                                        }
+                                        
+                                        dragOffset = CGSize.zero
+                                        changeRatio = 0
+                                    }
+          
+                                }))
+                        .transition(.asymmetric(insertion: .move(edge: isTransitioningUp ? .bottom : .top), removal: .opacity.combined(with: .scale)))
+                }
+                /// Drawing these was getting laggy
+                .drawingGroup()
+                /// Fancy frame
+                .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .strokeBorder(.thickMaterial, lineWidth: 8)
+                    )
 
                 Spacer()
                 
@@ -210,6 +244,7 @@ struct FullEventView: View {
                 }
             }
         }
+        
     }
     
     func changeMonth(by change: Int) {
