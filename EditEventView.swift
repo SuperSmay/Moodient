@@ -12,6 +12,7 @@ struct EditEventView: View {
     
     /// Env variables
     @Environment (\.dismiss) var dismiss
+    @Environment(\.reload) var reload
     @Environment(\.colorScheme) var colorScheme
     
     /// Keep track of the state of the screen
@@ -28,7 +29,7 @@ struct EditEventView: View {
     
     /// Calculates the mood day to insert into the database
     var convertedMoodDay: MoodDay {
-        MoodDay(moodPoints: [MoodPoint(naiveTime: NaiveTime(), moodValue: moodValue)], description: description)
+        MoodDay(moodPoints: [MoodPoint(utcTime: Date.now.convertedUtcDate ?? Date.now, moodValue: moodValue)], description: description)
     }
     
     /// Initializes the date, mood value, and description
@@ -159,6 +160,8 @@ struct EditEventView: View {
                         if date != dateOpenedTo {
                             _ = MoodEventStorage.moodEventStore.delete(utcDate: dateOpenedTo?.convertedUtcDate)
                         }
+                        
+                        reload()
                         
                         dismiss()
 

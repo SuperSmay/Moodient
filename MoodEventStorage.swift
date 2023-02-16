@@ -20,7 +20,7 @@ class MoodEventStorage {
     
     private let id = Expression<Int>("id")
     private let utcDate = Expression<Date>("utcDate")
-    private let moodDay = Expression<MoodDay>("moodEvent")
+    private let moodDay = Expression<MoodDay>("moodDay")
     
     /// Singleton moment
     static let moodEventStore = MoodEventStorage()
@@ -57,55 +57,8 @@ class MoodEventStorage {
         }
         do {
             
-            if db?.userVersion == 1 {
-                /// Convert NaiveDate to Date
-                var moodDays = [MoodCalendarDay]()
-                let naiveDate = Expression<NaiveDate>("naiveDate")
-                for entry in try database.prepare(self.moodDaysTable) {
-                    do {
-                        let naiveDate = try entry.get(naiveDate)
-                        let secondsOffset = TimeZone.current.secondsFromGMT()
-                        
-                        var realDate = Calendar.autoupdatingCurrent.date(from: naiveDate)
-                        
-                        realDate = Calendar.autoupdatingCurrent.date(bySettingHour: 0, minute: 0, second: 0, of: realDate ?? Date.now)
-                        
-                        realDate = Calendar.autoupdatingCurrent.date(byAdding: .second, value: secondsOffset, to: realDate ?? Date.now)
-                        
-                        let newDay = MoodCalendarDay(utcDate: realDate ?? Date.now, moodDay: try entry.get(moodDay), id: try entry.get(id))
-                        
-                        moodDays.append(newDay)
-                        
-                        if realDate == Date.now {
-                            print("NaiveDate \(naiveDate) failed to translate into date")
-                        }
-                        
-                    } catch {
-                        print(error)
-                    }
-                }
-                
-                let schemaChanger = SchemaChanger(connection: db!)
-                try schemaChanger.alter(table: "moodEvents") { table in
-                    table.drop(column: "naiveDate")
-                }
-                try db?.run(moodDaysTable.addColumn(Expression<String?>("utcDate")))
-                
-                for day in moodDays {
-                    if day.moodDay == nil {
-                        continue
-                    }
-                    if !update(id: day.id, utcDate: day.utcDate, moodDay: day.moodDay!) {
-                        print("Error updating id: \(day.id) to \(String(describing: day))")
-                    }
-                }
+            db?.userVersion = 1
 
-                db?.userVersion = 2
-            } else {
-                db?.userVersion = 2
-            }
-            
-            
             print("Database version \(String(describing: db?.userVersion))")
             
             /// Setup columns
@@ -173,7 +126,6 @@ class MoodEventStorage {
         return moodDays
     }
 
-
     func findMoodDay(eventId: Int) -> MoodCalendarDay? {
         var foundMoodDay: MoodCalendarDay? = nil
         guard let database = db else { return nil }
@@ -209,10 +161,27 @@ class MoodEventStorage {
         return foundMoodDay
     }
 
+    func update(utcDate: Date, moodDay: MoodDay) -> Bool {
+        guard let database = db else { return false }
+
+        let moodEvent = moodDaysTable.filter(self.utcDate == utcDate)
+        do {
+            let update = moodEvent.update([
+                self.moodDay <- moodDay
+            ])
+            if try database.run(update) > 0 {
+                return true
+            }
+        } catch {
+            print(error)
+        }
+        return false
+    }
+    
     func update(id: Int, utcDate: Date, moodDay: MoodDay) -> Bool {
         guard let database = db else { return false }
 
-        let moodEvent = moodDaysTable.filter(self.id == id)
+        let moodEvent = moodDaysTable.filter(self.utcDate == utcDate)
         do {
             let update = moodEvent.update([
                 self.utcDate <- utcDate,
@@ -257,6 +226,28 @@ class MoodEventStorage {
         } catch {
             print(error)
             return false
+        }
+    }
+    
+    private func saveBackup() {
+
+        if let documentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let dirPath = documentsDir.appendingPathComponent(Self.DIR_MOOD_EVENTS_DB)
+            
+            do {
+                try FileManager.default.createDirectory(atPath: dirPath.path, withIntermediateDirectories: true, attributes: nil)
+                let databaseFilePath = dirPath.appendingPathComponent(Self.DB_NAME)
+                let databaseBackupPath = dirPath.appendingPathComponent(Date.now.ISO8601Format())
+                
+                try FileManager.default.copyItem(at: databaseFilePath, to: databaseBackupPath)
+                
+                
+                print("Database backed up sucessfully at: \(databaseBackupPath)")
+            } catch {
+                print("Database backup error: \(error)")
+            }
+        } else {
+            print("Documents directory unknown")
         }
     }
     

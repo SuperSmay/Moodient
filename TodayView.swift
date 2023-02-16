@@ -25,7 +25,7 @@ struct TodayView: View {
     
     /// Calculates the mood day to insert into the database
     var convertedMoodDay: MoodDay {
-        MoodDay(moodPoints: [MoodPoint(naiveTime: NaiveTime(), moodValue: moodValue)], description: description)
+        MoodDay(moodPoints: [MoodPoint(utcTime: Date.now.convertedUtcDate ?? Date.now, moodValue: moodValue)], description: description)
     }
     
     var body: some View {

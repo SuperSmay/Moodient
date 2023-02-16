@@ -12,12 +12,13 @@ struct MonthView: View {
     
     /// The size of the window this view is being displayed in
     @Environment(\.mainWindowSize) var mainWindowSize
-    
-    private var days = [Date]()
-    private var weeks = [[Date]]()
+
+    private var weeks: [[Date]]
     private var daysToSkipInFirstWeek = 0
     
     var firstDayOfMonth: Date
+    
+    @State private var moodDays: [MoodCalendarDay]
     
     var body: some View {
         Grid {
@@ -34,17 +35,31 @@ struct MonthView: View {
                     }
 
                     ForEach(week, id: \.self) { day in
-                            
-                        MonthDayView(utcDate: day.convertedUtcDate ?? day)
                         
+                        /// Retrieve the actual info for this day from the list loaded earlier
+                        /// If this day does not have an entry, then a blank entry is used
+                        let moodCalendarDay = moodDays.first(where: { $0.utcDate == day.convertedUtcDate}) ?? MoodCalendarDay(utcDate: day.convertedUtcDate ?? Date.now, id: -1)
+                        
+                        MonthDayView(moodCalendarDay: moodCalendarDay)
+                            /// Allow subviews to access this callback
+                            .environment(\.reload, reload)
+                    
                     }
                 }
             }
         }
     }
 
+    /// Reloads all data from the database
+    func reload() {
+        moodDays = MoodEventStorage.moodEventStore.getAllMoodDays()
+    }
     
     init(dayInMonth givenDate: Date) {
+        
+        weeks = [[Date]]()
+        let initialMoodDays = MoodEventStorage.moodEventStore.getAllMoodDays()
+        _moodDays = State(initialValue: initialMoodDays)
         
         /// Set the first day of the month
         let components = Calendar.autoupdatingCurrent.dateComponents([.year, .month], from: givenDate)
@@ -59,6 +74,7 @@ struct MonthView: View {
         }
         
         /// Start with the first day of the month, then loop untill the month is no longer the same, filling days with the days in that month
+        var days = [Date]()
         var currentDay: Date? = firstDayOfMonth
         while (currentDay != nil && Calendar.autoupdatingCurrent.dateComponents([.month], from: currentDay!).month == month) {
             days.append(currentDay!)
@@ -77,6 +93,7 @@ struct MonthView: View {
             /// If the day is not the first day of the week, just add it to the week
             if weekIndex != 1 {
                 currentWeek.append(day)
+                
             /// Otherwise, save the week, clear it, then add the first day to it
             } else {
                 if currentWeek != [] {
@@ -84,6 +101,7 @@ struct MonthView: View {
                 }
                 currentWeek = []
                 currentWeek.append(day)
+                
             }
         }
         
@@ -94,6 +112,17 @@ struct MonthView: View {
         
     }
 
+}
+
+private struct ReloadKey: EnvironmentKey {
+    static let defaultValue: () -> () = {}
+}
+
+extension EnvironmentValues {
+    var reload: () -> () {
+        get { self[ReloadKey.self] }
+        set { self[ReloadKey.self] = newValue }
+    }
 }
 
 struct MonthView_Previews: PreviewProvider {

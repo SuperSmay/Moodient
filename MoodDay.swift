@@ -11,7 +11,7 @@ import SQLite
 
 // MARK: - MoodDay
 
-struct MoodDay: Codable, Value {
+struct MoodDay: Codable, Value, Hashable {
     
     // MARK: - SQLite Value protocol
     public static var declaredDatatype: String {
@@ -53,21 +53,24 @@ struct MoodDay: Codable, Value {
 
 // MARK: - MoodPoint
 
-struct MoodPoint: Codable {
+struct MoodPoint: Codable, Hashable {
     
-    var naiveTime: NaiveTime
+    var utcTime: Date
     var moodValue: Int
     
 }
 
 // MARK: - MoodCalendarDay
 /// Not meant to be stored in the database, only created when loading from the database
-struct MoodCalendarDay: Identifiable {
+struct MoodCalendarDay: Identifiable, Equatable, Hashable {
+    
+    static func == (lhs: MoodCalendarDay, rhs: MoodCalendarDay) -> Bool {
+        lhs.utcDate == rhs.utcDate
+    }
+    
     
     var utcDate: Date
     var moodDay: MoodDay?
     var id: Int
     
 }
-
-

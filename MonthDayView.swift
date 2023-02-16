@@ -16,28 +16,26 @@ struct MonthDayView: View {
     @Environment(\.mainWindowSize) var mainWindowSize
     /// This is a bit scuffed, but is used to check if this view is being displayed and should respond to the shake easteregg
     @Environment(\.selectedTabTitle) var selectedTabeTitle
+    /// Month view reload function
+    @Environment(\.reload) var reload
     
     /// Sheets for creating/editing entries
     @State private var editSheetShowing = false
     @State private var newSheetShowing = false
     
     /// The moodCalenderDay for this date, loaded from the database
-    @State var moodCalenderDay: MoodCalendarDay? = nil
+    let moodCalendarDay: MoodCalendarDay
     
     /// Falling easteregg things
     @State private var animationAmount = 0.0
     @State private var willFallCount = 0
     @State private var didFall = false;
     
-    /// The actual date
-    let utcDate: Date
-    
-    
     
     var body: some View {
         
         /// Display things
-        let moodValue: Int? = moodCalenderDay?.moodDay?.moodPoints[0].moodValue
+        let moodValue: Int? = moodCalendarDay.moodDay?.moodPoints[0].moodValue
         let moodColor = MoodOptions.options.moodColors[moodValue ?? 0]
         
         GeometryReader { geo in
@@ -60,7 +58,7 @@ struct MonthDayView: View {
                                 moodValue == nil ? Color.secondary.opacity(0.25) : moodColor
                             )
                         
-                    let components = Calendar.autoupdatingCurrent.dateComponents([.day], from: utcDate.convertedCurrentTimezoneDate ?? Date.now)
+                    let components = Calendar.autoupdatingCurrent.dateComponents([.day], from: moodCalendarDay.utcDate.convertedCurrentTimezoneDate ?? Date.now)
                         
                         Text(String(components.day ?? 1))
                     
@@ -130,14 +128,14 @@ struct MonthDayView: View {
         .onAppear() {
             didFall = false
             willFallCount = 0
-            reload()
         }
         /// Touch and hold menu
         .contextMenu {
             /// If the date should be able to be edited, then show the edit button
-            if (Date.now.convertedUtcDate != nil && utcDate <= Date.now.convertedUtcDate!) {
+            if (Date.now.convertedUtcDate != nil && moodCalendarDay.utcDate <= Date.now.convertedUtcDate!) {
                 Button(action: {
-                    if moodCalenderDay?.moodDay == nil {
+                    print(String(describing: moodCalendarDay))
+                    if moodCalendarDay.moodDay == nil {
                         newSheetShowing.toggle()
                     } else {
                         editSheetShowing.toggle()
@@ -149,7 +147,7 @@ struct MonthDayView: View {
             /// Otherwise, show a disabled button (Text doesn't work so this was the best option) that has a fun message
             } else {
 
-                let daysAway = (Calendar.autoupdatingCurrent.dateComponents([.day], from: Date.now.convertedUtcDate ?? Date.now, to: utcDate).day ?? -1)
+                let daysAway = (Calendar.autoupdatingCurrent.dateComponents([.day], from: Date.now.convertedUtcDate ?? Date.now, to: moodCalendarDay.utcDate).day ?? -1)
                 let daysAwayText = daysAway == 1 ? "tomorrow!" : "\(daysAway) days from now"
                 Button("That's \(daysAwayText)") {}
                     .disabled(true)
@@ -157,18 +155,13 @@ struct MonthDayView: View {
             
         }
         /// Edit sheet
-        .sheet(isPresented: $editSheetShowing, onDismiss: {
-            reload()
-        }) {
-            /// Force unwraps ok because that value is checked for nil before this sheet is presented
-            EditEventView(utcDate: moodCalenderDay!.utcDate, moodValue: moodCalenderDay!.moodDay?.moodPoints[0].moodValue ?? 0, description: moodCalenderDay!.moodDay?.description ?? "")
+        .sheet(isPresented: $editSheetShowing) {
+            /// Force unwraps on moodDay ok because that value is checked for nil before this sheet is presented
+            EditEventView(utcDate: moodCalendarDay.utcDate, moodValue: moodCalendarDay.moodDay!.moodPoints.first?.moodValue ?? 0, description: moodCalendarDay.moodDay!.description)
         }
         /// Edit sheet but when there wasn't already an entry
-        .sheet(isPresented: $newSheetShowing, onDismiss: {
-            reload()
-        })
-        {
-            EditEventView(utcDate: utcDate, moodValue: 0, description: "")
+        .sheet(isPresented: $newSheetShowing) {
+            EditEventView(utcDate: moodCalendarDay.utcDate, moodValue: 0, description: "")
         }
         
         
@@ -187,16 +180,12 @@ struct MonthDayView: View {
         }
     }
     
-    func reload() {
-        moodCalenderDay = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate)
-    }
-    
 }
 
 struct MonthDayView_Previews: PreviewProvider {
     static var previews: some View {
         GeometryReader { geo in
-            MonthDayView(utcDate: Date.now.convertedUtcDate ?? Date.now)
+            MonthDayView(moodCalendarDay: MoodCalendarDay(utcDate: Date.now.convertedUtcDate ?? Date.now, id: -1))
                 .environment(\.mainWindowSize, geo.size)
         }
     }
