@@ -23,6 +23,8 @@ struct MonthDayView: View {
     /// Sheets for creating/editing entries
     @State private var editSheetShowing = false
     @State private var newSheetShowing = false
+    @State private var deleteAlertShowing = false
+    @State private var deleteAlertUtcDate: Date? = nil
     
     /// The moodCalenderDay for this date, loaded from the database
     let moodCalendarDay: MoodCalendarDay
@@ -135,7 +137,7 @@ struct MonthDayView: View {
             /// If the date should be able to be edited, then show the edit button
             if (Date.now.convertedUtcDate != nil && moodCalendarDay.utcDate <= Date.now.convertedUtcDate!) {
                 Button(action: {
-                    print(String(describing: moodCalendarDay))
+                    
                     if moodCalendarDay.moodDay == nil {
                         newSheetShowing.toggle()
                     } else {
@@ -145,6 +147,14 @@ struct MonthDayView: View {
                 }, label: {
                     Label("Edit", systemImage: "pencil")
                 })
+                Button(role: .destructive) {
+                    deleteAlertUtcDate = moodCalendarDay.utcDate
+                    deleteAlertShowing.toggle()
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+                
+
             /// Otherwise, show a disabled button (Text doesn't work so this was the best option) that has a fun message
             } else {
 
@@ -155,6 +165,18 @@ struct MonthDayView: View {
             }
             
         }
+        .alert("Delete entry?", isPresented: $deleteAlertShowing, actions: {
+            Button(role:.destructive) {
+                if deleteAlertUtcDate != nil {
+                    withAnimation {
+                        _ = MoodEventStorage.moodEventStore.delete(utcDate: deleteAlertUtcDate!)
+                    }
+                }
+            } label: {
+                Text("Delete")
+            }
+
+        })
         /// Edit sheet
         .sheet(isPresented: $editSheetShowing) {
             /// Force unwraps on moodDay ok because that value is checked for nil before this sheet is presented

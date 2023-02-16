@@ -256,11 +256,14 @@ struct MonthChangeButton: View {
                     
                 }
             }
-            .background(Color.secondary.opacity(0.5))
             /// Don't apply an animation to the progress thing
             .animation(nil, value: fillPercent)
+            .background(Color.secondary.opacity(0.5))
+           
+            
 
             .clipShape(RoundedRectangle(cornerRadius: 100, style: .continuous))
+            
             /// Fancy stretch
             
             .scaleEffect(x: fillPercent > 0 ? 1.0 + fillPercent/30 : 1, anchor: .leading)
