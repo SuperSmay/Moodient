@@ -16,8 +16,9 @@ struct MonthDayView: View {
     @Environment(\.mainWindowSize) var mainWindowSize
     /// This is a bit scuffed, but is used to check if this view is being displayed and should respond to the shake easteregg
     @Environment(\.selectedTabTitle) var selectedTabeTitle
-    /// Month view reload function
-    @Environment(\.reload) var reload
+    
+    /// Pull moodDays from the environment
+    @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
     
     /// Sheets for creating/editing entries
     @State private var editSheetShowing = false

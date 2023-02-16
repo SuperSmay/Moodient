@@ -12,54 +12,54 @@ struct MonthView: View {
     
     /// The size of the window this view is being displayed in
     @Environment(\.mainWindowSize) var mainWindowSize
+    /// Select tab env stuff to reload when the tab is changed
+    @Environment(\.selectedTabTitle) var selectedTab
+    
+    @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
 
-    private var weeks: [[Date]]
+    private var weeks = [[Date]]()
     private var daysToSkipInFirstWeek = 0
     
     var firstDayOfMonth: Date
     
-    @State private var moodDays: [MoodCalendarDay]
-    
     var body: some View {
-        Grid {
-            ForEach(weeks, id: \.self) { week in
-                GridRow {
-                    
-                    /// Add blank spots to the first part of the month
-                    if weeks.first == week {
-                        ForEach(0..<daysToSkipInFirstWeek, id: \.self) { _ in
-                            /// Empty cell (https://sarunw.com/posts/swiftui-grid/)
-                            Color.clear
-                                .gridCellUnsizedAxes([.horizontal, .vertical])
+        VStack {
+            Grid {
+                ForEach(weeks, id: \.self) { week in
+                    GridRow {
+                        
+                        /// Add blank spots to the first part of the month
+                        if weeks.first == week {
+                            ForEach(0..<daysToSkipInFirstWeek, id: \.self) { _ in
+                                /// Empty cell (https://sarunw.com/posts/swiftui-grid/)
+                                Color.clear
+                                    .gridCellUnsizedAxes([.horizontal, .vertical])
+                            }
                         }
-                    }
 
-                    ForEach(week, id: \.self) { day in
+                        ForEach(week, id: \.self) { day in
+                            
+                            /// Retrieve the actual info for this day from the list loaded earlier
+                            /// If this day does not have an entry, then a blank entry is used
+                            let moodCalendarDay = moodDays.moodDays.first(where: { $0.utcDate == day.convertedUtcDate}) ?? MoodCalendarDay(utcDate: day.convertedUtcDate ?? Date.now, id: -1)
+                            
+                            MonthDayView(moodCalendarDay: moodCalendarDay)
+                                /// This *sucks.* The array change does not seem to be sufficient to trigger a reload of this view.
+                                /// This text overlay does reload as expected, and when it reloads it triggers the rest of the view to reload.
+                                /// This is probably a result of jank associated with how I'm fetching/storing this data.
+                                /// Anyway, if reloadCount is not updated for some reason, these days won't update :D
+                                .overlay(Text(String(moodDays.reloadCount))
+                                    .foregroundColor(.clear))
                         
-                        /// Retrieve the actual info for this day from the list loaded earlier
-                        /// If this day does not have an entry, then a blank entry is used
-                        let moodCalendarDay = moodDays.first(where: { $0.utcDate == day.convertedUtcDate}) ?? MoodCalendarDay(utcDate: day.convertedUtcDate ?? Date.now, id: -1)
-                        
-                        MonthDayView(moodCalendarDay: moodCalendarDay)
-                            /// Allow subviews to access this callback
-                            .environment(\.reload, reload)
-                    
+                        }
                     }
                 }
             }
         }
-    }
-
-    /// Reloads all data from the database
-    func reload() {
-        moodDays = MoodEventStorage.moodEventStore.getAllMoodDays()
+        
     }
     
     init(dayInMonth givenDate: Date) {
-        
-        weeks = [[Date]]()
-        let initialMoodDays = MoodEventStorage.moodEventStore.getAllMoodDays()
-        _moodDays = State(initialValue: initialMoodDays)
         
         /// Set the first day of the month
         let components = Calendar.autoupdatingCurrent.dateComponents([.year, .month], from: givenDate)
@@ -114,16 +114,7 @@ struct MonthView: View {
 
 }
 
-private struct ReloadKey: EnvironmentKey {
-    static let defaultValue: () -> () = {}
-}
 
-extension EnvironmentValues {
-    var reload: () -> () {
-        get { self[ReloadKey.self] }
-        set { self[ReloadKey.self] = newValue }
-    }
-}
 
 struct MonthView_Previews: PreviewProvider {
     static var previews: some View {

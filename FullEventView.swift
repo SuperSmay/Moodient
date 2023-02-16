@@ -220,22 +220,6 @@ struct FullEventView: View {
         month = newDate
     }
     
-    /// Callback to delete rows from the database when rows are deleted from the UI
-    func removeRows(at offsets: IndexSet) {
-        let id = offsets.map { self.moodDays[$0].id }.first
-
-        if let id = id {
-            let delete = MoodEventStorage.moodEventStore.delete(id: id)
-            if delete {
-                reload()
-            }
-        }
-    }
-    
-    func reload() {
-        moodDays = MoodEventStorage.moodEventStore.getAllMoodDays()
-    }
-    
 }
 
 struct MonthChangeButton: View {

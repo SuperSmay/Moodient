@@ -13,6 +13,8 @@ struct TodayView: View {
     /// Env variables
     @Environment(\.colorScheme) var colorScheme
     
+    @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
+    
     /// Keep track of the state of the screen
     @State var id: Int? = nil
     @State var date: Date = Date.now
@@ -37,67 +39,69 @@ struct TodayView: View {
                 LinearGradient(colors: [.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue].opacity(0.5)], startPoint: .top, endPoint: .bottom)
                     .ignoresSafeArea()
                 /// Foreground UI
-                VStack(alignment: .leading) {
-                  
-                    Text(date.formatted(date: .complete, time: .omitted))
-                        .padding()
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    
-                    /// Fake form row (can't use Form because it doesn't avoid the keyboard)
-                    HStack {
+                ScrollView {
+                    VStack(alignment: .leading) {
                         
-                        Text("Mood")
+                        Text(date.formatted(date: .complete, time: .omitted))
+                            .padding()
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                         
-                        Spacer()
-                        
-                        Picker("Mood", selection: $moodValue) {
-                            ForEach(0..<5) { value in
-                                Text(MoodOptions.options.moodLabels[value])
-                            }
-                        }
-                        .tint(.secondary)
-                        /// Update database when moodValue is changed
-                        .onChange(of: moodValue) { newValue in
+                        /// Fake form row (can't use Form because it doesn't avoid the keyboard)
+                        HStack {
                             
-                            if date.convertedUtcDate == nil || id == nil {
+                            Text("Mood")
+                            
+                            Spacer()
+                            
+                            Picker("Mood", selection: $moodValue) {
+                                ForEach(0..<5) { value in
+                                    Text(MoodOptions.options.moodLabels[value])
+                                }
+                            }
+                            .tint(.secondary)
+                            /// Update database when moodValue is changed
+                            .onChange(of: moodValue) { newValue in
                                 
-                                showingDateErrorAlert.toggle()
-                                return
+                                if date.convertedUtcDate == nil || id == nil {
+                                    
+                                    showingDateErrorAlert.toggle()
+                                    return
+                                }
+                                
+                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: date.convertedUtcDate!, moodDay: convertedMoodDay)
                             }
-                            
-                            _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: date.convertedUtcDate!, moodDay: convertedMoodDay)
                         }
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 5)
-                    .background(.ultraThickMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .padding()
-               
-                    TextField("Description", text: $description, axis: .vertical)
-                        .padding()
+                        .padding(.horizontal)
+                        .padding(.vertical, 5)
                         .background(.ultraThickMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding()
-                        .padding(.bottom)
-                        .focused($textBoxFocused)
-                        /// Update database when the text is changed
-                        .onChange(of: description) { newValue in
-                            
-                            if date.convertedUtcDate == nil || id == nil {
+                   
+                        TextField("Description", text: $description, axis: .vertical)
+                            .padding()
+                            .background(.ultraThickMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .padding()
+                            .padding(.bottom)
+                            .focused($textBoxFocused)
+                            /// Update database when the text is changed
+                            .onChange(of: description) { newValue in
                                 
-                                showingDateErrorAlert.toggle()
+                                if date.convertedUtcDate == nil || id == nil {
+                                    
+                                    showingDateErrorAlert.toggle()
+                                    
+                                    return
+                                }
                                 
-                                return
+                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: date.convertedUtcDate!, moodDay: convertedMoodDay)
                             }
-                            
-                            _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: date.convertedUtcDate!, moodDay: convertedMoodDay)
-                        }
-                    
-                    Spacer()
+                        
+                        Spacer()
+                    }
+                    .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
                 }
-                .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
                 
             }
             .navigationTitle("Today")

@@ -67,8 +67,7 @@ struct MoodCalendarDay: Identifiable, Equatable, Hashable {
     static func == (lhs: MoodCalendarDay, rhs: MoodCalendarDay) -> Bool {
         lhs.utcDate == rhs.utcDate
     }
-    
-    
+ 
     var utcDate: Date
     var moodDay: MoodDay?
     var id: Int

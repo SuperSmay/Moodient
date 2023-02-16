@@ -9,7 +9,7 @@ import Foundation
 import SQLite
 import NaiveDate
 
-class MoodEventStorage {
+class MoodEventStorage: ObservableObject {
     
     // MARK: - Database contants
     
@@ -29,6 +29,14 @@ class MoodEventStorage {
     private var db: Connection? = nil
     
     
+    // MARK: - Live updated list of every mood day
+    @Published var moodDays = [MoodCalendarDay]()
+    @Published var reloadCount = 0 /// Please help this is so jank
+    /// reloadCount is needed because the ForEach grid that makes the calendar view does not want to reload from a change of the array
+    /// Each day has an invisible reloadCount text view that gets updated, which triggers the rest of that view to reload.
+    /// If reloadCount is not updated with the array above, the calendar view will not reload properly.
+    
+    
     /// Init to connect to the database and create the singleton
     private init() {
         if let documentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
@@ -39,6 +47,8 @@ class MoodEventStorage {
                 let dbPath = dirPath.appendingPathComponent(Self.DB_NAME).path
                 db = try Connection(dbPath)
                 createTable()
+                moodDays = getAllMoodDays()
+                reloadCount += 1
                 print("Database created successfully at: \(dbPath)")
             } catch {
                 /// Most of time this will be the error about the table already existing
@@ -100,6 +110,8 @@ class MoodEventStorage {
     
         do {
             let rowID = try database.run(insert)
+            moodDays = getAllMoodDays()
+            reloadCount += 1
             return Int(rowID)
         } catch {
             print(error)
@@ -170,6 +182,8 @@ class MoodEventStorage {
                 self.moodDay <- moodDay
             ])
             if try database.run(update) > 0 {
+                moodDays = getAllMoodDays()
+                reloadCount += 1
                 return true
             }
         } catch {
@@ -188,6 +202,8 @@ class MoodEventStorage {
                 self.moodDay <- moodDay
             ])
             if try database.run(update) > 0 {
+                moodDays = getAllMoodDays()
+                reloadCount += 1
                 return true
             }
         } catch {
@@ -203,6 +219,8 @@ class MoodEventStorage {
         do {
             let filter = moodDaysTable.filter(self.id == id)
             try database.run(filter.delete())
+            moodDays = getAllMoodDays()
+            reloadCount += 1
             return true
         } catch {
             print(error)
@@ -222,6 +240,8 @@ class MoodEventStorage {
         do {
             let filter = moodDaysTable.filter(self.utcDate == utcDate!)
             try database.run(filter.delete())
+            moodDays = getAllMoodDays()
+            reloadCount += 1
             return true
         } catch {
             print(error)

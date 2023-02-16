@@ -12,9 +12,9 @@ struct ContentView: View {
     
     @State private var selectedTab = ""
     
+    @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
+    
     var body: some View {
-        
-        
         
         GeometryReader { geo in
             
@@ -41,6 +41,7 @@ struct ContentView: View {
             }
             .environment(\.mainWindowSize, geo.size)
             .environment(\.selectedTabTitle, selectedTab)
+            //.environmentObject(moodDays)
         }
     }
     
@@ -48,8 +49,6 @@ struct ContentView: View {
     
     
 }
-
-
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
