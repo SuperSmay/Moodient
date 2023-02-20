@@ -22,9 +22,6 @@ struct EditEventView: View {
     @State var dateOpenedTo: Date?
     @State var moodPoints: [MoodPoint]
     
-    @State var moodValue1: Int
-    @State var moodValue2: Int
-    
     @State var description: String
     
     @State var showingDateConflictAlert = false
@@ -35,7 +32,7 @@ struct EditEventView: View {
     
     /// Calculates the mood day to insert into the database
     var convertedMoodDay: MoodDay {
-        MoodDay(moodPoints: [MoodPoint(utcTime: date.convertedUtcDate ?? Date.now, moodValue: moodValue1), MoodPoint(utcTime: date.convertedUtcDate ?? Date.now, moodValue: moodValue2)], description: description)
+        MoodDay(moodPoints: moodPoints, description: description)
     }
     
     /// Initializes the date, mood value, and description
@@ -55,18 +52,6 @@ struct EditEventView: View {
         
         self._moodPoints = State(initialValue: moodPoints)
         self._description = State(initialValue: description)
-        
-        if moodPoints.count > 0 {
-            self._moodValue1 = State(initialValue: moodPoints[0].moodValue)
-        } else {
-            self._moodValue1 = State(initialValue: 0)
-        }
-        
-        if moodPoints.count > 1 {
-            self._moodValue2 = State(initialValue: moodPoints[1].moodValue)
-        } else {
-            self._moodValue2 = State(initialValue: 0)
-        }
         
     }
     
@@ -91,27 +76,7 @@ struct EditEventView: View {
                             .frame(height: 2)
                             .foregroundStyle(.thinMaterial)
                         
-                        HStack {
-                            Text("Mood")
-                            Spacer()
-                            Picker("Mood", selection: $moodValue1) {
-                                ForEach(0..<5) { value in
-                                    Text(MoodOptions.options.moodLabels[value])
-                                }
-                            }
-                            .tint(.secondary)
-                        }
-                        
-                        HStack {
-                            Text("Mood")
-                            Spacer()
-                            Picker("Mood", selection: $moodValue2) {
-                                ForEach(0..<5) { value in
-                                    Text(MoodOptions.options.moodLabels[value])
-                                }
-                            }
-                            .tint(.secondary)
-                        }
+                        MoodTimelineControlView(moodPoints: $moodPoints)
 
                         
                     }

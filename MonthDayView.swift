@@ -53,7 +53,7 @@ struct MonthDayView: View {
                         
                     
                     
-                        BackgroundGradient(moodValues: moodCalendarDay.moodDay?.moodPoints ?? [])
+                    BackgroundGradient(moodPoints: moodCalendarDay.moodDay?.moodPoints ?? [])
                         .clipShape(RoundedRectangle(cornerRadius: geo.size.width * 0.2, style: .continuous))
                         
                     let components = Calendar.autoupdatingCurrent.dateComponents([.day], from: moodCalendarDay.utcDate.convertedCurrentTimezoneDate ?? Date.now)
@@ -188,12 +188,21 @@ struct MonthDayView: View {
     
     struct BackgroundGradient: View {
         
-        let moodValues: [MoodPoint]
+        let moodPoints: [MoodPoint]
         
         var colors: [Color] {
             var temp = [Color]()
             
-            for i in moodValues {
+            /// Sort the incoming list by hour
+            let sorted = moodPoints.sorted(by: {
+                let components0 = Calendar.autoupdatingCurrent.dateComponents([.hour], from: $0.utcTime)
+                let components1 = Calendar.autoupdatingCurrent.dateComponents([.hour], from: $1.utcTime)
+                return components0.hour ?? 0 < components1.hour ?? 0
+                
+            })
+            
+            /// Then add colors in the order of sorted list
+            for i in sorted {
                 temp.append(MoodOptions.options.moodColors[i.moodValue])
             }
             
