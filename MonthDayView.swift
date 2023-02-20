@@ -37,10 +37,6 @@ struct MonthDayView: View {
     
     var body: some View {
         
-        /// Display things
-        let moodValue: Int? = moodCalendarDay.moodDay?.moodPoints[0].moodValue
-        let moodColor = MoodOptions.options.moodColors[moodValue ?? 0]
-        
         GeometryReader { geo in
 
             /// The whole date icon
@@ -55,11 +51,10 @@ struct MonthDayView: View {
                 /// The normal view
                 ZStack {
                         
-                        RoundedRectangle(cornerRadius: geo.size.width * 0.2, style: .continuous)
-                        
-                            .foregroundColor(
-                                moodValue == nil ? Color.secondary.opacity(0.25) : moodColor
-                            )
+                    
+                    
+                        BackgroundGradient(moodValues: moodCalendarDay.moodDay?.moodPoints ?? [])
+                        .clipShape(RoundedRectangle(cornerRadius: geo.size.width * 0.2, style: .continuous))
                         
                     let components = Calendar.autoupdatingCurrent.dateComponents([.day], from: moodCalendarDay.utcDate.convertedCurrentTimezoneDate ?? Date.now)
                         
@@ -122,8 +117,6 @@ struct MonthDayView: View {
                 value: animationAmount
             )
                 
-            
-            
         }
         /// Keep the thing locked to a square
         .aspectRatio(1, contentMode: .fit)
@@ -183,13 +176,41 @@ struct MonthDayView: View {
         /// Edit sheet
         .sheet(isPresented: $editSheetShowing) {
             /// Force unwraps on moodDay ok because that value is checked for nil before this sheet is presented
-            EditEventView(utcDate: moodCalendarDay.utcDate, moodValue: moodCalendarDay.moodDay!.moodPoints.first?.moodValue ?? 0, description: moodCalendarDay.moodDay!.description)
+            EditEventView(utcDate: moodCalendarDay.utcDate, moodPoints: moodCalendarDay.moodDay!.moodPoints, description: moodCalendarDay.moodDay!.description)
         }
         /// Edit sheet but when there wasn't already an entry
         .sheet(isPresented: $newSheetShowing) {
-            EditEventView(utcDate: moodCalendarDay.utcDate, moodValue: 0, description: "")
+            EditEventView(utcDate: moodCalendarDay.utcDate, moodPoints: [], description: "")
         }
         
+        
+    }
+    
+    struct BackgroundGradient: View {
+        
+        let moodValues: [MoodPoint]
+        
+        var colors: [Color] {
+            var temp = [Color]()
+            
+            for i in moodValues {
+                temp.append(MoodOptions.options.moodColors[i.moodValue])
+            }
+            
+            return temp
+            
+        }
+        
+        var body: some View {
+            
+            if colors.count == 0 {
+                Color.secondary.opacity(0.25)
+            } else {
+                LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+            }
+         
+            
+        }
         
     }
     

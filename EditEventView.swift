@@ -20,7 +20,11 @@ struct EditEventView: View {
     /// Keep track of the state of the screen
     @State var date: Date
     @State var dateOpenedTo: Date?
-    @State var moodValue: Int
+    @State var moodPoints: [MoodPoint]
+    
+    @State var moodValue1: Int
+    @State var moodValue2: Int
+    
     @State var description: String
     
     @State var showingDateConflictAlert = false
@@ -31,11 +35,11 @@ struct EditEventView: View {
     
     /// Calculates the mood day to insert into the database
     var convertedMoodDay: MoodDay {
-        MoodDay(moodPoints: [MoodPoint(utcTime: Date.now.convertedUtcDate ?? Date.now, moodValue: moodValue)], description: description)
+        MoodDay(moodPoints: [MoodPoint(utcTime: date.convertedUtcDate ?? Date.now, moodValue: moodValue1), MoodPoint(utcTime: date.convertedUtcDate ?? Date.now, moodValue: moodValue2)], description: description)
     }
     
     /// Initializes the date, mood value, and description
-    init(utcDate: Date?, moodValue: Int, description: String) {
+    init(utcDate: Date?, moodPoints: [MoodPoint], description: String) {
         
         var initialDate = Date.now
         
@@ -49,8 +53,21 @@ struct EditEventView: View {
             self._dateOpenedTo = State(initialValue: initialDate)
         }
         
-        self._moodValue = State(initialValue: moodValue)
+        self._moodPoints = State(initialValue: moodPoints)
         self._description = State(initialValue: description)
+        
+        if moodPoints.count > 0 {
+            self._moodValue1 = State(initialValue: moodPoints[0].moodValue)
+        } else {
+            self._moodValue1 = State(initialValue: 0)
+        }
+        
+        if moodPoints.count > 1 {
+            self._moodValue2 = State(initialValue: moodPoints[1].moodValue)
+        } else {
+            self._moodValue2 = State(initialValue: 0)
+        }
+        
     }
     
     var body: some View {
@@ -59,8 +76,8 @@ struct EditEventView: View {
             /// UI with a gradient background
             ZStack {
                 
-                LinearGradient(colors: [.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue].opacity(0.25)], startPoint: .top, endPoint: .bottom)
-                    .ignoresSafeArea()
+                ///LinearGradient(colors: [.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue].opacity(0.25)], startPoint: .top, endPoint: .bottom)
+                   /// .ignoresSafeArea()
                 
                 /// Foreground UI
                 VStack(alignment: .leading) {
@@ -77,13 +94,26 @@ struct EditEventView: View {
                         HStack {
                             Text("Mood")
                             Spacer()
-                            Picker("Mood", selection: $moodValue) {
+                            Picker("Mood", selection: $moodValue1) {
                                 ForEach(0..<5) { value in
                                     Text(MoodOptions.options.moodLabels[value])
                                 }
                             }
                             .tint(.secondary)
                         }
+                        
+                        HStack {
+                            Text("Mood")
+                            Spacer()
+                            Picker("Mood", selection: $moodValue2) {
+                                ForEach(0..<5) { value in
+                                    Text(MoodOptions.options.moodLabels[value])
+                                }
+                            }
+                            .tint(.secondary)
+                        }
+
+                        
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 5)
@@ -212,6 +242,6 @@ struct EditEventView: View {
 
 struct EditEventView_Preview: PreviewProvider {
     static var previews: some View {
-        EditEventView(utcDate: Date.now.convertedUtcDate, moodValue: 0, description: "")
+        EditEventView(utcDate: Date.now.convertedUtcDate, moodPoints: [], description: "")
     }
 }
