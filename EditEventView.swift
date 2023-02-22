@@ -77,6 +77,8 @@ struct EditEventView: View {
                             .foregroundStyle(.thinMaterial)
                         
                         MoodTimelineControlView(moodPoints: $moodPoints)
+                            .frame(height: 70)
+                            .padding(.horizontal)
 
                         
                     }
