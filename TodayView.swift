@@ -18,7 +18,7 @@ struct TodayView: View {
     /// Keep track of the state of the screen
     @State var id: Int? = nil
     @State var date: Date = Date.now
-    @State var moodValue: Int = 0
+    @State var moodPoints: [MoodPoint] = []
     @State var description: String = ""
 
     @State var showingDateErrorAlert = false
@@ -27,7 +27,7 @@ struct TodayView: View {
     
     /// Calculates the mood day to insert into the database
     var convertedMoodDay: MoodDay {
-        MoodDay(moodPoints: [MoodPoint(utcTime: Date.now.convertedUtcDate ?? Date.now, moodValue: moodValue)], description: description)
+        MoodDay(moodPoints: moodPoints, description: description)
     }
     
     var body: some View {
@@ -36,8 +36,8 @@ struct TodayView: View {
             /// UI with a gradient background
             ZStack {
                 
-                LinearGradient(colors: [.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue].opacity(0.5)], startPoint: .top, endPoint: .bottom)
-                    .ignoresSafeArea()
+                //LinearGradient(colors: [.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue].opacity(0.5)], startPoint: .top, endPoint: .bottom)
+                //    .ignoresSafeArea()
                 /// Foreground UI
                 ScrollView {
                     VStack(alignment: .leading) {
@@ -48,36 +48,14 @@ struct TodayView: View {
                             .foregroundColor(.secondary)
                         
                         /// Fake form row (can't use Form because it doesn't avoid the keyboard)
-                        HStack {
-                            
-                            Text("Mood")
-                            
-                            Spacer()
-                            
-                            Picker("Mood", selection: $moodValue) {
-                                ForEach(0..<5) { value in
-                                    Text(MoodOptions.options.moodLabels[value])
-                                }
-                            }
-                            .tint(.secondary)
-                            /// Update database when moodValue is changed
-                            .onChange(of: moodValue) { newValue in
-                                
-                                if date.convertedUtcDate == nil || id == nil {
-                                    
-                                    showingDateErrorAlert.toggle()
-                                    return
-                                }
-                                
-                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: date.convertedUtcDate!, moodDay: convertedMoodDay)
-                            }
-                        }
-                        .padding(.horizontal)
-                        .padding(.vertical, 5)
-                        .background(.ultraThickMaterial)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .padding()
-                   
+                        MoodTimelineControlView(moodPoints: $moodPoints)
+                            .frame(height: 50)
+                            .padding(.horizontal)
+                            .padding(.vertical, 5)
+                            .background(.ultraThickMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .padding()
+                        
                         TextField("Description", text: $description, axis: .vertical)
                             .padding()
                             .background(.ultraThickMaterial)
@@ -137,7 +115,7 @@ struct TodayView: View {
                 
                 id = nil
                 date = Date.now
-                moodValue = 0
+                moodPoints = []
                 description = ""
                 
                 if date.convertedUtcDate == nil {
@@ -156,7 +134,7 @@ struct TodayView: View {
                     id = today!.id
                 }
                 
-                moodValue = today?.moodDay?.moodPoints[0].moodValue ?? 0
+                moodPoints = today?.moodDay?.moodPoints ?? []
                 description = today?.moodDay?.description ?? ""
                 
             }

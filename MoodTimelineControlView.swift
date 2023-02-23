@@ -17,7 +17,6 @@ struct MoodTimelineControlView: View {
     
     var body: some View {
         
-        
         VStack {
             
             HStack {
@@ -30,46 +29,55 @@ struct MoodTimelineControlView: View {
                 }
             }
             
-            HStack {
+            HStack(spacing: 0) {
                 ForEach(0..<24) { i in
                     
+                    GeometryReader { geo in
                         Color.clear
-                            .overlay {
-                                ZStack {
-                                    
-                                    ForEach(getPointsWithHour(i), id: \.self.wrappedValue) { point in
-                                        DragableMood(moodPoint: point)
-                                            .frame(width: 60, height: 50)
+                                .overlay {
+                                    ZStack {
+                                        /// Filter the whole list into just the points that match the current hour
+                                        ForEach($moodPoints.filter( {
+                                            Calendar.autoupdatingCurrent.date($0.utcTime.wrappedValue, matchesComponents: DateComponents(hour: i))
+                                        }), id: \.self.wrappedValue) { $point in
+                                                DragableMood(moodPoint: $point)
+                                                    .frame(width: 60, height: 50)
+                                                    .offset(dragOffset)
+                                                    
+                                                    .gesture(
+                                                        DragGesture()
+                                                            .onChanged({ gesture in
+                                                                
+                                                                dragOffset = CGSize(width: gesture.translation.width, height: 0)
+                                                                
+                                                            })
+                                                            .onEnded({ gesture in
+                                                                
+                                                                let hourChange = gesture.translation.width/geo.frame(in: .global).width
+                                                                
+                                                                point.utcTime = change(utcTime: point.utcTime, by: Int(hourChange))
+                                                                
+                                                                dragOffset = CGSize.zero
+                                                                
+                                                            }))
+                                        }
                                     }
-                                }
+                                    
                             }
+                    }
+                    .border(.red)
+                    
                 }
             }
         }
         
     }
     
-    func getPointsWithHour(_ hour: Int) -> [Binding<MoodPoint>] {
-        
-        var temp = [Binding<MoodPoint>]()
-        
-        for point in $moodPoints {
-            
-            if Calendar.autoupdatingCurrent.date(point.utcTime.wrappedValue, matchesComponents: DateComponents(hour: hour)) {
-                
-                temp.append(point)
-            }
-        }
-        
-        return temp
-        
-    }
+    
         
     
     
     struct DragableMood: View {
-        
-        //@State private var hourValue = 0
         
         @Binding var moodPoint: MoodPoint
         
@@ -120,15 +128,7 @@ struct MoodTimelineControlView: View {
         
         }
                       
-        func change(utcTime date: Date, by offset: Int) -> Date {
-            
-            guard let newDate = Calendar.autoupdatingCurrent.date(byAdding: .hour, value: offset, to: date) else {
-                return date
-            }
-            
-            return newDate
         
-        }
             
     }
     
@@ -142,4 +142,14 @@ struct MoodTimelineControlView_Previews: PreviewProvider {
         /// Make it a reasonable size
             .frame(height: 70)
     }
+}
+
+func change(utcTime date: Date, by offset: Int) -> Date {
+    
+    guard let newDate = Calendar.autoupdatingCurrent.date(byAdding: .hour, value: offset, to: date) else {
+        return date
+    }
+    
+    return newDate
+
 }
