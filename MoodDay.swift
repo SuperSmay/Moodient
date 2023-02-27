@@ -58,6 +58,12 @@ struct MoodPoint: Codable, Hashable {
     var utcTime: Date
     var moodValue: Int
     
+    let uuid = UUID()
+    
+    private enum CodingKeys: String, CodingKey {
+            case utcTime, moodValue
+        }
+    
 }
 
 // MARK: - MoodCalendarDay

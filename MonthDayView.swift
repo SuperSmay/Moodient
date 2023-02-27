@@ -106,7 +106,7 @@ struct MonthDayView: View {
                     ///
                     
                     .offset(y: didFall ? mainWindowSize.height + geo.size.height * 3 - geo.frame(in: .global).origin.y : 0)
-                    .animation(didFall ? .easeIn(duration: 4) : .easeIn(duration: 2), value: didFall)
+                    .animation(didFall ? .easeIn(duration: 4) : nil, value: didFall)
             }
             ///
             /// More fun animation stuff (Down here so that the background rotates too)
@@ -193,10 +193,12 @@ struct MonthDayView: View {
         var colors: [Color] {
             var temp = [Color]()
             
+            let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
+            
             /// Sort the incoming list by hour
             let sorted = moodPoints.sorted(by: {
-                let components0 = Calendar.autoupdatingCurrent.dateComponents([.hour], from: $0.utcTime)
-                let components1 = Calendar.autoupdatingCurrent.dateComponents([.hour], from: $1.utcTime)
+                let components0 = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $0.utcTime)
+                let components1 = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $1.utcTime)
                 return components0.hour ?? 0 < components1.hour ?? 0
                 
             })

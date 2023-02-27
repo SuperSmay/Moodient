@@ -77,18 +77,19 @@ struct EditEventView: View {
                             .foregroundStyle(.thinMaterial)
                         
                         MoodTimelineControlView(moodPoints: $moodPoints)
+                            .zIndex(10)
                             .frame(height: 70)
                             .padding(.horizontal)
 
-                        
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 5)
                     .background(.ultraThickMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    //.clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding()
                              
                     TextField("Description", text: $description, axis: .vertical)
+                        .zIndex(-1)
                         .padding()
                         .background(.ultraThickMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
