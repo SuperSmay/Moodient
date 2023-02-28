@@ -61,8 +61,11 @@ struct EditEventView: View {
             /// UI with a gradient background
             ZStack {
                 
-                ///LinearGradient(colors: [.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue].opacity(0.25)], startPoint: .top, endPoint: .bottom)
-                   /// .ignoresSafeArea()
+                BackgroundGradient(moodPoints: moodPoints)
+                    .zIndex(-2)
+                    .ignoresSafeArea()
+                    .opacity(0.25)
+                    
                 
                 /// Foreground UI
                 VStack(alignment: .leading) {
@@ -78,15 +81,23 @@ struct EditEventView: View {
                         
                         MoodTimelineControlView(moodPoints: $moodPoints)
                             .zIndex(10)
-                            .frame(height: 70)
-                            .padding(.horizontal)
-
+                            .frame(height: 100)
+                            .padding(.bottom)
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 5)
-                    .background(.ultraThickMaterial)
-                    //.clipShape(RoundedRectangle(cornerRadius: 10))
+                    .background {
+                        Rectangle()
+                            .foregroundColor(.clear)
+                            .background(.ultraThickMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
+
+                            
+                    }
+                    
                     .padding()
+                    
                              
                     TextField("Description", text: $description, axis: .vertical)
                         .zIndex(-1)
@@ -96,12 +107,13 @@ struct EditEventView: View {
                         .padding()
                         .padding(.bottom)
                         .focused($textBoxFocused)
-                        
+                        .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
+
+    
                     
                     Spacer()
                 }
-                .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
-
+                
             }
             .navigationTitle (date.formatted(date: .abbreviated, time: .omitted))
             .navigationBarTitleDisplayMode(.inline)

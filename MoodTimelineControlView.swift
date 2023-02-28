@@ -35,129 +35,156 @@ struct MoodTimelineControlView: View {
                 .disabled(moodPoints.count > 4)
             }
             
-            ZStack {
+            VStack {
                 
                 HStack(spacing: 0) {
                     ForEach(0..<24) { i in
                         
-                        GeometryReader { geo in
+                        Color.clear
+                            .overlay {
+                                if i % 3 == 0 {
+                                    
+                                    let hourInt = Date.is24HoursFormat ? i : i % 12
+                                    
+                                    Text(String(hourInt == 0 && !Date.is24HoursFormat ? 12 : hourInt))
+                                        .fontDesign(.rounded)
+                                        .bold()
+                                        .foregroundColor(.secondary.opacity(0.35))
+                                        .contentShape(Rectangle())
+                                        .frame(width: 100)
+                                       
+
+                                }
+                                
+                            }
+                        
+                        
+                    }
+                }
+                
+                ZStack {
+                    
+                    HStack(spacing: 0) {
+                        ForEach(0..<24) { i in
+                            
                             Color.clear
                                 .background {
                                     Rectangle()
                                         .foregroundColor(.secondary.opacity(0.15))
                                         .frame(width: 3)
                                 }
-                                
+                            
+                            
                         }
                     }
-                }
-                
-                HStack(spacing: 0) {
                     
-                    
-                    
-                    
-                    ForEach(0..<24) { i in
+                    HStack(spacing: 0) {
                         
-                        GeometryReader { geo in
-                            Color.clear
-                                .overlay {
-                                    ZStack {
-                                        /// Filter the whole list into just the points that match the current hour
-                                        
-                                        let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
-                                        
-                                        ForEach($moodPoints.filter( {
+                        
+                        
+                        
+                        ForEach(0..<24) { i in
+                            
+                            GeometryReader { geo in
+                                Color.clear
+                                    .overlay {
+                                        ZStack {
+                                            /// Filter the whole list into just the points that match the current hour
                                             
-                                            Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $0.utcTime.wrappedValue).hour == i
-
-                                        }), id: \.self.wrappedValue) { $point in
-                                            DragableMood(moodPoint: $point)
-                                                /// Force this size. Kinda bad but will fix eventually
-                                                .frame(width: 60, height: 50)
-                                                /// Delete gesture things
-                                                .opacity(draggedPoint == point.uuid && deleteOnRelease ? 0.2 : 1)
-                                                .overlay {
-                                                    Image(systemName: "trash")
-                                                        .foregroundColor(.red)
-                                                        .scaleEffect(draggedPoint == point.uuid && deleteOnRelease ? 1 : 0)
-                                                        .animation(deleteOnRelease ? .spring(response: 0.25, dampingFraction: 0.2, blendDuration: 0.05) : nil, value: deleteOnRelease)
-                                                        .offset(y:-50)
-                                                }
+                                            let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
                                             
-                                                .offset(draggedPoint == point.uuid ? dragOffset : CGSize.zero)
+                                            ForEach($moodPoints.filter( {
                                                 
-                                                .gesture(
-                                                    DragGesture()
-                                                        .onChanged({ gesture in
-                                                            
-                                                            let xOffset = gesture.translation.width
-                                                            var yOffset = 0.0
-                                                            
-                                                            draggedPoint = point.uuid
-                                                            
-                                                            /// Delete things
-                                                            
-                                                            if (abs(gesture.translation.height) > geo.frame(in: .global).height) {
-                                                                yOffset = gesture.translation.height
-                                                            }
-                                                            
-                                                            let deleteRatio = abs(yOffset/(geo.frame(in: .global).height * 2))
-                                                            
-                                                            /// When delete is primed
-                                                            if !deleteOnRelease && deleteRatio >= 1 {
-                                                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                                                deleteOnRelease = true
-                                                            } else if deleteRatio >= 1 {
-                                                                deleteOnRelease = true
-                                                            } else {
-                                                                deleteOnRelease = false
-                                                            }
-                                                            
-                                                            /// Slider haptics
-                                                            let hourChange = gesture.translation.width/geo.frame(in: .global).width
-                                                            
-                                                            if Int(hourChange) != previousHourOffset && deleteRatio == 0 {
-                                                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                                            }
-                                                            
-                                                            previousHourOffset = Int(hourChange)
+                                                Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $0.utcTime.wrappedValue).hour == i
+
+                                            }), id: \.self.wrappedValue) { $point in
+                                                DragableMood(moodPoint: $point)
+                                                    /// Force this size. Kinda bad but will fix eventually
+                                                    .frame(width: 60, height: 50)
+                                                    /// Delete gesture things
+                                                    .opacity(draggedPoint == point.uuid && deleteOnRelease ? 0.2 : 1)
+                                                    .overlay {
+                                                        Image(systemName: "trash")
+                                                            .foregroundColor(.red)
+                                                            .scaleEffect(draggedPoint == point.uuid && deleteOnRelease ? 1 : 0)
+                                                            .animation(deleteOnRelease ? .spring(response: 0.25, dampingFraction: 0.2, blendDuration: 0.05) : nil, value: deleteOnRelease)
+                                                            .offset(y:-50)
+                                                    }
+                                                
+                                                    .offset(draggedPoint == point.uuid ? dragOffset : CGSize.zero)
+                                                    
+                                                    .gesture(
+                                                        DragGesture()
+                                                            .onChanged({ gesture in
                                                                 
-                                                            dragOffset = CGSize(width: xOffset, height: yOffset)
-                                                            
-                                                            
-                                                        })
-                                                        .onEnded({ gesture in
-                                                            
-                                                            let hourChange = gesture.translation.width/geo.frame(in: .global).width
-                                                            
-                                                            draggedPoint = nil
-                                                            
-                                                            dragOffset = CGSize.zero
-                                                            
-                                                            point.utcTime = change(utcTime: point.utcTime, by: Int(hourChange))
-                                                            
-                                                            if deleteOnRelease {
-                                                                moodPoints.removeAll(where: {$0 == point})
-                                                            }
-                                                            
-                                                            deleteOnRelease = false
-                                                            
-                                                        }))
-                                            
+                                                                let xOffset = gesture.translation.width
+                                                                var yOffset = 0.0
+                                                                
+                                                                draggedPoint = point.uuid
+                                                                
+                                                                /// Delete things
+                                                                
+                                                                if (abs(gesture.translation.height) > geo.frame(in: .global).height) {
+                                                                    yOffset = gesture.translation.height
+                                                                }
+                                                                
+                                                                let deleteRatio = abs(yOffset/(geo.frame(in: .global).height * 2))
+                                                                
+                                                                /// When delete is primed
+                                                                if !deleteOnRelease && deleteRatio >= 1 {
+                                                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                                                    deleteOnRelease = true
+                                                                } else if deleteRatio >= 1 {
+                                                                    deleteOnRelease = true
+                                                                } else {
+                                                                    deleteOnRelease = false
+                                                                }
+                                                                
+                                                                /// Slider haptics
+                                                                let hourChange = gesture.translation.width/geo.frame(in: .global).width
+                                                                
+                                                                if Int(hourChange) != previousHourOffset && deleteRatio == 0 {
+                                                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                                                }
+                                                                
+                                                                previousHourOffset = Int(hourChange)
+                                                                    
+                                                                dragOffset = CGSize(width: xOffset, height: yOffset)
+                                                                
+                                                                
+                                                            })
+                                                            .onEnded({ gesture in
+                                                                
+                                                                let hourChange = gesture.translation.width/geo.frame(in: .global).width
+                                                                
+                                                                draggedPoint = nil
+                                                                
+                                                                dragOffset = CGSize.zero
+                                                                
+                                                                if deleteOnRelease {
+                                                                    moodPoints.removeAll(where: {$0 == point})
+                                                                } else {
+                                                                    point.utcTime = change(utcTime: point.utcTime, by: Int(hourChange))
+                                                                }
+                                                                
+                                                                deleteOnRelease = false
+                                                                
+                                                            }))
+                                                
+                                            }
                                         }
                                     }
-                                }
+                                
+                            }
                             
                         }
                         
+                        
                     }
                     
                     
+                    
                 }
-                
-                
-                
             }
         }
         

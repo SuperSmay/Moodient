@@ -94,3 +94,28 @@ extension Date {
         return realDate
     }
 }
+
+// MARK: - Painful date extension for checking if the user is in 24 hour mode
+/// https://stackoverflow.com/a/33468088 
+extension Date {
+
+    static var is24HoursFormat : Bool  {
+        let dateString = Date.localFormatter.string(from: Date())
+
+        if dateString.contains(Date.localFormatter.amSymbol) || dateString.contains(Date.localFormatter.pmSymbol) {
+            return false
+        }
+
+        return true
+    }
+
+    private static let localFormatter : DateFormatter = {
+        let formatter = DateFormatter()
+
+        formatter.locale    = Locale.autoupdatingCurrent
+        formatter.timeStyle = .short
+        formatter.dateStyle = .none
+
+        return formatter
+    }()
+}

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9F0CEC7629A17CD800AF756C /* MoodTimelineControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F0CEC7529A17CD800AF756C /* MoodTimelineControlView.swift */; };
+		9F0CEC7829AD760D00AF756C /* BackgroundGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F0CEC7729AD760D00AF756C /* BackgroundGradient.swift */; };
 		9F100E932990B83B00A8CD4F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F100E922990B83B00A8CD4F /* SettingsView.swift */; };
 		9F100E982992C81100A8CD4F /* NaiveDateExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F100E972992C81100A8CD4F /* NaiveDateExtensions.swift */; };
 		9F1829E6298C65AB00686202 /* MoodientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829E5298C65AB00686202 /* MoodientApp.swift */; };
@@ -33,6 +34,7 @@
 
 /* Begin PBXFileReference section */
 		9F0CEC7529A17CD800AF756C /* MoodTimelineControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodTimelineControlView.swift; sourceTree = "<group>"; };
+		9F0CEC7729AD760D00AF756C /* BackgroundGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundGradient.swift; sourceTree = "<group>"; };
 		9F100E922990B83B00A8CD4F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		9F100E972992C81100A8CD4F /* NaiveDateExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NaiveDateExtensions.swift; sourceTree = "<group>"; };
 		9F1829E2298C65AB00686202 /* Moodient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Moodient.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -71,6 +73,7 @@
 		9F1829D9298C65AB00686202 = {
 			isa = PBXGroup;
 			children = (
+				9F0CEC7729AD760D00AF756C /* BackgroundGradient.swift */,
 				9F0CEC7529A17CD800AF756C /* MoodTimelineControlView.swift */,
 				9F7568002995C41500341798 /* SelectedTabExtension.swift */,
 				9F7567FE2995BAA700341798 /* WindowSize.swift */,
@@ -215,6 +218,7 @@
 				9F100E932990B83B00A8CD4F /* SettingsView.swift in Sources */,
 				9F7568012995C41500341798 /* SelectedTabExtension.swift in Sources */,
 				9F7567F92994B8FE00341798 /* MonthView.swift in Sources */,
+				9F0CEC7829AD760D00AF756C /* BackgroundGradient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

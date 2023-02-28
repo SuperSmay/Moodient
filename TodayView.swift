@@ -36,8 +36,11 @@ struct TodayView: View {
             /// UI with a gradient background
             ZStack {
                 
-                //LinearGradient(colors: [.gray.opacity(0.1), MoodOptions.options.moodColors[moodValue].opacity(0.5)], startPoint: .top, endPoint: .bottom)
-                //    .ignoresSafeArea()
+                BackgroundGradient(moodPoints: moodPoints)
+                    .zIndex(-2)
+                    .ignoresSafeArea()
+                    .opacity(0.25)
+                
                 /// Foreground UI
                 ScrollView {
                     VStack(alignment: .leading) {
@@ -49,9 +52,9 @@ struct TodayView: View {
                         
                         /// Fake form row (can't use Form because it doesn't avoid the keyboard)
                         MoodTimelineControlView(moodPoints: $moodPoints)
-                            .frame(height: 50)
-                            .padding(.horizontal)
-                            .padding(.vertical, 5)
+                            .frame(height: 100)
+                            .padding(.bottom)
+                            .padding()
                             .background(.ultraThickMaterial)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .padding()
@@ -74,7 +77,7 @@ struct TodayView: View {
                             .padding(.bottom)
                             .focused($textBoxFocused)
                             /// Update database when the text is changed
-                            .onChange(of: description) { newValue in
+                            .onChange(of: description) { _ in
                                 
                                 if date.convertedUtcDate == nil || id == nil {
                                     
