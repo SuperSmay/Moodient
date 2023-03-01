@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import NaiveDate
 
 struct FullEventView: View {
     
@@ -60,10 +59,10 @@ struct FullEventView: View {
                 .padding(.vertical)
                 .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity, pressing: { value in
                     
+                    buttonDirectionHeld = .backward
+                    
                     /// Reset the remaining until trigger when the drag starts/ends
                     self.timeRemaining = buttonRepeatTime
-                    
-                    buttonDirectionHeld = .backward
                     
                     /// Only trigger on release if the button was not held down
                     if !buttonWasHeld && !value {
@@ -145,6 +144,8 @@ struct FullEventView: View {
                                 }))
                         .transition(.asymmetric(insertion: .move(edge: isTransitioningUp ? .bottom : .top), removal: .opacity.combined(with: .scale)))
                 }
+                /// Put this behind all the buttons and such to stop it interfering with hitting buttons
+                .zIndex(-1)
                 /// Drawing these was getting laggy
                 .drawingGroup()
                 /// Fancy frame

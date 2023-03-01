@@ -21,14 +21,12 @@
 		9F1829FA298C7C9F00686202 /* MoodOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829F9298C7C9F00686202 /* MoodOptions.swift */; };
 		9F1829FC298C7EA900686202 /* ColorPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829FB298C7EA900686202 /* ColorPoint.swift */; };
 		9F1829FF298CCEA200686202 /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 9F1829FE298CCEA200686202 /* SQLite */; };
-		9F182A06298E0D0700686202 /* NaiveDate in Frameworks */ = {isa = PBXBuildFile; productRef = 9F182A05298E0D0700686202 /* NaiveDate */; };
 		9F7567F72994751700341798 /* FullEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7567F62994751700341798 /* FullEventView.swift */; };
 		9F7567F92994B8FE00341798 /* MonthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7567F82994B8FE00341798 /* MonthView.swift */; };
 		9F7567FB2994DCC000341798 /* MonthDayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7567FA2994DCC000341798 /* MonthDayView.swift */; };
 		9F7567FD2995B2D000341798 /* ShakeEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7567FC2995B2D000341798 /* ShakeEvent.swift */; };
 		9F7567FF2995BAA700341798 /* WindowSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7567FE2995BAA700341798 /* WindowSize.swift */; };
 		9F7568012995C41500341798 /* SelectedTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7568002995C41500341798 /* SelectedTabExtension.swift */; };
-		9FF1D136298F61D200299E2D /* DayPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF1D135298F61D200299E2D /* DayPreview.swift */; };
 		9FF1D138298F666E00299E2D /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF1D137298F666E00299E2D /* TodayView.swift */; };
 /* End PBXBuildFile section */
 
@@ -53,7 +51,6 @@
 		9F7567FC2995B2D000341798 /* ShakeEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeEvent.swift; sourceTree = "<group>"; };
 		9F7567FE2995BAA700341798 /* WindowSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowSize.swift; sourceTree = "<group>"; };
 		9F7568002995C41500341798 /* SelectedTabExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedTabExtension.swift; sourceTree = "<group>"; };
-		9FF1D135298F61D200299E2D /* DayPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayPreview.swift; sourceTree = "<group>"; };
 		9FF1D137298F666E00299E2D /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -62,7 +59,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9F182A06298E0D0700686202 /* NaiveDate in Frameworks */,
 				9F1829FF298CCEA200686202 /* SQLite in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,7 +80,6 @@
 				9F100E972992C81100A8CD4F /* NaiveDateExtensions.swift */,
 				9F100E922990B83B00A8CD4F /* SettingsView.swift */,
 				9FF1D137298F666E00299E2D /* TodayView.swift */,
-				9FF1D135298F61D200299E2D /* DayPreview.swift */,
 				9F1829FB298C7EA900686202 /* ColorPoint.swift */,
 				9F1829F9298C7C9F00686202 /* MoodOptions.swift */,
 				9F1829F7298C746900686202 /* MoodEventStorage.swift */,
@@ -140,7 +135,6 @@
 			name = Moodient;
 			packageProductDependencies = (
 				9F1829FE298CCEA200686202 /* SQLite */,
-				9F182A05298E0D0700686202 /* NaiveDate */,
 			);
 			productName = Moodient;
 			productReference = 9F1829E2298C65AB00686202 /* Moodient.app */;
@@ -172,7 +166,6 @@
 			mainGroup = 9F1829D9298C65AB00686202;
 			packageReferences = (
 				9F1829FD298CCEA200686202 /* XCRemoteSwiftPackageReference "SQLite.swift" */,
-				9F182A04298E0D0700686202 /* XCRemoteSwiftPackageReference "NaiveDate" */,
 			);
 			productRefGroup = 9F1829E3298C65AB00686202 /* Products */;
 			projectDirPath = "";
@@ -204,7 +197,6 @@
 				9F100E982992C81100A8CD4F /* NaiveDateExtensions.swift in Sources */,
 				9F1829E8298C65AB00686202 /* ContentView.swift in Sources */,
 				9F1829FA298C7C9F00686202 /* MoodOptions.swift in Sources */,
-				9FF1D136298F61D200299E2D /* DayPreview.swift in Sources */,
 				9FF1D138298F666E00299E2D /* TodayView.swift in Sources */,
 				9F1829F4298C66AE00686202 /* MoodDay.swift in Sources */,
 				9F1829F6298C6B0E00686202 /* EditEventView.swift in Sources */,
@@ -431,14 +423,6 @@
 				minimumVersion = 0.9.2;
 			};
 		};
-		9F182A04298E0D0700686202 /* XCRemoteSwiftPackageReference "NaiveDate" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/CreateAPI/NaiveDate";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -446,11 +430,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9F1829FD298CCEA200686202 /* XCRemoteSwiftPackageReference "SQLite.swift" */;
 			productName = SQLite;
-		};
-		9F182A05298E0D0700686202 /* NaiveDate */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 9F182A04298E0D0700686202 /* XCRemoteSwiftPackageReference "NaiveDate" */;
-			productName = NaiveDate;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
