@@ -14,16 +14,7 @@ struct BackgroundGradient: View {
     var colors: [Color] {
         var temp = [Color]()
         
-        /// Sort the incoming list by hour
-        let sorted = moodPoints//.sorted(by: {
-//            let components0 = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $0.utcTime)
-//            let components1 = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $1.utcTime)
-//            return components0.hour ?? 0 < components1.hour ?? 0
-            
-        //        })
-        
-        /// Then add colors in the order of sorted list
-        for i in sorted {
+        for i in moodPoints {
             temp.append(MoodOptions.options.moodColors[i.moodValue])
         }
         

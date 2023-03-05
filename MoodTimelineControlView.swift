@@ -164,7 +164,17 @@ struct MoodTimelineControlView: View {
                                                                 if deleteOnRelease {
                                                                     moodPoints.removeAll(where: {$0 == point})
                                                                 } else {
+                                                                    
                                                                     point.utcTime = change(utcTime: point.utcTime, by: Int(hourChange))
+                                                                    
+                                                                    /// Sort the moodPoints list by hour
+                                                                    moodPoints = moodPoints.sorted(by: {
+                                                                        let components0 = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $0.utcTime)
+                                                                        let components1 = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $1.utcTime)
+                                                                        return components0.hour ?? 0 < components1.hour ?? 0
+                                                                        
+                                                                            })
+                                                                    
                                                                 }
                                                                 
                                                                 deleteOnRelease = false
