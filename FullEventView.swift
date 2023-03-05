@@ -289,10 +289,12 @@ struct MonthChangeButton: View {
     
     var body: some View {
         
+        let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
         let newDate = Calendar.autoupdatingCurrent.date(byAdding: .month, value: direction == .forward ? 1 : -1, to: month) ?? Date.now
-        let newIndex = Calendar.autoupdatingCurrent.dateComponents([.month], from: newDate).month
+        let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: newDate)
+        let newIndex = components.month
         let monthName = Calendar.autoupdatingCurrent.monthSymbols[(newIndex ?? 1) - 1]
-        let year = Calendar.autoupdatingCurrent.component(.year, from: newDate)
+        let year = components.year ?? 0
         
         Label("\(monthName) \(year.formatted(.number.grouping(.never)))", systemImage: "chevron.\(direction == .forward ? "up" : "down")")
             .padding()
@@ -303,26 +305,26 @@ struct MonthChangeButton: View {
                 /// In .background to avoid resizing view
                 GeometryReader { geo in
                     /// Calculate the width of the "progress bar"
-                    
-                    
+
+
                     let frameWidth = fillPercent > 0 ? geo.frame(in: .global).width * fillPercent : 0
                     /// The "progress bar" itself
                     Color.white.opacity(0.75)
                         .frame(width: frameWidth, alignment: .leading)
-                    
-                    
+
+
                 }
             }
             /// Don't apply an animation to the progress thing
             .animation(nil, value: fillPercent)
             .background(Color.secondary.opacity(0.5))
-           
-            
+
+
 
             .clipShape(RoundedRectangle(cornerRadius: 100, style: .continuous))
-            
+
             /// Fancy stretch
-            
+
             .scaleEffect(x: fillPercent > 0 ? 1.0 + fillPercent/30 : 1, anchor: .leading)
             .shadow(color: colorScheme == .dark ? .white.opacity(0.5) : .black.opacity(0.1), radius: fillPercent > 0 ? 10 : 0)
             /// Animations
