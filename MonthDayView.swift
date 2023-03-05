@@ -15,6 +15,8 @@ struct MonthDayView: View {
     @Environment(\.mainWindowSize) var mainWindowSize
     /// This is a bit scuffed, but is used to check if this view is being displayed and should respond to the shake easteregg
     @Environment(\.selectedTabTitle) var selectedTabeTitle
+    /// So that each day doesn't need to fetch this
+    @Environment(\.currentUtcDate) var currentUtcDate
     
     /// Pull moodDays from the environment
     @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
@@ -37,7 +39,7 @@ struct MonthDayView: View {
     var body: some View {
         
         GeometryReader { geo in
-
+            
             /// The whole date icon
             ZStack {
                 
@@ -46,66 +48,56 @@ struct MonthDayView: View {
                     .foregroundColor(
                         Color.secondary.opacity(0.25)
                     )
-                
+                //
                 /// The normal view
                 ZStack {
-                        
                     
+                    let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
                     
                     BackgroundGradient(moodPoints: moodCalendarDay.moodDay?.moodPoints ?? [])
                         .clipShape(RoundedRectangle(cornerRadius: geo.size.width * 0.2, style: .continuous))
-                        
-                    let components = Calendar.autoupdatingCurrent.dateComponents([.day], from: moodCalendarDay.utcDate.convertedCurrentTimezoneDate ?? Date.now)
-                        
-                        Text(String(components.day ?? 1))
+                        .drawingGroup()
                     
-//                    VStack {
-//                        Text(String(TimeZone.current.secondsFromGMT()/3600))
-//                        Text(utcDate.ISO8601Format())
-//                        Text(utcDate.convertedCurrentTimezoneDate!.ISO8601Format())
-//                        Text(utcDate.convertedUtcDate!.ISO8601Format())
-//                    }
+                    let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: moodCalendarDay.utcDate)
+                    //
+                    Text(String(components.day ?? 1))
+                        .font(.system(size: geo.size.width * 0.75, design: .rounded))
+                        .bold()
+                        .foregroundColor(colorScheme == .light ? .white.opacity(0.65) : .black.opacity(0.45))
                     
-                        
-                            .font(.system(size: geo.size.width * 0.75, design: .rounded))
-                        
-                            .bold()
-                        //.foregroundStyle(.thinMaterial)
-                            .foregroundColor(colorScheme == .light ? .white.opacity(0.65) : .black.opacity(0.45))
-                        
+                }
+                /// Fun things
+                .onTapGesture {
+                    doAnimation()
+                }
+                /// The real easteregg
+                .onShake {
+                    //
+                      /// Hardcoded and kinda bad, but works for now
+                    if selectedTabeTitle != "Day List" || didFall {
+                        return
                     }
-                    /// Fun things
-                    .onTapGesture {
+                    //
+                    /// Run the animation after a random delay
+                    let randomDelay = Double.random(in: 0.0..<0.4)
+                    //
+                    DispatchQueue.main.asyncAfter(deadline: .now() + randomDelay) {
+                        /// Increment to make some of the icons fall after shaking
+                        willFallCount += 1
+                        let fallRandom = Double.random(in: 0..<1)
+                        if willFallCount != 1 && fallRandom < Double((willFallCount * 10))/100.0 {
+                            didFall = true
+                        }
                         doAnimation()
                     }
-                    /// The real easteregg
-                    .onShake {
-                        
-                        /// Hardcoded and kinda bad, but works for now
-                        if selectedTabeTitle != "Day List" || didFall {
-                            return
-                        }
-                        
-                        /// Run the animation after a random delay
-                        let randomDelay = Double.random(in: 0.0..<0.4)
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + randomDelay) {
-                            /// Increment to make some of the icons fall after shaking
-                            willFallCount += 1
-                            let fallRandom = Double.random(in: 0..<1)
-                            if willFallCount != 1 && fallRandom < Double((willFallCount * 10))/100.0 {
-                                didFall = true
-                            }
-                            doAnimation()
-                        }
-
-                    }
-                    ///
-                    /// Fun animation stuff
-                    ///
                     
-                    .offset(y: didFall ? mainWindowSize.height + geo.size.height * 3 - geo.frame(in: .global).origin.y : 0)
-                    .animation(didFall ? .easeIn(duration: 4) : nil, value: didFall)
+                }
+                ///
+                /// Fun animation stuff
+                ///
+
+                .offset(y: didFall ? mainWindowSize.height + geo.size.height * 3 - geo.frame(in: .global).origin.y : 0)
+                .animation(didFall ? .easeIn(duration: 4) : nil, value: didFall)
             }
             ///
             /// More fun animation stuff (Down here so that the background rotates too)
@@ -115,21 +107,22 @@ struct MonthDayView: View {
                 didFall ? .spring(response: 2, dampingFraction: 0.2, blendDuration: 2) : .spring(dampingFraction: 0.2),
                 value: animationAmount
             )
-                
+            
         }
         /// Keep the thing locked to a square
         .aspectRatio(1, contentMode: .fit)
         /// Reset animation and reload database data
-        .onAppear() {
-            didFall = false
-            willFallCount = 0
-        }
+//        .onAppear() {
+//            didFall = false
+//            willFallCount = 0
+//        }
         /// Touch and hold menu
         .contextMenu {
+            
             /// If the date should be able to be edited, then show the edit button
-            if (Date.now.convertedUtcDate != nil && moodCalendarDay.utcDate <= Date.now.convertedUtcDate!) {
+            if (currentUtcDate != nil && moodCalendarDay.utcDate <= currentUtcDate!) {
                 Button(action: {
-                    
+
                     if moodCalendarDay.moodDay == nil {
                         newSheetShowing.toggle()
                     } else {
@@ -139,7 +132,7 @@ struct MonthDayView: View {
                 }, label: {
                     Label("Edit", systemImage: "pencil")
                 })
-                
+
                 if (moodCalendarDay.moodDay != nil) {
                     Button(role: .destructive) {
                         deleteAlertUtcDate = moodCalendarDay.utcDate
@@ -148,17 +141,14 @@ struct MonthDayView: View {
                         Label("Delete", systemImage: "trash")
                     }
                 }
-                
-
             /// Otherwise, show a disabled button (Text doesn't work so this was the best option) that has a fun message
             } else {
 
-                let daysAway = (Calendar.autoupdatingCurrent.dateComponents([.day], from: Date.now.convertedUtcDate ?? Date.now, to: moodCalendarDay.utcDate).day ?? -1)
+                let daysAway = (Calendar.autoupdatingCurrent.dateComponents([.day], from: currentUtcDate ?? Date.now, to: moodCalendarDay.utcDate).day ?? -1)
                 let daysAwayText = daysAway == 1 ? "tomorrow!" : "\(daysAway) days from now"
                 Button("That's \(daysAwayText)") {}
                     .disabled(true)
             }
-            
         }
         .alert("Delete entry?", isPresented: $deleteAlertShowing, actions: {
             Button(role:.destructive) {
@@ -170,7 +160,7 @@ struct MonthDayView: View {
             } label: {
                 Text("Delete")
             }
-
+            //
         })
         /// Edit sheet
         .sheet(isPresented: $editSheetShowing) {

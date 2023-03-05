@@ -1,14 +1,13 @@
 //
-//  MonthView.swift
+//  YearView.swift
 //  Moodient
 //
-//  Created by Smay on 2/8/23.
+//  Created by Smay on 3/1/23.
 //
 
 import SwiftUI
 
-struct MonthView: View {
-    
+struct YearView: View {
     /// The size of the window this view is being displayed in
     @Environment(\.mainWindowSize) var mainWindowSize
     /// Select tab env stuff to reload when the tab is changed
@@ -19,16 +18,14 @@ struct MonthView: View {
     private var weeks = [[Date]]()
     private var daysToSkipInFirstWeek = 0
     
-    var utcFirstDayOfMonth: Date
+    var firstDayOfYear: Date
     
     var body: some View {
         VStack {
-            Grid {
-                ForEach(weeks, id: \.self) { week in
-                    GridRow {
-                        
+            ScrollView {
+                LazyVGrid(columns: Array(repeating: GridItem(.adaptive(minimum:50)), count: 10)) {
+                    ForEach(weeks, id: \.self) { week in
                         weekView(weeks: weeks, week: week, daysToSkipInFirstWeek: daysToSkipInFirstWeek)
-                        
                     }
                 }
             }
@@ -45,7 +42,7 @@ struct MonthView: View {
         let week: [Date]
         let daysToSkipInFirstWeek: Int
         
-               
+        
         
         var body: some View {
             
@@ -57,15 +54,12 @@ struct MonthView: View {
                         .gridCellUnsizedAxes([.horizontal, .vertical])
                 }
             }
-            /// So that each day view doesn't need to fetch this
-            let currentUtcDate = Date.now.convertedUtcDate
             
             ForEach(week, id: \.self) { day in
                 
                 /// Retrieve the actual info for this day from the list loaded earlier
                 /// If this day does not have an entry, then a blank entry is used
-                let moodCalendarDay = moodDays.moodDays[day] ?? MoodCalendarDay(utcDate: day , id: -1)
-               
+                let moodCalendarDay = moodDays.moodDays[day.convertedUtcDate ?? Date.now] ?? MoodCalendarDay(utcDate: day.convertedUtcDate ?? Date.now, id: -1)
                 
                 MonthDayView(moodCalendarDay: moodCalendarDay)
                 /// This *sucks.* The array change does not seem to be sufficient to trigger a reload of this view.
@@ -77,52 +71,40 @@ struct MonthView: View {
                 
                 
             }
-            /// So that each day view doesn't need to fetch this
-            .environment(\.currentUtcDate, currentUtcDate)
             
         }
     }
     
-    init(utcDayInMonth givenUtcDate: Date) {
-        
-        /// Timezone
-        let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
-        
-        /// Get the month and year
-        let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: givenUtcDate)
+    init(dayInYear givenDate: Date) {
         
         /// Set the first day of the month
-        utcFirstDayOfMonth = Calendar.autoupdatingCurrent.date(from: DateComponents(timeZone: timezone, year: components.year, month: components.month, day: 1)) ?? Date.now
-
-        /// Save the month
-        let month = components.month
+        let components = Calendar.autoupdatingCurrent.dateComponents([.year], from: givenDate)
+        firstDayOfYear = Calendar.autoupdatingCurrent.date(from: DateComponents(year: components.year ?? 1, month: 1, day: 1)) ?? Date.now
         
-        if month == nil {
-            print("Unable to get month from given Date: \(givenUtcDate)")
+        /// Save the year
+        let year = components.year
+        
+        if year == nil {
+            print("Unable to get year from given Date: \(givenDate)")
             return
         }
         
-        /// Start with the first day of the month, then loop untill the month is no longer the same, filling days with the days in that month
+        /// Start with the first day of the month, then loop untill the year is no longer the same, filling days with the days in that year
         var days = [Date]()
-        var currentDay: Date? = utcFirstDayOfMonth
-        var currentComponents = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: currentDay!)
-        while (currentDay != nil && currentComponents.month == month) {
+        var currentDay: Date? = firstDayOfYear
+        while (currentDay != nil && Calendar.autoupdatingCurrent.dateComponents([.year], from: currentDay!).year == year) {
             days.append(currentDay!)
-            currentDay = Calendar.autoupdatingCurrent.date(from: DateComponents(timeZone: timezone, year: components.year, month: components.month, day: (currentComponents.day ?? -1) + 1))
-            if currentDay == nil {
-                break
-            }
-            currentComponents = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: currentDay!)
+            currentDay = Calendar.autoupdatingCurrent.date(byAdding: .day, value: 1, to: currentDay!)
         }
         
         /// Fill the week with days, then reset at the start of each new week
         var currentWeek = [Date]()
         
-        daysToSkipInFirstWeek = (Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: utcFirstDayOfMonth).weekday ?? 0) - 1
+        daysToSkipInFirstWeek = (Calendar.autoupdatingCurrent.dateComponents([.weekday], from: firstDayOfYear).weekday ?? 0) - 1
         
         for day in days {
             /// The index of a day in the current calender's week (Starts at 1, eg Sunday = 1)
-            let weekIndex = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: day).weekday
+            let weekIndex = Calendar.autoupdatingCurrent.dateComponents([.weekday], from: day).weekday
             
             /// If the day is not the first day of the week, just add it to the week
             if weekIndex != 1 {
@@ -145,25 +127,11 @@ struct MonthView: View {
         }
         
     }
-
+    
 }
 
-
-private struct CurrentUtcDateKey: EnvironmentKey {
-    static let defaultValue: Date? = Date.now.convertedUtcDate
-}
-
-extension EnvironmentValues {
-    var currentUtcDate: Date? {
-        get { self[CurrentUtcDateKey.self] }
-        set { self[CurrentUtcDateKey.self] = newValue }
-    }
-}
-
-
-
-struct MonthView_Previews: PreviewProvider {
+struct YearView_Previews: PreviewProvider {
     static var previews: some View {
-        MonthView(utcDayInMonth: Date.now.convertedUtcDate!)
+        YearView(dayInYear: Date.now)
     }
 }
