@@ -24,6 +24,20 @@ struct MonthView: View {
     var body: some View {
         VStack {
             Grid {
+                
+                GridRow {
+                    
+                    ForEach(Calendar.autoupdatingCurrent.shortWeekdaySymbols, id: \.self) { symbol in
+                        
+                        Text(symbol)
+                            .font(.subheadline)
+                            .fontDesign(.rounded)
+                            .bold()
+                            .foregroundColor(.secondary.opacity(0.75))
+                    
+                    }
+                }
+                
                 ForEach(weeks, id: \.self) { week in
                     GridRow {
                         
