@@ -28,9 +28,9 @@ struct YearView: View {
                         weekView(weeks: weeks, week: week, daysToSkipInFirstWeek: daysToSkipInFirstWeek)
                     }
                 }
+                .drawingGroup()
             }
         }
-        
     }
     
     struct weekView: View {
