@@ -201,6 +201,34 @@ struct MonthDayView: View {
     
 }
 
+private struct CurrentUtcDateKey: EnvironmentKey {
+    static let defaultValue: Date? = Date.now.convertedUtcDate
+}
+
+extension EnvironmentValues {
+    var currentUtcDate: Date? {
+        get { self[CurrentUtcDateKey.self] }
+        set { self[CurrentUtcDateKey.self] = newValue }
+    }
+}
+
+private struct UtcDateFormatterKey: EnvironmentKey {
+    static var defaultValue: DateFormatter {
+        let utcDateFormatter = DateFormatter()
+        utcDateFormatter.timeZone = TimeZone(identifier: "UTC")
+        utcDateFormatter.dateStyle = .medium
+        utcDateFormatter.timeStyle = .none
+        return utcDateFormatter
+    }
+}
+
+extension EnvironmentValues {
+    var utcDateFormatter: DateFormatter {
+        get { self[UtcDateFormatterKey.self] }
+        set { self[UtcDateFormatterKey.self] = newValue }
+    }
+}
+
 struct MonthDayView_Previews: PreviewProvider {
     static var previews: some View {
         GeometryReader { geo in

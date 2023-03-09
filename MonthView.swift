@@ -172,30 +172,6 @@ struct MonthView: View {
 
 }
 
-
-private struct CurrentUtcDateKey: EnvironmentKey {
-    static let defaultValue: Date? = Date.now.convertedUtcDate
-}
-
-extension EnvironmentValues {
-    var currentUtcDate: Date? {
-        get { self[CurrentUtcDateKey.self] }
-        set { self[CurrentUtcDateKey.self] = newValue }
-    }
-}
-
-private struct UtcDateFormatterKey: EnvironmentKey {
-    static let defaultValue: DateFormatter = DateFormatter()
-}
-
-extension EnvironmentValues {
-    var utcDateFormatter: DateFormatter {
-        get { self[UtcDateFormatterKey.self] }
-        set { self[UtcDateFormatterKey.self] = newValue }
-    }
-}
-
-
 struct MonthView_Previews: PreviewProvider {
     static var previews: some View {
         MonthView(utcDayInMonth: Date.now.convertedUtcDate!)
