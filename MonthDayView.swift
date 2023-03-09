@@ -17,6 +17,8 @@ struct MonthDayView: View {
     @Environment(\.selectedTabTitle) var selectedTabeTitle
     /// So that each day doesn't need to fetch this
     @Environment(\.currentUtcDate) var currentUtcDate
+    /// These are supposedly expensive to make, so we will avoid making tons of them
+    @Environment(\.utcDateFormatter) var utcDateFormatter
     
     /// Pull moodDays from the environment
     @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
@@ -35,6 +37,7 @@ struct MonthDayView: View {
     @State private var willFallCount = 0
     @State private var didFall = false;
     
+    let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
     
     var body: some View {
         
@@ -51,8 +54,6 @@ struct MonthDayView: View {
                 //
                 /// The normal view
                 ZStack {
-                    
-                    let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
                     
                     BackgroundGradient(moodPoints: moodCalendarDay.moodDay?.moodPoints ?? [])
                         .clipShape(RoundedRectangle(cornerRadius: geo.size.width * 0.2, style: .continuous))
@@ -119,35 +120,46 @@ struct MonthDayView: View {
         /// Touch and hold menu
         .contextMenu {
             
-            /// If the date should be able to be edited, then show the edit button
-            if (currentUtcDate != nil && moodCalendarDay.utcDate <= currentUtcDate!) {
-                Button(action: {
-
-                    if moodCalendarDay.moodDay == nil {
-                        newSheetShowing.toggle()
-                    } else {
-                        editSheetShowing.toggle()
-                    }
-
-                }, label: {
-                    Label("Edit", systemImage: "pencil")
-                })
-
-                if (moodCalendarDay.moodDay != nil) {
-                    Button(role: .destructive) {
-                        deleteAlertUtcDate = moodCalendarDay.utcDate
-                        deleteAlertShowing.toggle()
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
+            Section {
+                Button {
+                    
+                } label: {
+                    Label(utcDateFormatter.string(from: moodCalendarDay.utcDate), systemImage: "calendar")
                 }
-            /// Otherwise, show a disabled button (Text doesn't work so this was the best option) that has a fun message
-            } else {
-
-                let daysAway = (Calendar.autoupdatingCurrent.dateComponents([.day], from: currentUtcDate ?? Date.now, to: moodCalendarDay.utcDate).day ?? -1)
-                let daysAwayText = daysAway == 1 ? "tomorrow!" : "\(daysAway) days from now"
-                Button("That's \(daysAwayText)") {}
                     .disabled(true)
+            }
+            
+            Section {
+                /// If the date should be able to be edited, then show the edit button
+                if (currentUtcDate != nil && moodCalendarDay.utcDate <= currentUtcDate!) {
+                    Button(action: {
+                        
+                        if moodCalendarDay.moodDay == nil {
+                            newSheetShowing.toggle()
+                        } else {
+                            editSheetShowing.toggle()
+                        }
+                        
+                    }, label: {
+                        Label("Edit", systemImage: "pencil")
+                    })
+                    
+                    if (moodCalendarDay.moodDay != nil) {
+                        Button(role: .destructive) {
+                            deleteAlertUtcDate = moodCalendarDay.utcDate
+                            deleteAlertShowing.toggle()
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
+                    /// Otherwise, show a disabled button (Text doesn't work so this was the best option) that has a fun message
+                } else {
+                    
+                    let daysAway = (Calendar.autoupdatingCurrent.dateComponents([.day], from: currentUtcDate ?? Date.now, to: moodCalendarDay.utcDate).day ?? -1)
+                    let daysAwayText = daysAway == 1 ? "tomorrow!" : "\(daysAway) days from now"
+                    Button("That's \(daysAwayText)") {}
+                        .disabled(true)
+                }
             }
         }
         .alert("Delete entry?", isPresented: $deleteAlertShowing, actions: {

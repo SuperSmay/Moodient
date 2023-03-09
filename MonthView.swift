@@ -19,6 +19,8 @@ struct MonthView: View {
     private var weeks = [[Date]]()
     private var daysToSkipInFirstWeek = 0
     
+    var utcDateFormatter: DateFormatter
+    
     var utcFirstDayOfMonth: Date
     
     var body: some View {
@@ -42,6 +44,8 @@ struct MonthView: View {
                     GridRow {
                         
                         weekView(weeks: weeks, week: week, daysToSkipInFirstWeek: daysToSkipInFirstWeek)
+                            /// So that each day doesn't need to make another one
+                            .environment(\.utcDateFormatter, utcDateFormatter)
                         
                     }
                 }
@@ -101,6 +105,12 @@ struct MonthView: View {
         
         /// Timezone
         let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
+        
+        /// Make and save date formatter
+        utcDateFormatter = DateFormatter()
+        utcDateFormatter.timeZone = timezone
+        utcDateFormatter.dateStyle = .medium
+        utcDateFormatter.timeStyle = .none
         
         /// Get the month and year
         let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: givenUtcDate)
@@ -174,6 +184,16 @@ extension EnvironmentValues {
     }
 }
 
+private struct UtcDateFormatterKey: EnvironmentKey {
+    static let defaultValue: DateFormatter = DateFormatter()
+}
+
+extension EnvironmentValues {
+    var utcDateFormatter: DateFormatter {
+        get { self[UtcDateFormatterKey.self] }
+        set { self[UtcDateFormatterKey.self] = newValue }
+    }
+}
 
 
 struct MonthView_Previews: PreviewProvider {
