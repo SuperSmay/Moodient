@@ -57,7 +57,6 @@ struct MonthDayView: View {
                     
                     BackgroundGradient(moodPoints: moodCalendarDay.moodDay?.moodPoints ?? [])
                         .clipShape(RoundedRectangle(cornerRadius: geo.size.width * 0.2, style: .continuous))
-                        .drawingGroup()
                     
                     let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: moodCalendarDay.utcDate)
                     //
