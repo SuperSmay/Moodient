@@ -71,6 +71,7 @@ struct EditEventView: View {
                 VStack(alignment: .leading) {
                     
                     /// Fake form thing  (can't use Form because it doesn't avoid the keyboard)
+                    /// Is a scuffed stack with a background because if I use clip shape then the little mood time things are clipped when dragged outside the box
                     VStack {
                         
                         DatePicker("Date", selection: $date, in: Date.distantPast...Date.now, displayedComponents: .date)

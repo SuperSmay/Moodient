@@ -51,22 +51,17 @@ struct TodayView: View {
                         
                         /// Fake form row (can't use Form because it doesn't avoid the keyboard)
                         MoodTimelineControlView(moodPoints: $moodPoints)
+                            .zIndex(10)
                             .frame(height: 100)
-                            .padding(.bottom)
                             .padding()
-                            .background(.ultraThickMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .padding()
-                            .onChange(of: moodPoints) { newValue in
-                                if date.convertedUtcDate == nil || id == nil {
-                                    
-                                    showingDateErrorAlert.toggle()
-                                    
-                                    return
-                                }
-                                
-                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: date.convertedUtcDate!, moodDay: convertedMoodDay)
+                            .background {
+                                Rectangle()
+                                    .foregroundColor(.clear)
+                                    .background(.ultraThickMaterial)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                    .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
                             }
+                            .padding()
                         
                         TextField("Description", text: $description, axis: .vertical)
                             .padding()
@@ -75,6 +70,7 @@ struct TodayView: View {
                             .padding()
                             .padding(.bottom)
                             .focused($textBoxFocused)
+                            .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
                             /// Update database when the text is changed
                             .onChange(of: description) { _ in
                                 
@@ -90,7 +86,7 @@ struct TodayView: View {
                         
                         Spacer()
                     }
-                    .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
+                    
                 }
                 
             }
