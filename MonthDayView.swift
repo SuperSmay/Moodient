@@ -15,7 +15,7 @@ struct MonthDayView: View {
     @Environment(\.mainWindowSize) var mainWindowSize
     /// This is a bit scuffed, but is used to check if this view is being displayed and should respond to the shake easteregg
     @Environment(\.selectedTabTitle) var selectedTabeTitle
-    /// So that each day doesn't need to fetch this
+    /// So that each day doesn't need to fetch this, I know this is slow
     @Environment(\.currentUtcDate) var currentUtcDate
     /// These are supposedly expensive to make, so we will avoid making tons of them
     @Environment(\.utcDateFormatter) var utcDateFormatter

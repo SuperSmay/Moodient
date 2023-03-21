@@ -62,6 +62,17 @@ struct TodayView: View {
                                     .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
                             }
                             .padding()
+                            .onChange(of: moodPoints) { _ in
+                                
+                                if date.convertedUtcDate == nil || id == nil {
+                                    
+                                    showingDateErrorAlert.toggle()
+                                    
+                                    return
+                                }
+                                
+                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: date.convertedUtcDate!, moodDay: convertedMoodDay)
+                            }
                         
                         TextField("Description", text: $description, axis: .vertical)
                             .padding()

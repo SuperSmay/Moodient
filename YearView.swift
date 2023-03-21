@@ -18,7 +18,7 @@ struct YearView: View {
     private var weeks = [[Date]]()
     private var daysToSkipInFirstWeek = 0
     
-    var firstDayOfYear: Date
+    var utcFirstDayOfYear: Date
     
     var body: some View {
         VStack {
@@ -75,11 +75,16 @@ struct YearView: View {
         }
     }
     
-    init(dayInYear givenDate: Date) {
+    init(utcDayInYear givenDate: Date) {
+        
+        /// Timezone
+        let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
+        
+        /// Get the month and year
+        let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: givenDate)
         
         /// Set the first day of the month
-        let components = Calendar.autoupdatingCurrent.dateComponents([.year], from: givenDate)
-        firstDayOfYear = Calendar.autoupdatingCurrent.date(from: DateComponents(year: components.year ?? 1, month: 1, day: 1)) ?? Date.now
+        utcFirstDayOfYear = Calendar.autoupdatingCurrent.date(from: DateComponents(timeZone: timezone, year: components.year, month: components.month, day: 1)) ?? Date.now
         
         /// Save the year
         let year = components.year
@@ -91,20 +96,25 @@ struct YearView: View {
         
         /// Start with the first day of the month, then loop untill the year is no longer the same, filling days with the days in that year
         var days = [Date]()
-        var currentDay: Date? = firstDayOfYear
-        while (currentDay != nil && Calendar.autoupdatingCurrent.dateComponents([.year], from: currentDay!).year == year) {
+        var currentDay: Date? = utcFirstDayOfYear
+        var currentComponents = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: currentDay!)
+        while (currentDay != nil && currentComponents.year == year) {
             days.append(currentDay!)
-            currentDay = Calendar.autoupdatingCurrent.date(byAdding: .day, value: 1, to: currentDay!)
+            currentDay = Calendar.autoupdatingCurrent.date(from: DateComponents(timeZone: timezone, year: components.year, month: components.month, day: (currentComponents.day ?? -1) + 1))
+            if currentDay == nil {
+                break
+            }
+            currentComponents = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: currentDay!)
         }
         
         /// Fill the week with days, then reset at the start of each new week
         var currentWeek = [Date]()
         
-        daysToSkipInFirstWeek = (Calendar.autoupdatingCurrent.dateComponents([.weekday], from: firstDayOfYear).weekday ?? 0) - 1
+        daysToSkipInFirstWeek = (Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: utcFirstDayOfYear).weekday ?? 0) - 1
         
         for day in days {
             /// The index of a day in the current calender's week (Starts at 1, eg Sunday = 1)
-            let weekIndex = Calendar.autoupdatingCurrent.dateComponents([.weekday], from: day).weekday
+            let weekIndex = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: day).weekday
             
             /// If the day is not the first day of the week, just add it to the week
             if weekIndex != 1 {
@@ -132,6 +142,6 @@ struct YearView: View {
 
 struct YearView_Previews: PreviewProvider {
     static var previews: some View {
-        YearView(dayInYear: Date.now)
+        YearView(utcDayInYear: Date.now.convertedUtcDate!)
     }
 }

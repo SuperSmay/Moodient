@@ -19,12 +19,11 @@ struct MonthView: View {
     private var weeks = [[Date]]()
     private var daysToSkipInFirstWeek = 0
     
-    var utcDateFormatter: DateFormatter
-    
     var utcFirstDayOfMonth: Date
     
     var body: some View {
         VStack {
+
             Grid {
                 
                 GridRow {
@@ -43,10 +42,12 @@ struct MonthView: View {
                 ForEach(weeks, id: \.self) { week in
                     GridRow {
                         
-                        weekView(weeks: weeks, week: week, daysToSkipInFirstWeek: daysToSkipInFirstWeek)
-                            /// So that each day doesn't need to make another one
-                            .environment(\.utcDateFormatter, utcDateFormatter)
-                        
+                        /// Add blank spots to the first part of the month
+                        if weeks.first == week {
+                            WeekView(week: week, daysToSkipInWeek: daysToSkipInFirstWeek)
+                        } else {
+                            WeekView(week: week, daysToSkipInWeek: 0)
+                        }
                     }
                 }
             }
@@ -54,29 +55,23 @@ struct MonthView: View {
         
     }
     
-    struct weekView: View {
+    struct WeekView: View {
         
         @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
         
-        
-        let weeks: [[Date]]
         let week: [Date]
-        let daysToSkipInFirstWeek: Int
-        
-               
+        let daysToSkipInWeek: Int
+    
         
         var body: some View {
             
-            /// Add blank spots to the first part of the month
-            if weeks.first == week {
-                ForEach(0..<daysToSkipInFirstWeek, id: \.self) { _ in
-                    /// Empty cell (https://sarunw.com/posts/swiftui-grid/)
-                    Color.clear
-                        .gridCellUnsizedAxes([.horizontal, .vertical])
-                }
+            ForEach(0..<daysToSkipInWeek, id: \.self) { _ in
+                /// Empty cell (https://sarunw.com/posts/swiftui-grid/)
+                Color.clear
+                    .gridCellUnsizedAxes([.horizontal, .vertical])
             }
-            /// So that each day view doesn't need to fetch this
-            let currentUtcDate = Date.now.convertedUtcDate
+            
+            
             
             ForEach(week, id: \.self) { day in
                 
@@ -95,8 +90,7 @@ struct MonthView: View {
                 
                 
             }
-            /// So that each day view doesn't need to fetch this
-            .environment(\.currentUtcDate, currentUtcDate)
+            
             
         }
     }
@@ -105,12 +99,6 @@ struct MonthView: View {
         
         /// Timezone
         let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
-        
-        /// Make and save date formatter
-        utcDateFormatter = DateFormatter()
-        utcDateFormatter.timeZone = timezone
-        utcDateFormatter.dateStyle = .medium
-        utcDateFormatter.timeStyle = .none
         
         /// Get the month and year
         let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: givenUtcDate)

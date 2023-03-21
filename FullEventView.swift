@@ -9,8 +9,6 @@ import SwiftUI
 
 struct FullEventView: View {
     
-    @State private var yearMode = false
-    
     @State var moodDays = MoodEventStorage.moodEventStore.getAllMoodDays()
     @State private var editSheetShowing = false
     @State private var editSheetMoodDay: MoodCalendarDay? = nil
@@ -33,14 +31,20 @@ struct FullEventView: View {
     /// https://stackoverflow.com/questions/62239854/how-to-make-a-longpressgesture-that-runs-repeatedly-while-the-button-is-still-be
     let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
     
-    @State var timeRemaining = 0.0
+    @State private var timeRemaining = 0.0
     @State private var buttonRepeatTime = 0.5
     @State private var buttonRepeatMonthCount = 1
     
-    @State var userIsPressing = false //detecting whether user is long pressing the screen
+    @State private var userIsPressing = false //detecting whether user is long pressing the screen
     @State private var buttonWasHeld = false
     @State private var buttonDirectionHeld = MonthDirection.backward
-
+    
+    /// Resource saving env stuff
+    /// Calculate and save the current date in UTC
+    @State private var currentUtcDate = Date.now.convertedUtcDate
+    private let utcDateFormatter: DateFormatter
+    
+    /// System color scheme
     @Environment(\.colorScheme) var colorScheme
     /// The size of the window this view is being displayed in
     @Environment(\.mainWindowSize) var mainWindowSize
@@ -49,7 +53,7 @@ struct FullEventView: View {
         
         NavigationView {
             
-            if !yearMode {
+            
                 VStack {
                     
                     let monthIndex = Calendar.autoupdatingCurrent.dateComponents([.month], from: month).month
@@ -247,24 +251,15 @@ struct FullEventView: View {
                         }
                     }
                 }
-                .toolbar {
-                    Button {
-                        yearMode.toggle()
-                    } label: {
-                        Image(systemName: "minus.magnifyingglass")
-                    }
-                }
-            } else {
-                YearView(dayInYear: month)
-                    .navigationTitle((String(Calendar.autoupdatingCurrent.component(.year, from: month))))
-                    .toolbar {
-                        Button {
-                            yearMode.toggle()
-                        } label: {
-                            Image(systemName: "plus.magnifyingglass")
-                        }
-                    }
-            }
+                
+            
+        }
+        /// So that each day doesn't need to make these
+        .environment(\.currentUtcDate, currentUtcDate)
+        .environment(\.utcDateFormatter, utcDateFormatter)
+        .onAppear() {
+            /// Make sure this stays updated
+            currentUtcDate = Date.now.convertedUtcDate
         }
         
     }
@@ -275,6 +270,15 @@ struct FullEventView: View {
         monthID = UUID()
         let newDate = Calendar.autoupdatingCurrent.date(byAdding: .month, value: change, to: month) ?? Date.now
         month = newDate
+    }
+    
+    init() {
+        /// Make and save date formatter
+        utcDateFormatter = DateFormatter()
+        utcDateFormatter.timeZone = TimeZone(identifier: "UTC")
+        utcDateFormatter.dateStyle = .medium
+        utcDateFormatter.timeStyle = .none
+        
     }
     
 }
