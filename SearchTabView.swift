@@ -113,9 +113,12 @@ struct SearchTabView: View {
                     Rectangle()
                         .frame(height: 2)
                         .foregroundStyle(.thinMaterial)
-                    Text(value.moodDay?.description ?? "")
-                        .font(Font.subheadline)
+                    HStack {
+                        Text(value.moodDay?.description ?? "")
+                            .font(Font.subheadline)
                         .lineLimit(5)
+                        Spacer()
+                    }
                 }
             }
         }
