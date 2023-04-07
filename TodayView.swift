@@ -15,7 +15,7 @@ struct TodayView: View {
     @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
     
     /// Keep track of the state of the screen
-    @State var id: Int? = nil
+    @State var id: UUID? = nil
     @State var date: Date = Date.now
     @State var moodPoints: [MoodPoint] = []
     @State var description: String = ""

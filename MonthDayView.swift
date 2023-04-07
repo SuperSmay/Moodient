@@ -232,7 +232,7 @@ extension EnvironmentValues {
 struct MonthDayView_Previews: PreviewProvider {
     static var previews: some View {
         GeometryReader { geo in
-            MonthDayView(moodCalendarDay: MoodCalendarDay(utcDate: Date.now.convertedUtcDate ?? Date.now, id: -1))
+            MonthDayView(moodCalendarDay: MoodCalendarDay(utcDate: Date.now.convertedUtcDate ?? Date.now, id: UUID()))
                 .environment(\.mainWindowSize, geo.size)
         }
     }

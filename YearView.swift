@@ -59,7 +59,7 @@ struct YearView: View {
                 
                 /// Retrieve the actual info for this day from the list loaded earlier
                 /// If this day does not have an entry, then a blank entry is used
-                let moodCalendarDay = moodDays.moodDays[day.convertedUtcDate ?? Date.now] ?? MoodCalendarDay(utcDate: day.convertedUtcDate ?? Date.now, id: -1)
+                let moodCalendarDay = moodDays.moodDays[day.convertedUtcDate ?? Date.now] ?? MoodCalendarDay(utcDate: day.convertedUtcDate ?? Date.now, id: UUID())
                 
                 MonthDayView(moodCalendarDay: moodCalendarDay)
                 /// This *sucks.* The array change does not seem to be sufficient to trigger a reload of this view.

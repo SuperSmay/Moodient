@@ -7,7 +7,6 @@
 
 import Foundation
 import SQLite
-import NaiveDate
 
 class MoodEventStorage: ObservableObject {
     
@@ -16,11 +15,12 @@ class MoodEventStorage: ObservableObject {
     static let DIR_MOOD_EVENTS_DB = "MoodEventsDB"
     static let DB_NAME = "moods.sqlite3"
     
-    private let moodDaysTable = Table("moodEvents")
+    private let moodDaysTable = VirtualTable("moodEvents")
     
-    private let id = Expression<Int>("id")
     private let utcDate = Expression<Date>("utcDate")
-    private let moodDay = Expression<MoodDay>("moodDay")
+    private let moodPointsList = Expression<MoodPointsList>("moodPointsList")
+    private let description = Expression<String>("description")
+    private let uuid = Expression<UUID>("uuid")
     
     /// Singleton moment
     static let moodEventStore = MoodEventStorage()
@@ -65,25 +65,77 @@ class MoodEventStorage: ObservableObject {
             print("Database is nil, unable to create table")
             return
         }
-        do {
+        
+        /// List to fill with days that need to be transferred if any do
+        var moodDays = [Date: MoodCalendarDay]()
+        
+        if db?.userVersion == 1 {
             
-            db?.userVersion = 1
-
             print("Database version \(String(describing: db?.userVersion))")
             
+            saveBackup()
+            
+            let moodDaysTable = Table("moodEvents")
+            
+            let moodDay = Expression<MoodDay>("moodDay")
+            
+            /// The version check succeeded, so the database is not nil
+            let database = db!
+            
+            do {
+                for entry in try database.prepare(moodDaysTable) {
+                    do {
+                        let utcDate = try entry.get(utcDate)
+                        let moodDay = try entry.get(moodDay)
+
+                        moodDays[utcDate] = MoodCalendarDay(utcDate: utcDate, moodDay: moodDay, id: UUID())
+                        
+                    } catch {
+                        print(error)
+                    }
+                }
+                
+                deleteTable()
+                
+            } catch {
+                print(error)
+            }
+            
+            
+            
+        }
+        
+        do {
+            
+            db?.userVersion = 2
+            
+            print("Database version \(String(describing: db?.userVersion))")
+            
+            let config = FTS5Config()
+                .column(utcDate, [.unindexed])
+                .column(moodPointsList, [.unindexed])
+                .column(description)
+                .column(uuid)
+            
             /// Setup columns
-            try database.run(moodDaysTable.create { table in
-                table.column(id, primaryKey: .autoincrement)
-                table.column(utcDate)
-                table.column(moodDay)
-            })
+            try database.run(moodDaysTable.create(.FTS5(config)))
             
             print("Table created")
-        } catch is Result {
+        }
+        catch is Result {
             print("Table exists")
         } catch {
             print("Table create error: \(error) \(type(of: error))")
         }
+        
+        for (date, moodDay) in moodDays {
+            if moodDay.moodDay != nil {
+                _ = insert(utcDate: date, moodDay: moodDay.moodDay!)
+            }
+        }
+        
+        
+        
     }
     
     /// Yeet the table (this is for testing and that's pretty much it)
@@ -103,16 +155,18 @@ class MoodEventStorage: ObservableObject {
     // MARK: - Database operations
     /// Pretty straight forward in how these work, got them from
     /// https://blog.canopas.com/ios-persist-data-using-sqlite-swift-library-with-swiftui-example-c5baefc04334
-    func insert(utcDate: Date, moodDay: MoodDay) -> Int? {
+    func insert(utcDate: Date, moodDay: MoodDay) -> UUID? {
         guard let database = db else { return nil }
+        
+        let newUuid = UUID()
 
-        let insert = moodDaysTable.insert(self.utcDate <- utcDate, self.moodDay <- moodDay)
+        let insert = moodDaysTable.insert(self.utcDate <- utcDate, self.moodPointsList <- MoodPointsList(moodPoints: moodDay.moodPoints), self.description <- moodDay.description, self.uuid <- newUuid)
     
         do {
-            let rowID = try database.run(insert)
+            _ = try database.run(insert)
             moodDays = getAllMoodDays()
             reloadCount += 1
-            return Int(rowID)
+            return newUuid
         } catch {
             print(error)
             return nil
@@ -126,7 +180,7 @@ class MoodEventStorage: ObservableObject {
         do {
             for entry in try database.prepare(self.moodDaysTable) {
                 do {
-                    let newDay = MoodCalendarDay(utcDate: try entry.get(utcDate), moodDay: try entry.get(moodDay), id: try entry.get(id))
+                    let newDay = MoodCalendarDay(utcDate: try entry.get(utcDate), moodDay: MoodDay(moodPoints: try entry.get(moodPointsList).moodPoints, description: try entry.get(description)), id: try entry.get(uuid))
                     moodDays[try entry.get(utcDate)] = newDay
                 } catch {
                     print(error)
@@ -138,14 +192,14 @@ class MoodEventStorage: ObservableObject {
         return moodDays
     }
 
-    func findMoodDay(eventId: Int) -> MoodCalendarDay? {
+    func findMoodDay(eventId: UUID) -> MoodCalendarDay? {
         var foundMoodDay: MoodCalendarDay? = nil
         guard let database = db else { return nil }
 
-        let filter = self.moodDaysTable.filter(id == eventId)
+        let filter = self.moodDaysTable.filter(uuid == eventId)
         do {
             for m in try database.prepare(filter) {
-                foundMoodDay = MoodCalendarDay(utcDate: m[utcDate], moodDay: m[moodDay], id: m[id])
+                foundMoodDay = MoodCalendarDay(utcDate: m[utcDate], moodDay: MoodDay(moodPoints: m[moodPointsList].moodPoints, description: m[description]), id: m[uuid])
             }
         } catch {
             print(error)
@@ -165,7 +219,7 @@ class MoodEventStorage: ObservableObject {
         let filter = self.moodDaysTable.filter(utcDate == searchUtcDate!)
         do {
             for m in try database.prepare(filter) {
-                foundMoodDay = MoodCalendarDay(utcDate: m[utcDate], moodDay: m[moodDay], id: m[id])
+                foundMoodDay = MoodCalendarDay(utcDate: m[utcDate], moodDay: MoodDay(moodPoints: m[moodPointsList].moodPoints, description: m[description]), id: m[uuid])
             }
         } catch {
             print(error)
@@ -179,7 +233,8 @@ class MoodEventStorage: ObservableObject {
         let moodEvent = moodDaysTable.filter(self.utcDate == utcDate)
         do {
             let update = moodEvent.update([
-                self.moodDay <- moodDay
+                self.moodPointsList <- MoodPointsList(moodPoints: moodDay.moodPoints),
+                self.description <- moodDay.description
             ])
             if try database.run(update) > 0 {
                 moodDays = getAllMoodDays()
@@ -192,14 +247,14 @@ class MoodEventStorage: ObservableObject {
         return false
     }
     
-    func update(id: Int, utcDate: Date, moodDay: MoodDay) -> Bool {
+    func update(id: UUID, utcDate: Date, moodDay: MoodDay) -> Bool {
         guard let database = db else { return false }
 
         let moodEvent = moodDaysTable.filter(self.utcDate == utcDate)
         do {
             let update = moodEvent.update([
-                self.utcDate <- utcDate,
-                self.moodDay <- moodDay
+                self.moodPointsList <- MoodPointsList(moodPoints: moodDay.moodPoints),
+                self.description <- moodDay.description
             ])
             if try database.run(update) > 0 {
                 moodDays = getAllMoodDays()
@@ -212,12 +267,12 @@ class MoodEventStorage: ObservableObject {
         return false
     }
 
-    func delete(id: Int) -> Bool {
+    func delete(uuid: UUID) -> Bool {
         guard let database = db else {
             return false
         }
         do {
-            let filter = moodDaysTable.filter(self.id == id)
+            let filter = moodDaysTable.filter(self.uuid == uuid)
             try database.run(filter.delete())
             moodDays = getAllMoodDays()
             reloadCount += 1
