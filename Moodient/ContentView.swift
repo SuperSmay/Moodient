@@ -31,6 +31,12 @@ struct ContentView: View {
                     }
                     .tag("Day List")
                 
+                SearchTabView()
+                    .tabItem {
+                        Label("Search", systemImage: "magnifyingglass")
+                    }
+                    .tag("Search")
+                
                 SettingsView()
                     .tabItem {
                         Label("Settings", systemImage: "gear")

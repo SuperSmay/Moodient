@@ -115,7 +115,7 @@ class MoodEventStorage: ObservableObject {
                 .column(utcDate, [.unindexed])
                 .column(moodPointsList, [.unindexed])
                 .column(description)
-                .column(uuid)
+                .column(uuid, [.unindexed])
             
             /// Setup columns
             try database.run(moodDaysTable.create(.FTS5(config)))
@@ -225,6 +225,21 @@ class MoodEventStorage: ObservableObject {
             print(error)
         }
         return foundMoodDay
+    }
+    
+    func findMoodDay(searchDescriptionString: String) -> [Date: MoodCalendarDay] {
+        var moodDays = [Date: MoodCalendarDay]()
+        guard let database = db else { return [:] }
+
+        let filter = self.moodDaysTable.filter(moodDaysTable.match(searchDescriptionString))
+        do {
+            for m in try database.prepare(filter) {
+                moodDays[m[utcDate]] = MoodCalendarDay(utcDate: m[utcDate], moodDay: MoodDay(moodPoints: m[moodPointsList].moodPoints, description: m[description]), id: m[uuid])
+            }
+        } catch {
+            print(error)
+        }
+        return moodDays
     }
 
     func update(utcDate: Date, moodDay: MoodDay) -> Bool {
