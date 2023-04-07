@@ -45,6 +45,15 @@ struct SettingsView: View {
                         }
                     }
                 }
+                
+                Section {
+                    NavigationLink {
+                        AboutView()
+                    } label: {
+                        Text("About")
+                    }
+
+                }
             }
             .navigationTitle("Settings")
         }

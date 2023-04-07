@@ -111,11 +111,6 @@ struct MonthDayView: View {
         }
         /// Keep the thing locked to a square
         .aspectRatio(1, contentMode: .fit)
-        /// Reset animation and reload database data
-//        .onAppear() {
-//            didFall = false
-//            willFallCount = 0
-//        }
         /// Touch and hold menu
         .contextMenu {
             
