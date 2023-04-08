@@ -51,6 +51,16 @@ class MoodOptions: Codable {
         }
     }
     
+    var debug: Bool {
+        get {
+            return _debug
+        }
+        set(newValue) {
+            _debug = newValue
+            save()
+        }
+    }
+    
     /// The labels used to display the moods
     private var labels = [
         "Very Happy",
@@ -68,6 +78,8 @@ class MoodOptions: Codable {
         ColorPoint(hue: 0.075, saturation: 0.19, brightness: 0.92),
         ColorPoint(hue: 0.078, saturation: 0.17, brightness: 1)
     ]
+    
+    private var _debug = false
     
     private func save() {
 
@@ -106,6 +118,7 @@ class MoodOptions: Codable {
                 
                 self.labels = decodedJSON.labels
                 self.colors = decodedJSON.colors
+                self._debug = decodedJSON._debug
                 
                 print("Options loaded sucessfully from: \(jsonFilePath)")
                 

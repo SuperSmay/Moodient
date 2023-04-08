@@ -50,9 +50,37 @@ struct SettingsView: View {
                     NavigationLink {
                         AboutView()
                     } label: {
+                        HStack {
+                            Image(systemName: "at")
+                                .bold()
+                                .padding(5)
+                                .background(.orange)
+                                .foregroundColor(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                        }
                         Text("About")
+                            
                     }
 
+                }
+                
+                if MoodOptions.options.debug {
+                    Section {
+                        NavigationLink {
+                            DeveloperOptionsView()
+                        } label: {
+                            HStack {
+                                Image(systemName: "hammer.fill")
+                                    .bold()
+                                    .padding(5)
+                                    .background(.blue)
+                                    .foregroundColor(.white)
+                                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                            }
+                            Text("Developer")
+                                
+                        }
+                    }
                 }
             }
             .navigationTitle("Settings")
