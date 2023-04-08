@@ -9,20 +9,13 @@ import SwiftUI
 
 struct DeveloperOptionsView: View {
     
-    @State private var _developerMode = MoodOptions.options.debug
+    @AppStorage("developerMode") private var developerMode = false
     
     var body: some View {
         
-        let developerMode = Binding<Bool> {
-            _developerMode
-        } set: { newValue in
-            _developerMode = newValue
-            MoodOptions.options.debug = newValue
-        }
-        
         Form {
                 
-                Toggle("Developer Mode", isOn: developerMode)
+                Toggle("Developer Mode", isOn: $developerMode)
                 
             }
             .navigationTitle("Developer")

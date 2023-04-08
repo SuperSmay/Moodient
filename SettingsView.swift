@@ -9,6 +9,8 @@ import SwiftUI
 
 struct SettingsView: View {
     
+    @AppStorage("developerMode") var developerMode = false
+    
     /// The actual state variables to use for the UI, initialized to the values of the stored settings
     @State private var labels = MoodOptions.options.moodLabels
     @State private var colors = MoodOptions.options.moodColors
@@ -50,34 +52,21 @@ struct SettingsView: View {
                     NavigationLink {
                         AboutView()
                     } label: {
-                        HStack {
-                            Image(systemName: "at")
-                                .bold()
-                                .padding(5)
-                                .background(.orange)
-                                .foregroundColor(.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-                        }
-                        Text("About")
+                        Label("About", systemImage: "at")
+                            .labelStyle(ColorfulIconLabelStyle(color: .orange))
                             
                     }
 
                 }
                 
-                if MoodOptions.options.debug {
+                if developerMode {
                     Section {
                         NavigationLink {
                             DeveloperOptionsView()
                         } label: {
-                            HStack {
-                                Image(systemName: "hammer.fill")
-                                    .bold()
-                                    .padding(5)
-                                    .background(.blue)
-                                    .foregroundColor(.white)
-                                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-                            }
-                            Text("Developer")
+
+                            Label("Developer", systemImage: "hammer.fill")
+                                .labelStyle(ColorfulIconLabelStyle(color: .blue))
                                 
                         }
                     }

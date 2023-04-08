@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 class MoodOptions: Codable {
     
@@ -51,16 +52,6 @@ class MoodOptions: Codable {
         }
     }
     
-    var debug: Bool {
-        get {
-            return _debug
-        }
-        set(newValue) {
-            _debug = newValue
-            save()
-        }
-    }
-    
     /// The labels used to display the moods
     private var labels = [
         "Very Happy",
@@ -78,8 +69,6 @@ class MoodOptions: Codable {
         ColorPoint(hue: 0.075, saturation: 0.19, brightness: 0.92),
         ColorPoint(hue: 0.078, saturation: 0.17, brightness: 1)
     ]
-    
-    private var _debug = false
     
     private func save() {
 
@@ -118,7 +107,6 @@ class MoodOptions: Codable {
                 
                 self.labels = decodedJSON.labels
                 self.colors = decodedJSON.colors
-                self._debug = decodedJSON._debug
                 
                 print("Options loaded sucessfully from: \(jsonFilePath)")
                 
@@ -133,4 +121,63 @@ class MoodOptions: Codable {
     
 }
 
-
+class Options {
+    
+    static var options = Options()
+    
+    
+    
+    var moodLabels: [String] {
+        get {
+            return _moodLabels
+        }
+        set(newValue) {
+            _moodLabels = newValue
+            UserDefaults.standard.set(self._moodLabels, forKey: "moodLabels")
+        }
+    }
+    
+    var moodColors: [Color] {
+        get {
+            var swiftUiColors = [Color]()
+            for color in _moodColors {
+                swiftUiColors.append(color.swiftuiColor)
+            }
+            return swiftUiColors
+        }
+        set(newValue) {
+            _moodColors.removeAll()
+            for color in newValue {
+                let ui = UIColor(color)
+                var hue: CGFloat = 0.0
+                var saturation: CGFloat = 0.0
+                var brightness: CGFloat = 0.0
+                var alpha: CGFloat = 0.0
+                
+                ui.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+                
+                _moodColors.append(ColorPoint(hue: hue, saturation: saturation, brightness: brightness))
+            }
+            UserDefaults.standard.set(self._moodColors, forKey: "moodColors")
+        }
+    }
+    
+    /// The labels used to display the moods
+    private var _moodLabels = [
+        "Very Happy",
+        "Happy",
+        "Meh",
+        "Sad",
+        "Very Sad"
+    ]
+    
+    /// The colors used to represent the moods
+    private var _moodColors = [
+        ColorPoint(hue: 0.894, saturation: 0.91, brightness: 0.27),
+        ColorPoint(hue: 0.877, saturation: 0.96, brightness: 0.5),
+        ColorPoint(hue: 0.899, saturation: 0.28, brightness: 0.9),
+        ColorPoint(hue: 0.075, saturation: 0.19, brightness: 0.92),
+        ColorPoint(hue: 0.078, saturation: 0.17, brightness: 1)
+    ]
+    
+}

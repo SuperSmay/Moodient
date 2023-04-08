@@ -19,6 +19,8 @@ struct AboutView: View {
     
     @State private var animationAmount = 0.0
     
+    @AppStorage("developerMode") var developerMode = false
+    
     let DISCORD_URL = "https:/discordapp.com/users/243759220057571328"
     let GITHUB_URL = "https://github.com/SuperSmay/Moodient"
     let MASTODON_URL = "https://mstdn.social/@smay"
@@ -54,20 +56,20 @@ struct AboutView: View {
                     /// https://stackoverflow.com/a/26011822
                     let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Error"
                     
-                    Text("Version \(appVersion)" + (MoodOptions.options.debug ? " Developer Mode" : ""))
+                    Text("Version \(appVersion)" + (developerMode ? " Developer Mode" : ""))
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .onTapGesture {
                             
-                            if !MoodOptions.options.debug {
+                            if !developerMode {
                                 debugCount += 1
                             }
                             
                             if debugCount == 10 {
-                                MoodOptions.options.debug = true
+                                developerMode = true
                             }
                             
-                            if debugCount > 3 || MoodOptions.options.debug {
+                            if debugCount > 3 || developerMode {
                                 debugToastShowing = true
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                                     debugToastShowing = false
@@ -161,7 +163,7 @@ struct AboutView: View {
         }
 
         .overlay(alignment: .bottom) {
-            Text(MoodOptions.options.debug ? "Developer mode has been turned on" : "You are \(10 - debugCount) steps away from being a developer.")
+            Text(developerMode ? "Developer mode has been turned on" : "You are \(10 - debugCount) steps away from being a developer.")
                 .foregroundStyle(.ultraThickMaterial)
                 .padding()
                 .background(.secondary)
