@@ -13,6 +13,8 @@ struct ContentView: View {
     
     @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
     
+    @State private var unlocked = false
+    
     var body: some View {
         
         GeometryReader { geo in
@@ -47,6 +49,11 @@ struct ContentView: View {
             .environment(\.mainWindowSize, geo.size)
             .environment(\.selectedTabTitle, selectedTab)
             //.environmentObject(moodDays)
+        }
+        .blur(radius: !unlocked ? 15 : 0)
+        .disabled(!unlocked)
+        .overlay {
+            AuthenticateView(unlocked: $unlocked)
         }
     }
     

@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import LocalAuthentication
 
 struct SettingsView: View {
     
     @AppStorage("developerMode") var developerMode = false
+    @AppStorage("passcodeLocked") var passcodeLocked = false
     
     /// The actual state variables to use for the UI, initialized to the values of the stored settings
     @State private var labels = MoodOptions.options.moodLabels
@@ -49,6 +51,18 @@ struct SettingsView: View {
                 }
                 
                 Section {
+                    Toggle(isOn: Binding.constant(passcodeLocked)) {
+                        Label("Passcode Unlock", systemImage: "faceid")
+                            .labelStyle(ColorfulIconLabelStyle(color: .red))
+                            
+                    }
+                    .onTapGesture {
+                        toggleAuthenticate()
+                    }
+
+                }
+                
+                Section {
                     NavigationLink {
                         AboutView()
                     } label: {
@@ -75,6 +89,31 @@ struct SettingsView: View {
             .navigationTitle("Settings")
         }
     }
+    
+    func toggleAuthenticate() {
+        
+        let context = LAContext()
+        var error: NSError?
+        
+        // check whether device authentication is possible
+        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+            // it's possible, so go ahead and use it
+            let reason = "We need to unlock your data."
+
+            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, authenticationError in
+                // authentication has now completed
+                if success {
+                    // authenticated successfully
+                    passcodeLocked.toggle()
+                } else {
+                    // there was a problem
+                }
+            }
+        } else {
+            // no biometrics
+        }
+    }
+    
 }
 
 struct SettingsView_Previews: PreviewProvider {
