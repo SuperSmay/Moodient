@@ -49,12 +49,14 @@ struct ContentView: View {
             .environment(\.mainWindowSize, geo.size)
             .environment(\.selectedTabTitle, selectedTab)
             //.environmentObject(moodDays)
+            //.blur(radius: !unlocked ? 15 : 0)
+            .disabled(!unlocked)
+            .overlay {
+                AuthenticateView(unlocked: $unlocked)
+            }
         }
-        .blur(radius: !unlocked ? 15 : 0)
-        .disabled(!unlocked)
-        .overlay {
-            AuthenticateView(unlocked: $unlocked)
-        }
+        
+        
     }
     
     
