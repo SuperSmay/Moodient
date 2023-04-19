@@ -112,71 +112,7 @@ struct MonthDayView: View {
         /// Keep the thing locked to a square
         .aspectRatio(1, contentMode: .fit)
         /// Touch and hold menu
-        .contextMenu {
-            
-            Section {
-                Button {
-                    
-                } label: {
-                    Label(utcDateFormatter.string(from: moodCalendarDay.utcDate), systemImage: "calendar")
-                }
-                    .disabled(true)
-            }
-            
-            Section {
-                /// If the date should be able to be edited, then show the edit button
-                if (currentUtcDate != nil && moodCalendarDay.utcDate <= currentUtcDate!) {
-                    Button(action: {
-                        
-                        if moodCalendarDay.moodDay == nil {
-                            newSheetShowing.toggle()
-                        } else {
-                            editSheetShowing.toggle()
-                        }
-                        
-                    }, label: {
-                        Label("Edit", systemImage: "pencil")
-                    })
-                    
-                    if (moodCalendarDay.moodDay != nil) {
-                        Button(role: .destructive) {
-                            deleteAlertUtcDate = moodCalendarDay.utcDate
-                            deleteAlertShowing.toggle()
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
-                    /// Otherwise, show a disabled button (Text doesn't work so this was the best option) that has a fun message
-                } else {
-                    
-                    let daysAway = (Calendar.autoupdatingCurrent.dateComponents([.day], from: currentUtcDate ?? Date.now, to: moodCalendarDay.utcDate).day ?? -1)
-                    let daysAwayText = daysAway == 1 ? "tomorrow!" : "\(daysAway) days from now"
-                    Button("That's \(daysAwayText)") {}
-                        .disabled(true)
-                }
-            }
-        }
-        .alert("Delete entry?", isPresented: $deleteAlertShowing, actions: {
-            Button(role:.destructive) {
-                if deleteAlertUtcDate != nil {
-                    withAnimation {
-                        _ = MoodEventStorage.moodEventStore.delete(utcDate: deleteAlertUtcDate!)
-                    }
-                }
-            } label: {
-                Text("Delete")
-            }
-            //
-        })
-        /// Edit sheet
-        .sheet(isPresented: $editSheetShowing) {
-            /// Force unwraps on moodDay ok because that value is checked for nil before this sheet is presented
-            EditEventView(utcDate: moodCalendarDay.utcDate, moodPoints: moodCalendarDay.moodDay!.moodPoints, description: moodCalendarDay.moodDay!.description)
-        }
-        /// Edit sheet but when there wasn't already an entry
-        .sheet(isPresented: $newSheetShowing) {
-            EditEventView(utcDate: moodCalendarDay.utcDate, moodPoints: [], description: "")
-        }
+        
         
         
     }

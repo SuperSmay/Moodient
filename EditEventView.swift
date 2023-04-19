@@ -81,7 +81,7 @@ struct EditEventView: View {
                         
                         MoodTimelineControlView(moodPoints: $moodPoints)
                             .zIndex(10)
-                            .frame(height: 100)
+                            .frame(maxHeight: 100)
                             .padding(.bottom)
                     }
                     .padding(.horizontal)

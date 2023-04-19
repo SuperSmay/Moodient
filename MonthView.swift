@@ -13,6 +13,8 @@ struct MonthView: View {
     @Environment(\.mainWindowSize) var mainWindowSize
     /// Select tab env stuff to reload when the tab is changed
     @Environment(\.selectedTabTitle) var selectedTab
+
+    @State private var editMoodCalendarDay: MoodCalendarDay? = nil
     
     @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
 
@@ -44,18 +46,33 @@ struct MonthView: View {
                         
                         /// Add blank spots to the first part of the month
                         if weeks.first == week {
-                            WeekView(week: week, daysToSkipInWeek: daysToSkipInFirstWeek)
+                            WeekView(editMoodCalendarDay: $editMoodCalendarDay, week: week, daysToSkipInWeek: daysToSkipInFirstWeek)
                         } else {
-                            WeekView(week: week, daysToSkipInWeek: 0)
+                            WeekView(editMoodCalendarDay: $editMoodCalendarDay, week: week, daysToSkipInWeek: 0)
                         }
                     }
                 }
+            }
+            /// Edit sheet
+            .sheet(item: $editMoodCalendarDay) { moodCalendarDay in
+                /// Force unwraps on moodDay ok because that value is checked for nil before this sheet is presented
+                EditEventView(utcDate: moodCalendarDay.utcDate, moodPoints: moodCalendarDay.moodDay?.moodPoints ?? [], description: moodCalendarDay.moodDay?.description ?? "")
             }
         }
         
     }
     
     struct WeekView: View {
+        
+        /// These are supposedly expensive to make, so we will avoid making tons of them
+        @Environment(\.utcDateFormatter) var utcDateFormatter
+        /// So that each day doesn't need to fetch this, I know this is slow
+        @Environment(\.currentUtcDate) var currentUtcDate
+        
+        @Binding var editMoodCalendarDay: MoodCalendarDay?
+        
+        @State private var deleteAlertShowing = false
+        @State private var deleteAlertUtcDate: Date? = nil
         
         @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
         
@@ -87,6 +104,67 @@ struct MonthView: View {
                 /// Anyway, if reloadCount is not updated for some reason, these days won't update :D
                     .background(Text(String(moodDays.reloadCount))
                         .foregroundColor(.clear))
+                    .contextMenu {
+                        
+                        Section {
+                            Button {
+                                
+                            } label: {
+                                Label(utcDateFormatter.string(from: moodCalendarDay.utcDate), systemImage: "calendar")
+                            }
+                                .disabled(true)
+                        }
+                        
+                        Section {
+                            /// If the date should be able to be edited, then show the edit button
+                            if (currentUtcDate != nil && moodCalendarDay.utcDate <= currentUtcDate!) {
+                                Button(action: {
+                                    
+                                    if moodCalendarDay.moodDay == nil {
+                                        editMoodCalendarDay = moodCalendarDay
+                                    } else {
+                                        editMoodCalendarDay = moodCalendarDay
+                                    }
+                                    
+                                }, label: {
+                                    Label("Edit", systemImage: "pencil")
+                                })
+                                
+                                if (moodCalendarDay.moodDay != nil) {
+                                    Button(role: .destructive) {
+                                        deleteAlertUtcDate = moodCalendarDay.utcDate
+                                        deleteAlertShowing.toggle()
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
+                                /// Otherwise, show a disabled button (Text doesn't work so this was the best option) that has a fun message
+                            } else {
+                                
+                                let daysAway = (Calendar.autoupdatingCurrent.dateComponents([.day], from: currentUtcDate ?? Date.now, to: moodCalendarDay.utcDate).day ?? -1)
+                                let daysAwayText = daysAway == 1 ? "tomorrow!" : "\(daysAway) days from now"
+                                Button("That's \(daysAwayText)") {}
+                                    .disabled(true)
+                            }
+                        }
+                    }
+                    .alert("Delete entry?", isPresented: $deleteAlertShowing, actions: {
+                        Button(role:.destructive) {
+                            if deleteAlertUtcDate != nil {
+                                withAnimation {
+                                    _ = MoodEventStorage.moodEventStore.delete(utcDate: deleteAlertUtcDate!)
+                                }
+                            }
+                        } label: {
+                            Text("Delete")
+                        }
+                        //
+                    })
+                    
+//                    /// Edit sheet but when there wasn't already an entry
+//                    .sheet(isPresented: $newSheetShowing) {
+//                        EditEventView(utcDate: moodCalendarDay.utcDate, moodPoints: [], description: "")
+//                    }
                 
                 
             }
@@ -95,13 +173,13 @@ struct MonthView: View {
         }
     }
     
-    init(utcDayInMonth givenUtcDate: Date) {
+    init(utcDayInMonth: Date) {
         
         /// Timezone
         let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
         
         /// Get the month and year
-        let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: givenUtcDate)
+        let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: utcDayInMonth)
         
         /// Set the first day of the month
         utcFirstDayOfMonth = Calendar.autoupdatingCurrent.date(from: DateComponents(timeZone: timezone, year: components.year, month: components.month, day: 1)) ?? Date.now
@@ -110,7 +188,7 @@ struct MonthView: View {
         let month = components.month
         
         if month == nil {
-            print("Unable to get month from given Date: \(givenUtcDate)")
+            print("Unable to get month from given Date: \(utcDayInMonth)")
             return
         }
         
