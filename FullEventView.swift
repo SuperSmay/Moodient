@@ -14,7 +14,7 @@ struct FullEventView: View {
     @State private var editSheetMoodDay: MoodCalendarDay? = nil
     @State private var newSheetShowing = false
     
-    @State private var month = Date.now
+    @State private var month = Date(timeIntervalSince1970: -2729808000)
     
     let springTransition = Animation.easeInOut
     //Animation.spring(dampingFraction: 0.7, blendDuration: 0.5)
@@ -275,7 +275,7 @@ struct FullEventView: View {
     init() {
         /// Make and save date formatter
         utcDateFormatter = DateFormatter()
-        utcDateFormatter.timeZone = TimeZone(identifier: "UTC")
+        utcDateFormatter.timeZone = TimeZone.gmt
         utcDateFormatter.dateStyle = .medium
         utcDateFormatter.timeStyle = .none
         
