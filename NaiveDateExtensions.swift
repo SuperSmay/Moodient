@@ -17,15 +17,18 @@ extension Date {
         /// edit: Seems to work as expected
         // return nil
         
-        let secondsOffset = TimeZone.current.secondsFromGMT()
+        let secondsOffset = TimeZone.autoupdatingCurrent.secondsFromGMT()
         
-        var realDate = Calendar.autoupdatingCurrent.date(bySettingHour: 0, minute: 0, second: 0, of: self)
+        var currentTimezoneCalendar = Calendar.autoupdatingCurrent
+        currentTimezoneCalendar.timeZone = TimeZone(secondsFromGMT: secondsOffset)!
+        
+        var realDate = currentTimezoneCalendar.date(bySettingHour: 0, minute: 0, second: 0, of: self)
         
         if realDate == nil {
             return nil
         }
         
-        realDate = Calendar.autoupdatingCurrent.date(byAdding: .second, value: secondsOffset, to: realDate!)
+        realDate = currentTimezoneCalendar.date(byAdding: .second, value: secondsOffset, to: realDate!)
         
         return realDate
     }
@@ -37,7 +40,7 @@ extension Date {
         /// edit: Seems to work as expected
         // return nil
         
-        let secondsOffset = TimeZone.current.secondsFromGMT()
+        let secondsOffset = TimeZone.autoupdatingCurrent.secondsFromGMT()
         
         //var realDate = Calendar.autoupdatingCurrent.date(bySettingHour: 0, minute: 0, second: 0, of: self)
         

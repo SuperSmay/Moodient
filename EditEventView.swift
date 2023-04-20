@@ -74,6 +74,7 @@ struct EditEventView: View {
                     VStack {
                         
                         DatePicker("Date", selection: $date, in: Date.distantPast...Date.now, displayedComponents: .date)
+                            .environment(\.timeZone, TimeZone(secondsFromGMT: TimeZone.autoupdatingCurrent.secondsFromGMT())!)
                         
                         Rectangle()
                             .frame(height: 2)

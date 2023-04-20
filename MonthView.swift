@@ -16,6 +16,9 @@ struct MonthView: View {
 
     @State private var editMoodCalendarDay: MoodCalendarDay? = nil
     
+    @State private var deleteAlertShowing = false
+    @State private var deleteAlertMoodCalendarDay: MoodCalendarDay? = nil
+    
     @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
 
     private var weeks = [[Date]]()
@@ -46,9 +49,9 @@ struct MonthView: View {
                         
                         /// Add blank spots to the first part of the month
                         if weeks.first == week {
-                            WeekView(editMoodCalendarDay: $editMoodCalendarDay, week: week, daysToSkipInWeek: daysToSkipInFirstWeek)
+                            WeekView(editMoodCalendarDay: $editMoodCalendarDay, deleteAlertMoodCalendarDay: $deleteAlertMoodCalendarDay, deleteAlertShowing: $deleteAlertShowing, week: week, daysToSkipInWeek: daysToSkipInFirstWeek)
                         } else {
-                            WeekView(editMoodCalendarDay: $editMoodCalendarDay, week: week, daysToSkipInWeek: 0)
+                            WeekView(editMoodCalendarDay: $editMoodCalendarDay, deleteAlertMoodCalendarDay: $deleteAlertMoodCalendarDay, deleteAlertShowing: $deleteAlertShowing, week: week, daysToSkipInWeek: 0)
                         }
                     }
                 }
@@ -58,6 +61,20 @@ struct MonthView: View {
                 /// Force unwraps on moodDay ok because that value is checked for nil before this sheet is presented
                 EditEventView(utcDate: moodCalendarDay.utcDate, moodPoints: moodCalendarDay.moodDay?.moodPoints ?? [], description: moodCalendarDay.moodDay?.description ?? "")
             }
+            .alert("Delete entry?", isPresented: $deleteAlertShowing, presenting: deleteAlertMoodCalendarDay) { moodCalendarDay in
+                Button(role:.destructive) {
+                    if let utcDate = deleteAlertMoodCalendarDay?.utcDate {
+                        withAnimation {
+                            _ = MoodEventStorage.moodEventStore.delete(utcDate: utcDate)
+                        }
+                    }
+                } label: {
+                    Text("Delete")
+                }
+            } message: { moodCalendarDay in
+                Text("This cannot be undone")
+            }
+
         }
         
     }
@@ -65,14 +82,13 @@ struct MonthView: View {
     struct WeekView: View {
         
         /// These are supposedly expensive to make, so we will avoid making tons of them
-        @Environment(\.utcDateFormatter) var utcDateFormatter
+        @Environment(\.utcDateFormatter) private var utcDateFormatter
         /// So that each day doesn't need to fetch this, I know this is slow
-        @Environment(\.currentUtcDate) var currentUtcDate
+        @Environment(\.currentUtcDate) private var currentUtcDate
         
         @Binding var editMoodCalendarDay: MoodCalendarDay?
-        
-        @State private var deleteAlertShowing = false
-        @State private var deleteAlertUtcDate: Date? = nil
+        @Binding var deleteAlertMoodCalendarDay: MoodCalendarDay?
+        @Binding var deleteAlertShowing: Bool
         
         @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
         
@@ -120,6 +136,8 @@ struct MonthView: View {
                             if (currentUtcDate != nil && moodCalendarDay.utcDate <= currentUtcDate!) {
                                 Button(action: {
                                     
+                                    print(moodCalendarDay.utcDate)
+                                    
                                     if moodCalendarDay.moodDay == nil {
                                         editMoodCalendarDay = moodCalendarDay
                                     } else {
@@ -132,7 +150,7 @@ struct MonthView: View {
                                 
                                 if (moodCalendarDay.moodDay != nil) {
                                     Button(role: .destructive) {
-                                        deleteAlertUtcDate = moodCalendarDay.utcDate
+                                        deleteAlertMoodCalendarDay = moodCalendarDay
                                         deleteAlertShowing.toggle()
                                     } label: {
                                         Label("Delete", systemImage: "trash")
@@ -148,28 +166,8 @@ struct MonthView: View {
                             }
                         }
                     }
-                    .alert("Delete entry?", isPresented: $deleteAlertShowing, actions: {
-                        Button(role:.destructive) {
-                            if deleteAlertUtcDate != nil {
-                                withAnimation {
-                                    _ = MoodEventStorage.moodEventStore.delete(utcDate: deleteAlertUtcDate!)
-                                }
-                            }
-                        } label: {
-                            Text("Delete")
-                        }
-                        //
-                    })
-                    
-//                    /// Edit sheet but when there wasn't already an entry
-//                    .sheet(isPresented: $newSheetShowing) {
-//                        EditEventView(utcDate: moodCalendarDay.utcDate, moodPoints: [], description: "")
-//                    }
-                
                 
             }
-            
-            
         }
     }
     
