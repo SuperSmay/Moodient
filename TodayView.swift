@@ -16,7 +16,7 @@ struct TodayView: View {
     
     /// Keep track of the state of the screen
     @State var id: UUID? = nil
-    @State var date: Date = Date.now
+    @State var utcDate: Date? = Date.now.convertedUtcDate
     @State var moodPoints: [MoodPoint] = []
     @State var description: String = ""
 
@@ -27,6 +27,14 @@ struct TodayView: View {
     /// Calculates the mood day to insert into the database
     var convertedMoodDay: MoodDay {
         MoodDay(moodPoints: moodPoints, description: description)
+    }
+    
+    var completeUtcDateFormatter:  DateFormatter {
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone.gmt
+        formatter.dateStyle = .full
+        formatter.timeStyle = .none
+        return formatter
     }
     
     var body: some View {
@@ -44,7 +52,7 @@ struct TodayView: View {
                 ScrollView {
                     VStack(alignment: .leading) {
                         
-                        Text(date.formatted(date: .complete, time: .omitted))
+                        Text(completeUtcDateFormatter.string(from: utcDate ?? Date.now))
                             .padding()
                             .font(.subheadline)
                             .foregroundColor(.secondary)
@@ -64,14 +72,14 @@ struct TodayView: View {
                             .padding()
                             .onChange(of: moodPoints) { _ in
                                 
-                                if date.convertedUtcDate == nil || id == nil {
+                                if utcDate == nil || id == nil {
                                     
                                     showingDateErrorAlert.toggle()
                                     
                                     return
                                 }
                                 
-                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: date.convertedUtcDate!, moodDay: convertedMoodDay)
+                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: utcDate!, moodDay: convertedMoodDay)
                             }
                         
                         TextField("Description", text: $description, axis: .vertical)
@@ -85,14 +93,14 @@ struct TodayView: View {
                             /// Update database when the text is changed
                             .onChange(of: description) { _ in
                                 
-                                if date.convertedUtcDate == nil || id == nil {
+                                if utcDate == nil || id == nil {
                                     
                                     showingDateErrorAlert.toggle()
                                     
                                     return
                                 }
                                 
-                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: date.convertedUtcDate!, moodDay: convertedMoodDay)
+                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: utcDate!, moodDay: convertedMoodDay)
                             }
                         
                         Spacer()
@@ -133,23 +141,23 @@ struct TodayView: View {
             .onAppear() {
                 
                 id = nil
-                date = Date.now
+                utcDate = Date.now.convertedUtcDate
                 moodPoints = []
                 description = ""
                 
-                if date.convertedUtcDate == nil {
+                if utcDate == nil {
+                    showingDateErrorAlert.toggle()
                     return
                 }
                 
-                var today: MoodCalendarDay? = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: date.convertedUtcDate)
+                var today: MoodCalendarDay? = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate)
                 
                 if today == nil {
                     
-                    id = MoodEventStorage.moodEventStore.insert(utcDate: date.convertedUtcDate!, moodDay: convertedMoodDay)
-                    today = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: date.convertedUtcDate)
+                    id = MoodEventStorage.moodEventStore.insert(utcDate: utcDate!, moodDay: convertedMoodDay)
+                    today = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate!)
                     
                 } else {
-                    
                     id = today!.id
                 }
                 

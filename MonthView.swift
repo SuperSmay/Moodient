@@ -174,7 +174,7 @@ struct MonthView: View {
     init(utcDayInMonth: Date) {
         
         /// Timezone
-        let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
+        let timezone = TimeZone.gmt
         
         /// Get the month and year
         let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: utcDayInMonth)

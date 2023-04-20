@@ -37,7 +37,7 @@ struct MonthDayView: View {
     @State private var willFallCount = 0
     @State private var didFall = false;
     
-    let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
+    let timezone = TimeZone.gmt
     
     var body: some View {
         
@@ -146,7 +146,7 @@ extension EnvironmentValues {
 private struct UtcDateFormatterKey: EnvironmentKey {
     static var defaultValue: DateFormatter {
         let utcDateFormatter = DateFormatter()
-        utcDateFormatter.timeZone = TimeZone(identifier: "UTC")
+        utcDateFormatter.timeZone = TimeZone.gmt
         utcDateFormatter.dateStyle = .medium
         utcDateFormatter.timeStyle = .none
         return utcDateFormatter
@@ -163,7 +163,7 @@ extension EnvironmentValues {
 struct MonthDayView_Previews: PreviewProvider {
     static var previews: some View {
         GeometryReader { geo in
-            MonthDayView(moodCalendarDay: MoodCalendarDay(utcDate: Date.now.convertedUtcDate ?? Date.now, id: UUID()))
+            MonthDayView(moodCalendarDay: MoodCalendarDay(utcDate: Date.now.convertedUtcDate!, id: UUID()))
                 .environment(\.mainWindowSize, geo.size)
         }
     }

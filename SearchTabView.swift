@@ -88,6 +88,9 @@ struct SearchTabView: View {
     
     struct SearchResultView: View {
         
+        /// These are supposedly expensive to make, so we will avoid making tons of them
+        @Environment(\.utcDateFormatter) var utcDateFormatter
+        
         var value: MoodCalendarDay
         
         var body: some View {
@@ -97,7 +100,7 @@ struct SearchTabView: View {
                 VStack {
                     HStack {
                         
-                        Text(value.utcDate.convertedCurrentTimezoneDate?.formatted(date: .abbreviated, time: .omitted) ?? "")
+                        Text(utcDateFormatter.string(from: value.utcDate))
                         
                         Spacer()
                         

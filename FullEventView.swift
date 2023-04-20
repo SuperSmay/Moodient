@@ -293,7 +293,7 @@ struct MonthChangeButton: View {
     
     var body: some View {
         
-        let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
+        let timezone = TimeZone.gmt
         let newDate = Calendar.autoupdatingCurrent.date(byAdding: .month, value: direction == .forward ? 1 : -1, to: month) ?? Date.now
         let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: newDate)
         let newIndex = components.month

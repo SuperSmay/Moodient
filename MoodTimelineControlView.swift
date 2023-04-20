@@ -28,7 +28,7 @@ struct MoodTimelineControlView: View {
                 Spacer()
                 
                 Button {
-                    moodPoints.append(MoodPoint(utcTime: Date.now.convertedUtcDate ?? Date.now, moodValue: 0))
+                    moodPoints.append(MoodPoint(utcTime: Date.now.convertedUtcTime ?? Date.now, moodValue: 0))
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -91,7 +91,7 @@ struct MoodTimelineControlView: View {
                                         ZStack {
                                             /// Filter the whole list into just the points that match the current hour
                                             
-                                            let timezone = TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent
+                                            let timezone = TimeZone.gmt
                                             
                                             ForEach($moodPoints.filter( {
                                                 
@@ -259,9 +259,7 @@ struct MoodTimelineControlView_Previews: PreviewProvider {
 
 func change(utcTime date: Date, by offset: Int) -> Date {
     
-    guard let timezone = TimeZone(secondsFromGMT: 0) else {
-        return date
-    }
+    let timezone = TimeZone.gmt
     
     guard let oldHour = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: date).hour else {
         return date

@@ -33,6 +33,12 @@ extension Date {
         return realDate
     }
     
+    var convertedUtcTime: Date? {
+        let secondsOffset = TimeZone.autoupdatingCurrent.secondsFromGMT()
+        let utcTime = Calendar.autoupdatingCurrent.date(byAdding: .second, value: secondsOffset, to: self)        
+        return utcTime
+    }
+    
     var convertedCurrentTimezoneDate: Date? {
         /// Not really sure what to do if this ever fails, hopefully that doesn't happen
 
