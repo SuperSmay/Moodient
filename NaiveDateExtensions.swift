@@ -84,3 +84,9 @@ extension Date {
         return formatter
     }()
 }
+
+extension Date: Identifiable {
+    public var id: TimeInterval {
+        return self.timeIntervalSince1970
+    }
+}

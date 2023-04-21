@@ -17,7 +17,7 @@ struct TodayView: View {
     /// Keep track of the state of the screen
     @State var id: UUID? = nil
     @State var utcDate: Date? = Date.now.convertedUtcDate
-    @State var moodPoints: [MoodPoint] = []
+    @State var moodPoints: [SQMoodPoint] = []
     @State var description: String = ""
 
     @State var showingDateErrorAlert = false
@@ -25,8 +25,8 @@ struct TodayView: View {
     @FocusState var textBoxFocused
     
     /// Calculates the mood day to insert into the database
-    var convertedMoodDay: MoodDay {
-        MoodDay(moodPoints: moodPoints, description: description)
+    var convertedMoodDay: SQMoodDay {
+        SQMoodDay(moodPoints: moodPoints, description: description)
     }
     
     var completeUtcDateFormatter:  DateFormatter {
@@ -58,29 +58,29 @@ struct TodayView: View {
                             .foregroundColor(.secondary)
                         
                         /// Fake form row (can't use Form because it doesn't avoid the keyboard)
-                        MoodTimelineControlView(moodPoints: $moodPoints)
-                            .zIndex(10)
-                            .frame(height: 100)
-                            .padding()
-                            .background {
-                                Rectangle()
-                                    .foregroundColor(.clear)
-                                    .background(.ultraThickMaterial)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                                    .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
-                            }
-                            .padding()
-                            .onChange(of: moodPoints) { _ in
-                                
-                                if utcDate == nil || id == nil {
-                                    
-                                    showingDateErrorAlert.toggle()
-                                    
-                                    return
-                                }
-                                
-                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: utcDate!, moodDay: convertedMoodDay)
-                            }
+//                        MoodTimelineControlView(moodPoints: $moodPoints)
+//                            .zIndex(10)
+//                            .frame(height: 100)
+//                            .padding()
+//                            .background {
+//                                Rectangle()
+//                                    .foregroundColor(.clear)
+//                                    .background(.ultraThickMaterial)
+//                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+//                                    .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
+//                            }
+//                            .padding()
+//                            .onChange(of: moodPoints) { _ in
+//                                
+//                                if utcDate == nil || id == nil {
+//                                    
+//                                    showingDateErrorAlert.toggle()
+//                                    
+//                                    return
+//                                }
+//                                
+//                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: utcDate!, moodDay: convertedMoodDay)
+//                            }
                         
                         TextField("Description", text: $description, axis: .vertical)
                             .padding()
@@ -150,7 +150,7 @@ struct TodayView: View {
                     return
                 }
                 
-                var today: MoodCalendarDay? = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate)
+                var today: SQMoodCalendarDay? = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate)
                 
                 if today == nil {
                     

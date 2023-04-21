@@ -14,12 +14,21 @@ struct MonthView: View {
     /// Select tab env stuff to reload when the tab is changed
     @Environment(\.selectedTabTitle) var selectedTab
 
-    @State private var editMoodCalendarDay: MoodCalendarDay? = nil
+    @State private var editUtcDate: Date? = nil
     
     @State private var deleteAlertShowing = false
-    @State private var deleteAlertMoodCalendarDay: MoodCalendarDay? = nil
+    @State private var deleteAlertMoodCalendarDay: SQMoodCalendarDay? = nil
     
-    @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
+
+    
+    
+    
+    @Environment(\.managedObjectContext) var moc
+    
+    @FetchRequest(sortDescriptors: []) var cdMoodDays: FetchedResults<MoodDay>
+    
+    
+    
 
     private var weeks = [[Date]]()
     private var daysToSkipInFirstWeek = 0
@@ -49,17 +58,17 @@ struct MonthView: View {
                         
                         /// Add blank spots to the first part of the month
                         if weeks.first == week {
-                            WeekView(editMoodCalendarDay: $editMoodCalendarDay, deleteAlertMoodCalendarDay: $deleteAlertMoodCalendarDay, deleteAlertShowing: $deleteAlertShowing, week: week, daysToSkipInWeek: daysToSkipInFirstWeek)
+                            WeekView(editUtcDate: $editUtcDate, deleteAlertMoodCalendarDay: $deleteAlertMoodCalendarDay, deleteAlertShowing: $deleteAlertShowing, week: week, daysToSkipInWeek: daysToSkipInFirstWeek)
                         } else {
-                            WeekView(editMoodCalendarDay: $editMoodCalendarDay, deleteAlertMoodCalendarDay: $deleteAlertMoodCalendarDay, deleteAlertShowing: $deleteAlertShowing, week: week, daysToSkipInWeek: 0)
+                            WeekView(editUtcDate: $editUtcDate, deleteAlertMoodCalendarDay: $deleteAlertMoodCalendarDay, deleteAlertShowing: $deleteAlertShowing, week: week, daysToSkipInWeek: 0)
                         }
                     }
                 }
             }
             /// Edit sheet
-            .sheet(item: $editMoodCalendarDay) { moodCalendarDay in
+            .sheet(item: $editUtcDate) { utcDate in
                 /// Force unwraps on moodDay ok because that value is checked for nil before this sheet is presented
-                EditEventView(utcDate: moodCalendarDay.utcDate, moodPoints: moodCalendarDay.moodDay?.moodPoints ?? [], description: moodCalendarDay.moodDay?.description ?? "")
+                EditEventView(utcDate: utcDate)
             }
             .alert("Delete entry?", isPresented: $deleteAlertShowing, presenting: deleteAlertMoodCalendarDay) { moodCalendarDay in
                 Button(role:.destructive) {
@@ -86,11 +95,15 @@ struct MonthView: View {
         /// So that each day doesn't need to fetch this, I know this is slow
         @Environment(\.currentUtcDate) private var currentUtcDate
         
-        @Binding var editMoodCalendarDay: MoodCalendarDay?
-        @Binding var deleteAlertMoodCalendarDay: MoodCalendarDay?
+        @Binding var editUtcDate: Date?
+        @Binding var deleteAlertMoodCalendarDay: SQMoodCalendarDay?
         @Binding var deleteAlertShowing: Bool
         
-        @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
+        //@ObservedObject private var moodDays = MoodEventStorage.moodEventStore
+        
+        
+        
+        
         
         let week: [Date]
         let daysToSkipInWeek: Int
@@ -106,60 +119,51 @@ struct MonthView: View {
             
             
             
-            ForEach(week, id: \.self) { day in
+            ForEach(week, id: \.self) { utcDate in
                 
-                /// Retrieve the actual info for this day from the list loaded earlier
-                /// If this day does not have an entry, then a blank entry is used
-                let moodCalendarDay = moodDays.moodDays[day] ?? MoodCalendarDay(utcDate: day , id: UUID())
-               
-                
-                MonthDayView(moodCalendarDay: moodCalendarDay)
+                MonthDayView(utcDate: utcDate)
                 /// This *sucks.* The array change does not seem to be sufficient to trigger a reload of this view.
                 /// This text background does reload as expected, and when it reloads it triggers the rest of the view to reload.
                 /// This is probably a result of jank associated with how I'm fetching/storing this data.
                 /// Anyway, if reloadCount is not updated for some reason, these days won't update :D
-                    .background(Text(String(moodDays.reloadCount))
-                        .foregroundColor(.clear))
+                    //.background(Text(String(moodDays.reloadCount))
+                    //    .foregroundColor(.clear))
                     .contextMenu {
                         
                         Section {
                             Button {
                                 
                             } label: {
-                                Label(utcDateFormatter.string(from: moodCalendarDay.utcDate), systemImage: "calendar")
+                                Label(utcDateFormatter.string(from: utcDate), systemImage: "calendar")
                             }
                                 .disabled(true)
                         }
                         
                         Section {
                             /// If the date should be able to be edited, then show the edit button
-                            if (currentUtcDate != nil && moodCalendarDay.utcDate <= currentUtcDate!) {
+                            if (currentUtcDate != nil && utcDate <= currentUtcDate!) {
                                 Button(action: {
                                     
-                                    print(moodCalendarDay.utcDate)
+                                    print(utcDate)
                                     
-                                    if moodCalendarDay.moodDay == nil {
-                                        editMoodCalendarDay = moodCalendarDay
-                                    } else {
-                                        editMoodCalendarDay = moodCalendarDay
-                                    }
+                                    editUtcDate = utcDate
                                     
                                 }, label: {
                                     Label("Edit", systemImage: "pencil")
                                 })
                                 
-                                if (moodCalendarDay.moodDay != nil) {
-                                    Button(role: .destructive) {
-                                        deleteAlertMoodCalendarDay = moodCalendarDay
-                                        deleteAlertShowing.toggle()
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                }
+//                                if (moodCalendarDay.moodDay != nil) {
+//                                    Button(role: .destructive) {
+//                                        deleteAlertMoodCalendarDay = moodCalendarDay
+//                                        deleteAlertShowing.toggle()
+//                                    } label: {
+//                                        Label("Delete", systemImage: "trash")
+//                                    }
+//                                }
                                 /// Otherwise, show a disabled button (Text doesn't work so this was the best option) that has a fun message
                             } else {
                                 
-                                let daysAway = (Calendar.autoupdatingCurrent.dateComponents([.day], from: currentUtcDate ?? Date.now, to: moodCalendarDay.utcDate).day ?? -1)
+                                let daysAway = (Calendar.autoupdatingCurrent.dateComponents([.day], from: currentUtcDate ?? Date.now, to: utcDate).day ?? -1)
                                 let daysAwayText = daysAway == 1 ? "tomorrow!" : "\(daysAway) days from now"
                                 Button("That's \(daysAwayText)") {}
                                     .disabled(true)

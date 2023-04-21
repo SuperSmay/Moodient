@@ -11,7 +11,7 @@ struct FullEventView: View {
     
     @State var moodDays = MoodEventStorage.moodEventStore.getAllMoodDays()
     @State private var editSheetShowing = false
-    @State private var editSheetMoodDay: MoodCalendarDay? = nil
+    @State private var editSheetMoodDay: SQMoodCalendarDay? = nil
     @State private var newSheetShowing = false
     
     @State private var month = Date(timeIntervalSince1970: -2729808000)

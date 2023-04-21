@@ -10,14 +10,14 @@ import SQLite
 
 // MARK: - MoodDay
 
-struct MoodDay: Codable, Value, Hashable {
+struct SQMoodDay: Codable, Value, Hashable {
     
     // MARK: - SQLite Value protocol
     public static var declaredDatatype: String {
         String.declaredDatatype
     }
 
-    public static func fromDatatypeValue(_ stringValue: String) -> MoodDay? {
+    public static func fromDatatypeValue(_ stringValue: String) -> SQMoodDay? {
         
         if let decodedData = Data(base64Encoded: stringValue) {
             do {
@@ -40,25 +40,25 @@ struct MoodDay: Codable, Value, Hashable {
     
     // MARK: - The actual data
     
-    init(moodPoints: [MoodPoint] = [], description: String = "") {
+    init(moodPoints: [SQMoodPoint] = [], description: String = "") {
         self.moodPoints = moodPoints
         self.description = description
     }
     
-    var moodPoints: [MoodPoint]
+    var moodPoints: [SQMoodPoint]
     var description: String
     
 }
 
 /// A wrapper around a list of MoodPoints to store them in a database
-struct MoodPointsList: Codable, Value, Hashable {
+struct SQMoodPointsList: Codable, Value, Hashable {
     
     // MARK: - SQLite Value protocol
     public static var declaredDatatype: String {
         String.declaredDatatype
     }
 
-    public static func fromDatatypeValue(_ stringValue: String) -> MoodPointsList? {
+    public static func fromDatatypeValue(_ stringValue: String) -> SQMoodPointsList? {
         
         if let decodedData = Data(base64Encoded: stringValue) {
             do {
@@ -81,17 +81,17 @@ struct MoodPointsList: Codable, Value, Hashable {
     
     // MARK: - The actual data
     
-    init(moodPoints: [MoodPoint] = []) {
+    init(moodPoints: [SQMoodPoint] = []) {
         self.moodPoints = moodPoints
     }
     
-    var moodPoints: [MoodPoint]
+    var moodPoints: [SQMoodPoint]
     
 }
 
 // MARK: - MoodPoint
 
-struct MoodPoint: Codable, Hashable {
+struct SQMoodPoint: Codable, Hashable {
     
     var utcTime: Date
     var moodValue: Int
@@ -106,14 +106,14 @@ struct MoodPoint: Codable, Hashable {
 
 // MARK: - MoodCalendarDay
 /// Not meant to be stored in the database, only created when loading from the database
-struct MoodCalendarDay: Identifiable, Equatable, Hashable {
+struct SQMoodCalendarDay: Identifiable, Equatable, Hashable {
     
-    static func == (lhs: MoodCalendarDay, rhs: MoodCalendarDay) -> Bool {
+    static func == (lhs: SQMoodCalendarDay, rhs: SQMoodCalendarDay) -> Bool {
         lhs.utcDate == rhs.utcDate
     }
  
     var utcDate: Date
-    var moodDay: MoodDay?
+    var moodDay: SQMoodDay?
     var id: UUID
     
 }

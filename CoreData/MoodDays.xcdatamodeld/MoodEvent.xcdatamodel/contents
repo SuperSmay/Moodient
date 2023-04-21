@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21754" systemVersion="22D49" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="MoodDay" representedClassName="MoodDay" syncable="YES" codeGenerationType="class">
+        <attribute name="dayDescription" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="utcDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="moodPoints" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="MoodPoint" inverseName="moodDay" inverseEntity="MoodPoint"/>
+    </entity>
+    <entity name="MoodPoint" representedClassName="MoodPoint" syncable="YES" codeGenerationType="class">
+        <attribute name="moodValue" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="utcTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="moodDay" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MoodDay" inverseName="moodPoints" inverseEntity="MoodDay"/>
+    </entity>
+</model>

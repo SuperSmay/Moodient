@@ -15,7 +15,7 @@
 		9F1829E8298C65AB00686202 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829E7298C65AB00686202 /* ContentView.swift */; };
 		9F1829EA298C65AD00686202 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9F1829E9298C65AD00686202 /* Assets.xcassets */; };
 		9F1829ED298C65AD00686202 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9F1829EC298C65AD00686202 /* Preview Assets.xcassets */; };
-		9F1829F4298C66AE00686202 /* MoodDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829F3298C66AE00686202 /* MoodDay.swift */; };
+		9F1829F4298C66AE00686202 /* SQMoodDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829F3298C66AE00686202 /* SQMoodDay.swift */; };
 		9F1829F6298C6B0E00686202 /* EditEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829F5298C6B0E00686202 /* EditEventView.swift */; };
 		9F1829F8298C746900686202 /* MoodEventStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829F7298C746900686202 /* MoodEventStorage.swift */; };
 		9F1829FA298C7C9F00686202 /* MoodOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F1829F9298C7C9F00686202 /* MoodOptions.swift */; };
@@ -27,6 +27,8 @@
 		9F7567FD2995B2D000341798 /* ShakeEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7567FC2995B2D000341798 /* ShakeEvent.swift */; };
 		9F7567FF2995BAA700341798 /* WindowSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7567FE2995BAA700341798 /* WindowSize.swift */; };
 		9F7568012995C41500341798 /* SelectedTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7568002995C41500341798 /* SelectedTabExtension.swift */; };
+		9FA40E8C29F1F2430002E44F /* MoodEventCoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA40E8B29F1F2430002E44F /* MoodEventCoreData.swift */; };
+		9FA40E8F29F1F24F0002E44F /* MoodDays.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9FA40E8D29F1F24F0002E44F /* MoodDays.xcdatamodeld */; };
 		9FA768F529EDC474009777D6 /* AuthenticateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA768F429EDC474009777D6 /* AuthenticateView.swift */; };
 		9FEFE18529DFB25D001C971F /* SearchTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEFE18429DFB25D001C971F /* SearchTabView.swift */; };
 		9FEFE18729E0D36B001C971F /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FEFE18629E0D36B001C971F /* AboutView.swift */; };
@@ -45,7 +47,7 @@
 		9F1829E7298C65AB00686202 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		9F1829E9298C65AD00686202 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9F1829EC298C65AD00686202 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		9F1829F3298C66AE00686202 /* MoodDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodDay.swift; sourceTree = "<group>"; };
+		9F1829F3298C66AE00686202 /* SQMoodDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQMoodDay.swift; sourceTree = "<group>"; };
 		9F1829F5298C6B0E00686202 /* EditEventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditEventView.swift; sourceTree = "<group>"; };
 		9F1829F7298C746900686202 /* MoodEventStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodEventStorage.swift; sourceTree = "<group>"; };
 		9F1829F9298C7C9F00686202 /* MoodOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodOptions.swift; sourceTree = "<group>"; };
@@ -56,6 +58,8 @@
 		9F7567FC2995B2D000341798 /* ShakeEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeEvent.swift; sourceTree = "<group>"; };
 		9F7567FE2995BAA700341798 /* WindowSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowSize.swift; sourceTree = "<group>"; };
 		9F7568002995C41500341798 /* SelectedTabExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedTabExtension.swift; sourceTree = "<group>"; };
+		9FA40E8B29F1F2430002E44F /* MoodEventCoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodEventCoreData.swift; sourceTree = "<group>"; };
+		9FA40E8E29F1F24F0002E44F /* MoodEvent.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MoodEvent.xcdatamodel; sourceTree = "<group>"; };
 		9FA768F429EDC474009777D6 /* AuthenticateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticateView.swift; sourceTree = "<group>"; };
 		9FA768F629EDC5BF009777D6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		9FEFE18429DFB25D001C971F /* SearchTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTabView.swift; sourceTree = "<group>"; };
@@ -99,7 +103,8 @@
 				9F1829F9298C7C9F00686202 /* MoodOptions.swift */,
 				9F1829F7298C746900686202 /* MoodEventStorage.swift */,
 				9F1829F5298C6B0E00686202 /* EditEventView.swift */,
-				9F1829F3298C66AE00686202 /* MoodDay.swift */,
+				9F1829F3298C66AE00686202 /* SQMoodDay.swift */,
+				9FA40E9029F1F4830002E44F /* CoreData */,
 				9F1829E4298C65AB00686202 /* Moodient */,
 				9F1829E3298C65AB00686202 /* Products */,
 			);
@@ -132,6 +137,15 @@
 				9F1829EC298C65AD00686202 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		9FA40E9029F1F4830002E44F /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				9FA40E8D29F1F24F0002E44F /* MoodDays.xcdatamodeld */,
+				9FA40E8B29F1F2430002E44F /* MoodEventCoreData.swift */,
+			);
+			path = CoreData;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -219,7 +233,7 @@
 				9F1829FA298C7C9F00686202 /* MoodOptions.swift in Sources */,
 				9FF1D138298F666E00299E2D /* TodayView.swift in Sources */,
 				9FEFE18529DFB25D001C971F /* SearchTabView.swift in Sources */,
-				9F1829F4298C66AE00686202 /* MoodDay.swift in Sources */,
+				9F1829F4298C66AE00686202 /* SQMoodDay.swift in Sources */,
 				9F1829F6298C6B0E00686202 /* EditEventView.swift in Sources */,
 				9F7567FD2995B2D000341798 /* ShakeEvent.swift in Sources */,
 				9F1829E6298C65AB00686202 /* MoodientApp.swift in Sources */,
@@ -231,7 +245,9 @@
 				9F100E932990B83B00A8CD4F /* SettingsView.swift in Sources */,
 				9FA768F529EDC474009777D6 /* AuthenticateView.swift in Sources */,
 				9F7568012995C41500341798 /* SelectedTabExtension.swift in Sources */,
+				9FA40E8F29F1F24F0002E44F /* MoodDays.xcdatamodeld in Sources */,
 				9F7567F92994B8FE00341798 /* MonthView.swift in Sources */,
+				9FA40E8C29F1F2430002E44F /* MoodEventCoreData.swift in Sources */,
 				9F0CEC7829AD760D00AF756C /* BackgroundGradient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -458,6 +474,19 @@
 			productName = SQLite;
 		};
 /* End XCSwiftPackageProductDependency section */
+
+/* Begin XCVersionGroup section */
+		9FA40E8D29F1F24F0002E44F /* MoodDays.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				9FA40E8E29F1F24F0002E44F /* MoodEvent.xcdatamodel */,
+			);
+			currentVersion = 9FA40E8E29F1F24F0002E44F /* MoodEvent.xcdatamodel */;
+			path = MoodDays.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 9F1829DA298C65AB00686202 /* Project object */;
 }

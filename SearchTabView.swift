@@ -13,9 +13,9 @@ struct SearchTabView: View {
     @Environment(\.colorScheme) var colorScheme
     
     @State private var searchString = ""
-    @State private var searchResults = [MoodCalendarDay]()
+    @State private var searchResults = [SQMoodCalendarDay]()
     
-    @State private var sheetItem: MoodCalendarDay? = nil
+    @State private var sheetItem: SQMoodCalendarDay? = nil
     
     @FocusState private var searchFocused
     
@@ -77,7 +77,7 @@ struct SearchTabView: View {
                     
                 }
                 .sheet(item: $sheetItem, content: { value in
-                    EditEventView(utcDate: value.utcDate, moodPoints: value.moodDay?.moodPoints ?? [], description: value.moodDay?.description ?? "")
+                    EditEventView(utcDate: value.utcDate)
                 })
                 
             }
@@ -91,7 +91,7 @@ struct SearchTabView: View {
         /// These are supposedly expensive to make, so we will avoid making tons of them
         @Environment(\.utcDateFormatter) var utcDateFormatter
         
-        var value: MoodCalendarDay
+        var value: SQMoodCalendarDay
         
         var body: some View {
             NavigationLink {

@@ -21,7 +21,25 @@ struct MonthDayView: View {
     @Environment(\.utcDateFormatter) var utcDateFormatter
     
     /// Pull moodDays from the environment
-    @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
+    // @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
+    
+    
+    
+    @Environment(\.managedObjectContext) var moc
+    @FetchRequest var moodDays: FetchedResults<MoodDay>
+    
+//    @FetchRequest(sortDescriptors: [], predicate: NSPredicate(format: "utcDate == %@", utcDate as CVarArg)) var cdMoodDays: FetchedResults<MoodDay>
+    
+
+    init(utcDate: Date) {
+        self.utcDate = utcDate
+        
+        let predicate = NSPredicate(format: "utcDate == %@", utcDate as CVarArg)
+        self._moodDays = FetchRequest(sortDescriptors: [], predicate: predicate)
+        
+    }
+    
+    
     
     /// Sheets for creating/editing entries
     @State private var editSheetShowing = false
@@ -30,7 +48,7 @@ struct MonthDayView: View {
     @State private var deleteAlertUtcDate: Date? = nil
     
     /// The moodCalenderDay for this date, loaded from the database
-    let moodCalendarDay: MoodCalendarDay
+    let utcDate: Date
     
     /// Falling easteregg things
     @State private var animationAmount = 0.0
@@ -55,10 +73,10 @@ struct MonthDayView: View {
                 /// The normal view
                 ZStack {
                     
-                    BackgroundGradient(moodPoints: moodCalendarDay.moodDay?.moodPoints ?? [])
-                        .clipShape(RoundedRectangle(cornerRadius: geo.size.width * 0.2, style: .continuous))
+//                    BackgroundGradient(moodPoints: moodCalendarDay.moodDay?.moodPoints ?? [])
+//                        .clipShape(RoundedRectangle(cornerRadius: geo.size.width * 0.2, style: .continuous))
                     
-                    let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: moodCalendarDay.utcDate)
+                    let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: utcDate)
                     //
                     Text(String(components.day ?? 1))
                         .font(.system(size: geo.size.width * 0.75, design: .rounded))
@@ -163,7 +181,7 @@ extension EnvironmentValues {
 struct MonthDayView_Previews: PreviewProvider {
     static var previews: some View {
         GeometryReader { geo in
-            MonthDayView(moodCalendarDay: MoodCalendarDay(utcDate: Date.now.convertedUtcDate!, id: UUID()))
+            MonthDayView(utcDate: Date.now.convertedUtcDate!)
                 .environment(\.mainWindowSize, geo.size)
         }
     }

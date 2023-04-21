@@ -9,7 +9,7 @@ import SwiftUI
 
 struct BackgroundGradient: View {
     
-    let moodPoints: [MoodPoint]
+    let moodPoints: [SQMoodPoint]
     
     var colors: [Color] {
         var temp = [Color]()
