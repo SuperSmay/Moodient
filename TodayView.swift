@@ -17,17 +17,12 @@ struct TodayView: View {
     /// Keep track of the state of the screen
     @State var id: UUID? = nil
     @State var utcDate: Date? = Date.now.convertedUtcDate
-    @State var moodPoints: [SQMoodPoint] = []
+    @State var moodPoints: [MoodPoint] = []
     @State var description: String = ""
 
     @State var showingDateErrorAlert = false
     
     @FocusState var textBoxFocused
-    
-    /// Calculates the mood day to insert into the database
-    var convertedMoodDay: SQMoodDay {
-        SQMoodDay(moodPoints: moodPoints, description: description)
-    }
     
     var completeUtcDateFormatter:  DateFormatter {
         let formatter = DateFormatter()
@@ -100,7 +95,7 @@ struct TodayView: View {
                                     return
                                 }
                                 
-                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: utcDate!, moodDay: convertedMoodDay)
+//                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: utcDate!, moodDay: convertedMoodDay)
                             }
                         
                         Spacer()
@@ -140,29 +135,29 @@ struct TodayView: View {
             /// Reload date and such when UI loads
             .onAppear() {
                 
-                id = nil
-                utcDate = Date.now.convertedUtcDate
-                moodPoints = []
-                description = ""
-                
-                if utcDate == nil {
-                    showingDateErrorAlert.toggle()
-                    return
-                }
-                
-                var today: SQMoodCalendarDay? = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate)
-                
-                if today == nil {
-                    
-                    id = MoodEventStorage.moodEventStore.insert(utcDate: utcDate!, moodDay: convertedMoodDay)
-                    today = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate!)
-                    
-                } else {
-                    id = today!.id
-                }
-                
-                moodPoints = today?.moodDay?.moodPoints ?? []
-                description = today?.moodDay?.description ?? ""
+//                id = nil
+//                utcDate = Date.now.convertedUtcDate
+//                moodPoints = []
+//                description = ""
+//
+//                if utcDate == nil {
+//                    showingDateErrorAlert.toggle()
+//                    return
+//                }
+//
+//                var today: SQMoodCalendarDay? = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate)
+//
+//                if today == nil {
+//
+//                 id = MoodEventStorage.moodEventStore.insert(utcDate: utcDate!, moodDay: convertedMoodDay)
+//                    today = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate!)
+//
+//                } else {
+//                    id = today!.id
+//                }
+//
+//                moodPoints = today?.moodDay?.moodPoints ?? []
+//                description = today?.moodDay?.description ?? ""
                 
             }
         }

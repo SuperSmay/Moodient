@@ -60,10 +60,10 @@ struct EditEventView: View {
             /// UI with a gradient background
             ZStack {
                 
-//                BackgroundGradient(moodPoints: moodPoints)
-//                    .zIndex(-2)
-//                    .ignoresSafeArea()
-//                    .opacity(0.25)
+                BackgroundGradient(moodPoints: moodPoints)
+                    .zIndex(-2)
+                    .ignoresSafeArea()
+                    .opacity(0.25)
                     
                 
                 /// Foreground UI
@@ -151,6 +151,7 @@ struct EditEventView: View {
                         if let moodDay = moodDays.first {
                             
                             //TODO check for conflicts
+                            #warning("Fix me pls")
                             
                             moodDay.setValue(utcDate, forKey: "utcDate")
                             moodDay.setValue(description, forKey: "dayDescription")
@@ -177,32 +178,6 @@ struct EditEventView: View {
                         }
                         
                         dismiss()
-                        
-                        return
-                        
-//                        let moodEvent = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate)
-//
-//                        if utcDate != utcDateOpenedTo && moodEvent?.utcDate == utcDate {
-//
-//                            showingDateConflictAlert.toggle()
-//
-//                            return
-//
-//                        }
-//
-//                        if moodEvent == nil {
-//                            _ = MoodEventStorage.moodEventStore.insert(utcDate: utcDate, moodDay: self.convertedMoodDay)
-//                        } else {
-//                            _ = MoodEventStorage.moodEventStore.update(id: moodEvent!.id, utcDate: utcDate, moodDay: self.convertedMoodDay)
-//
-//                        }
-//
-//                        if utcDate != utcDateOpenedTo {
-//                            _ = MoodEventStorage.moodEventStore.delete(utcDate: utcDateOpenedTo)
-//                        }
-//
-//                        dismiss()
-
                     }
                     
                     
@@ -216,6 +191,8 @@ struct EditEventView: View {
             // Overwrite alert
             .alert("You already have an entry on that day", isPresented: $showingDateConflictAlert) {
                 Button("Overwrite", role: .destructive) {
+                    
+                    #warning("Do this")
                     
 //                    let moodEvent = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate)
 //

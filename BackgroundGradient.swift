@@ -9,13 +9,13 @@ import SwiftUI
 
 struct BackgroundGradient: View {
     
-    let moodPoints: [SQMoodPoint]
+    let moodPoints: [MoodPoint]
     
     var colors: [Color] {
         var temp = [Color]()
         
         for i in moodPoints {
-            temp.append(MoodOptions.options.moodColors[i.moodValue])
+            temp.append(MoodOptions.options.moodColors[Int(i.moodValue)])
         }
         
         return temp

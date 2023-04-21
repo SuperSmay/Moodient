@@ -14,7 +14,7 @@ struct FullEventView: View {
     @State private var editSheetMoodDay: SQMoodCalendarDay? = nil
     @State private var newSheetShowing = false
     
-    @State private var month = Date(timeIntervalSince1970: -2729808000)
+    @State private var month = Date.now
     
     let springTransition = Animation.easeInOut
     //Animation.spring(dampingFraction: 0.7, blendDuration: 0.5)

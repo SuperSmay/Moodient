@@ -20,23 +20,14 @@ struct MonthDayView: View {
     /// These are supposedly expensive to make, so we will avoid making tons of them
     @Environment(\.utcDateFormatter) var utcDateFormatter
     
-    /// Pull moodDays from the environment
-    // @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
-    
-    
-    
     @Environment(\.managedObjectContext) var moc
+    
     @FetchRequest var moodDays: FetchedResults<MoodDay>
-    
-//    @FetchRequest(sortDescriptors: [], predicate: NSPredicate(format: "utcDate == %@", utcDate as CVarArg)) var cdMoodDays: FetchedResults<MoodDay>
-    
 
     init(utcDate: Date) {
         self.utcDate = utcDate
-        
         let predicate = NSPredicate(format: "utcDate == %@", utcDate as CVarArg)
-        self._moodDays = FetchRequest(sortDescriptors: [], predicate: predicate)
-        
+        self._moodDays = FetchRequest(sortDescriptors: [], predicate: predicate) 
     }
     
     
@@ -47,7 +38,7 @@ struct MonthDayView: View {
     @State private var deleteAlertShowing = false
     @State private var deleteAlertUtcDate: Date? = nil
     
-    /// The moodCalenderDay for this date, loaded from the database
+    /// The utcDate for this view
     let utcDate: Date
     
     /// Falling easteregg things
@@ -73,8 +64,8 @@ struct MonthDayView: View {
                 /// The normal view
                 ZStack {
                     
-//                    BackgroundGradient(moodPoints: moodCalendarDay.moodDay?.moodPoints ?? [])
-//                        .clipShape(RoundedRectangle(cornerRadius: geo.size.width * 0.2, style: .continuous))
+                    BackgroundGradient(moodPoints: moodDays.first?.moodPoints?.allObjects as? [MoodPoint] ?? [])
+                        .clipShape(RoundedRectangle(cornerRadius: geo.size.width * 0.2, style: .continuous))
                     
                     let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: utcDate)
                     //
