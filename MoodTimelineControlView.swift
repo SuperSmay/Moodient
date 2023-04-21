@@ -23,9 +23,7 @@ struct MoodTimelineControlView: View {
                 
                 Button {
                     
-                    let newMoodPoint = MoodPoint(context: moc)
-                    newMoodPoint.utcTime = Date.now.convertedUtcTime ?? Date.now
-                    newMoodPoint.moodValue = 0
+                    let newMoodPoint = MoodPoint(utcTime: Date.now.convertedUtcTime ?? Date.now, moodValue: 0)
 
                     moodPoints.append(newMoodPoint)
                     
@@ -43,7 +41,9 @@ struct MoodTimelineControlView: View {
                     
                     HourTicks()
                     
-                    DraggableMoodBar(moodPoints: $moodPoints)
+                    HStack(spacing: 0) {
+                        DraggableMoodBar(moodPoints: $moodPoints)
+                    }
                     
                 }
             }
@@ -104,49 +104,47 @@ struct MoodTimelineControlView: View {
         
         var body: some View {
             
-            HStack(spacing: 0) {
+            
                 ForEach(0..<24) { i in
-                        GeometryReader { geo in
-                            Color.clear
-                                .overlay {
-                            ForEach($moodPoints.filter( {
-                                Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $0.utcTime.wrappedValue ?? Date.now).hour == i
-                            })) { $point in
-                                DragableMood(moodPoint: $point)
-                                /// Force this size. Kinda bad but will fix eventually
-                                    .frame(width: 60, height: 50)
-                                /// Delete gesture things
-                                    .opacity(draggedPoint == point && deleteOnRelease ? 0.2 : 1)
-                                    .overlay {
-                                        Image(systemName: "trash")
-                                            .foregroundColor(.red)
-                                            .scaleEffect(draggedPoint == point && deleteOnRelease ? 1 : 0)
-                                            .animation(deleteOnRelease ? .spring(response: 0.25, dampingFraction: 0.2, blendDuration: 0.05) : nil, value: deleteOnRelease)
-                                            .offset(y:-50)
-                                    }
-                                
-                                    .offset(draggedPoint == point ? dragOffset : CGSize.zero)
-                                
-                                    .gesture(
-                                        
-                                        DragGesture()
-                                            .onChanged({ gesture in
-                                                
-                                                gestureChange(gesture: gesture, point: point, geo: geo)
-                                                
-                                            })
-                                            .onEnded({ gesture in
-                                                
-                                                gestureEnded(gesture: gesture, point: point, geo: geo)
-                                                
-                                            })
-                                    )
+                    GeometryReader { geo in
+                        Color.clear
+                            .overlay {
+                                ForEach($moodPoints.filter( {
+                                    Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $0.utcTime.wrappedValue).hour == i
+                                }), id:\.self.wrappedValue.id) { $point in
+                                    DragableMood(moodPoint: $point)
+                                    /// Force this size. Kinda bad but will fix eventually
+                                        .frame(width: 60, height: 50)
+                                    /// Delete gesture things
+                                        .opacity(draggedPoint == point && deleteOnRelease ? 0.2 : 1)
+                                        .overlay {
+                                            Image(systemName: "trash")
+                                                .foregroundColor(.red)
+                                                .scaleEffect(draggedPoint == point && deleteOnRelease ? 1 : 0)
+                                                .animation(deleteOnRelease ? .spring(response: 0.25, dampingFraction: 0.2, blendDuration: 0.05) : nil, value: deleteOnRelease)
+                                                .offset(y:-50)
+                                        }
+
+                                        .offset(draggedPoint == point ? dragOffset : CGSize.zero)
+
+                                        .gesture(
+                                            DragGesture()
+                                                .onChanged({ gesture in
+
+                                                    gestureChange(gesture: gesture, point: point, geo: geo)
+
+                                                })
+                                                .onEnded({ gesture in
+
+                                                    gestureEnded(gesture: gesture, point: point, geo: geo)
+
+                                                })
+                                        )
+                                }
                             }
-                        }
                     }
                 }
             }
-        }
         
         func gestureChange(gesture: DragGesture.Value, point: MoodPoint, geo: GeometryProxy) {
             let xOffset = gesture.translation.width
@@ -196,12 +194,12 @@ struct MoodTimelineControlView: View {
                 moodPoints.removeAll(where: {$0 == point})
             } else {
                 
-                point.utcTime = change(utcTime: point.utcTime ?? Date.now, by: Int(hourChange))
+                point.utcTime = change(utcTime: point.utcTime, by: Int(hourChange))
                 
                 /// Sort the moodPoints list by hour
                 moodPoints = moodPoints.sorted(by: {
-                    let components0 = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $0.utcTime ?? Date.now)
-                    let components1 = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $1.utcTime ?? Date.now)
+                    let components0 = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $0.utcTime)
+                    let components1 = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $1.utcTime)
                     return components0.hour ?? 0 < components1.hour ?? 0
                 })
                 
@@ -250,7 +248,7 @@ struct MoodTimelineControlView: View {
                     Menu {
                         ForEach(0..<5) { i in
                             Button {
-                                moodPoint.moodValue = Int16(i)
+                                moodPoint.moodValue = i
                             } label: {
                                 Text(MoodOptions.options.moodLabels[i])
                             }

@@ -153,9 +153,11 @@ struct EditEventView: View {
                             //TODO check for conflicts
                             #warning("Fix me pls")
                             
+                            print("Wheeee")
+                            
                             moodDay.setValue(utcDate, forKey: "utcDate")
                             moodDay.setValue(description, forKey: "dayDescription")
-                            moodDay.setValue(NSSet(array: moodPoints), forKey: "moodPoints")
+                            moodDay.setValue(moodPoints, forKey: "moodPoints")
                             
                             do {
                                 try moc.save()
@@ -165,9 +167,10 @@ struct EditEventView: View {
                             
                         } else {
                             let moodDay = MoodDay(context: moc)
-                            moodDay.utcDate = utcDate
+                            
                             moodDay.dayDescription = description
-                            moodDay.moodPoints = NSSet(array: moodPoints)
+                            moodDay.moodPoints = moodPoints
+                            moodDay.utcDate = utcDate
                             
                             do {
                                 try moc.save()
@@ -221,7 +224,7 @@ struct EditEventView: View {
             
             let moodDay = moodDays.first
 
-            self.moodPoints = moodDay?.moodPoints?.allObjects as? [MoodPoint] ?? []
+            self.moodPoints = moodDay?.moodPoints ?? []
             self.description = moodDay?.dayDescription ?? ""
         }
     }

@@ -64,7 +64,7 @@ struct MonthDayView: View {
                 /// The normal view
                 ZStack {
                     
-                    BackgroundGradient(moodPoints: moodDays.first?.moodPoints?.allObjects as? [MoodPoint] ?? [])
+                    BackgroundGradient(moodPoints: moodDays.first?.moodPoints ?? [])
                         .clipShape(RoundedRectangle(cornerRadius: geo.size.width * 0.2, style: .continuous))
                     
                     let components = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: utcDate)
