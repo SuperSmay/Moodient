@@ -97,7 +97,7 @@ struct SearchTabView: View {
                     
                     let moodPointsArray = value.moodPoints
                     
-                    BackgroundGradient(moodPoints: moodPointsArray ?? [])
+                    BackgroundGradient(moodPoints: moodPointsArray)
                         .opacity(0.2)
                         .frame(height: 2)
                         .foregroundStyle(.thinMaterial)

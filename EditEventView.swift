@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct EditEventView: View {
     
@@ -150,10 +151,25 @@ struct EditEventView: View {
                         
                         if let moodDay = moodDays.first {
                             
-                            //TODO check for conflicts
-                            #warning("Fix me pls")
+                            if utcDate != utcDateOpenedTo {
+                                let predicate = NSPredicate(format: "utcDate == %@", utcDate as CVarArg)
+                                let fetchRequest = MoodDay.fetchRequest()
+                                fetchRequest.predicate = predicate
+                                fetchRequest.includesPropertyValues = false
+                                
+                                let results = try? moc.fetch(fetchRequest)
+                                
+                                guard results != nil && results!.count == 0 else {
+                                    showingDateConflictAlert.toggle()
+                                    return
+                                }
+                                
+                                
+                                
+                            }
                             
-                            print("Wheeee")
+
+                            
                             
                             moodDay.utcDate = utcDate
                             moodDay.dayDescription = description
@@ -195,21 +211,31 @@ struct EditEventView: View {
             .alert("You already have an entry on that day", isPresented: $showingDateConflictAlert) {
                 Button("Overwrite", role: .destructive) {
                     
-                    #warning("Do this")
+                    if let moodDay = moodDays.first {
+                        
+                        let fetchRequest = MoodDay.fetchRequest()
+                        let predicate = NSPredicate(format: "utcDate == %@", utcDate as CVarArg)
+                        fetchRequest.predicate = predicate
+                        fetchRequest.includesPropertyValues = false
+                        
+                        let result = try? moc.fetch(fetchRequest)
+                        
+                        for moodDay in result ?? [] {
+                            moc.delete(moodDay as! NSManagedObject)
+                        }
+                        
+                        moodDay.utcDate = utcDate
+                        moodDay.dayDescription = description
+                        moodDay.moodPoints = moodPoints
+                        
+                        do {
+                            try moc.save()
+                        } catch {
+                            print(error.localizedDescription)
+                        }
+                    }
                     
-//                    let moodEvent = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate)
-//
-//                    if moodEvent == nil {
-//                        return
-//                    }
-//
-//                    _ = MoodEventStorage.moodEventStore.update(id: moodEvent!.id, utcDate: utcDate, moodDay: self.convertedMoodDay)
-//
-//                    if utcDate != utcDateOpenedTo {
-//                        _ = MoodEventStorage.moodEventStore.delete(utcDate: utcDateOpenedTo)
-//                    }
-//
-//                    dismiss()
+                    dismiss()
                     
                 }
             }
