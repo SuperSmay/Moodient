@@ -131,12 +131,65 @@ struct MoodTimelineControlView: View {
                                             DragGesture()
                                                 .onChanged({ gesture in
 
-                                                    gestureChange(gesture: gesture, point: point, geo: geo)
+                                                    let xOffset = gesture.translation.width
+                                                    var yOffset = 0.0
+                                                    
+                                                    draggedPoint = point
+                                                    
+                                                    /// Delete things
+                                                    
+                                                    if (abs(gesture.translation.height) > geo.frame(in: .global).height) {
+                                                        yOffset = gesture.translation.height
+                                                    }
+                                                    
+                                                    let deleteRatio = abs(yOffset/(geo.frame(in: .global).height * 2))
+                                                    
+                                                    /// When delete is primed
+                                                    if !deleteOnRelease && deleteRatio >= 1 {
+                                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                                        deleteOnRelease = true
+                                                    } else if deleteRatio >= 1 {
+                                                        deleteOnRelease = true
+                                                    } else {
+                                                        deleteOnRelease = false
+                                                    }
+                                                    
+                                                    /// Slider haptics
+                                                    let hourChange = gesture.translation.width/geo.frame(in: .global).width
+                                                    
+                                                    if Int(hourChange) != previousHourOffset && deleteRatio == 0 {
+                                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                                    }
+                                                    
+                                                    previousHourOffset = Int(hourChange)
+                                                    
+                                                    dragOffset = CGSize(width: xOffset, height: yOffset)
 
                                                 })
                                                 .onEnded({ gesture in
 
-                                                    gestureEnded(gesture: gesture, point: point, geo: geo)
+                                                    let hourChange = gesture.translation.width/geo.frame(in: .global).width
+                                                    
+                                                    draggedPoint = nil
+                                                    
+                                                    dragOffset = CGSize.zero
+                                                    
+                                                    if deleteOnRelease {
+                                                        moodPoints.removeAll(where: {$0 == point})
+                                                    } else {
+                                                        
+                                                        point.utcTime = change(utcTime: point.utcTime, by: Int(hourChange))
+                                                        
+                                                        /// Sort the moodPoints list by hour
+                                                        moodPoints = moodPoints.sorted(by: {
+                                                            let components0 = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $0.utcTime)
+                                                            let components1 = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $1.utcTime)
+                                                            return components0.hour ?? 0 < components1.hour ?? 0
+                                                        })
+                                                        
+                                                    }
+                                                    
+                                                    deleteOnRelease = false
 
                                                 })
                                         )
@@ -146,66 +199,13 @@ struct MoodTimelineControlView: View {
                 }
             }
         
-        func gestureChange(gesture: DragGesture.Value, point: MoodPoint, geo: GeometryProxy) {
-            let xOffset = gesture.translation.width
-            var yOffset = 0.0
+        func gestureChange(gesture: DragGesture.Value, point: Binding<MoodPoint>, geo: GeometryProxy) {
             
-            draggedPoint = point
-            
-            /// Delete things
-            
-            if (abs(gesture.translation.height) > geo.frame(in: .global).height) {
-                yOffset = gesture.translation.height
-            }
-            
-            let deleteRatio = abs(yOffset/(geo.frame(in: .global).height * 2))
-            
-            /// When delete is primed
-            if !deleteOnRelease && deleteRatio >= 1 {
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                deleteOnRelease = true
-            } else if deleteRatio >= 1 {
-                deleteOnRelease = true
-            } else {
-                deleteOnRelease = false
-            }
-            
-            /// Slider haptics
-            let hourChange = gesture.translation.width/geo.frame(in: .global).width
-            
-            if Int(hourChange) != previousHourOffset && deleteRatio == 0 {
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-            }
-            
-            previousHourOffset = Int(hourChange)
-            
-            dragOffset = CGSize(width: xOffset, height: yOffset)
         }
         
-        func gestureEnded(gesture: DragGesture.Value, point: MoodPoint, geo: GeometryProxy) {
+        func gestureEnded(gesture: DragGesture.Value, point: Binding<MoodPoint>, geo: GeometryProxy) {
 
-            let hourChange = gesture.translation.width/geo.frame(in: .global).width
-            
-            draggedPoint = nil
-            
-            dragOffset = CGSize.zero
-            
-            if deleteOnRelease {
-                moodPoints.removeAll(where: {$0 == point})
-            } else {
-                
-                point.utcTime = change(utcTime: point.utcTime, by: Int(hourChange))
-                
-                /// Sort the moodPoints list by hour
-                moodPoints = moodPoints.sorted(by: {
-                    let components0 = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $0.utcTime)
-                    let components1 = Calendar.autoupdatingCurrent.dateComponents(in: timezone, from: $1.utcTime)
-                    return components0.hour ?? 0 < components1.hour ?? 0
-                })
-                
-            }
-            
-            deleteOnRelease = false
+           
         }
         
         func change(utcTime date: Date, by offset: Int) -> Date {

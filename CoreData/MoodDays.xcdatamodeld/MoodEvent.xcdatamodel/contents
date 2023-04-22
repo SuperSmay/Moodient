@@ -3,7 +3,7 @@
     <entity name="MoodDay" representedClassName=".MoodDay" syncable="YES">
         <attribute name="dayDescription" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="moodPoints" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
+        <attribute name="moodPointsData" optional="YES" attributeType="String" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[MoodPoint]"/>
         <attribute name="utcDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
     </entity>
 </model>

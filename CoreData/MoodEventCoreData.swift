@@ -29,38 +29,36 @@ public class MoodDay: NSManagedObject {
     @NSManaged public var dayDescription: String?
     @NSManaged public var id: UUID
     
-    @NSManaged var moodPoints: [MoodPoint]?
+    @NSManaged public var moodPointsData: String
+    
+    /// https://stackoverflow.com/a/65550870
+    /// Way better than the transformable nonsense
+    var moodPoints: [MoodPoint] {
+        get {
+            return (try? JSONDecoder().decode([MoodPoint].self, from: Data(moodPointsData.utf8))) ?? []
+        }
+        set {
+            
+            do {
+                let rawMoodPointsData = try JSONEncoder().encode(newValue)
+                moodPointsData = String(data: rawMoodPointsData, encoding: .utf8)!
+            } catch {
+                print("Error encoding moodPoints array \(newValue)")
+                moodPointsData = ""
+            }
+        }
+    }
+    
 }
 
 extension MoodDay: Identifiable {
 
 }
 
-public class MoodPoint: NSObject, NSSecureCoding {
-    
-    public required init?(coder: NSCoder) {
-            // NSCoding
-            //name = coder.decodeObject(forKey: "name") as? String ?? ""
-            //last_name = coder.decodeObject(forKey: "last_name") as? String ?? ""
+public struct MoodPoint: Codable, Identifiable, Equatable {
 
-            // NSSecureCoding
-        utcTime = coder.decodeObject(of: NSDate.self, forKey: "utcTime") as Date? ?? Date.now
-        moodValue = coder.decodeInteger(forKey: "moodValue")
-        }
+    public var utcTime: Date
+    public var moodValue: Int
+    public var id = UUID()
 
-        public func encode(with coder: NSCoder) {
-            coder.encode(utcTime, forKey: "utcTime")
-            coder.encode(moodValue, forKey: "moodValue")
-        }
-    
-    public static var supportsSecureCoding: Bool = true
-
-    var utcTime: Date
-    var moodValue: Int
-    var id = UUID()
-    
-    init(utcTime: Date, moodValue: Int) {
-        self.utcTime = utcTime
-        self.moodValue = moodValue
-    }
 }

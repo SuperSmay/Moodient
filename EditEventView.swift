@@ -155,9 +155,9 @@ struct EditEventView: View {
                             
                             print("Wheeee")
                             
-                            moodDay.setValue(utcDate, forKey: "utcDate")
-                            moodDay.setValue(description, forKey: "dayDescription")
-                            moodDay.setValue(moodPoints, forKey: "moodPoints")
+                            moodDay.utcDate = utcDate
+                            moodDay.dayDescription = description
+                            moodDay.moodPoints = moodPoints
                             
                             do {
                                 try moc.save()
