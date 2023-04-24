@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct MoodientApp: App {
     
-    @StateObject private var dataController = DataController()
+    @ObservedObject private var dataController = DataController.shared
     
     var body: some Scene {
         WindowGroup {

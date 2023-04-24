@@ -7,6 +7,7 @@
 
 import Foundation
 import SQLite
+import CoreData
 
 class MoodEventStorage: ObservableObject {
     
@@ -105,9 +106,50 @@ class MoodEventStorage: ObservableObject {
             
         }
         
+        if db?.userVersion == 2 {
+            
+            let context = DataController.shared.container.viewContext
+            
+            print("Database version \(String(describing: db?.userVersion))")
+            
+            saveBackup()
+            
+            /// The version check succeeded, so the database is not nil
+            let database = db!
+            
+            do {
+                for entry in try database.prepare(self.moodDaysTable) {
+                    do {
+                        let newDay = SQMoodCalendarDay(utcDate: try entry.get(utcDate), moodDay: SQMoodDay(moodPoints: try entry.get(moodPointsList).moodPoints, description: try entry.get(description)), id: try entry.get(uuid))
+                    
+                        let newMoodDay = MoodDay(context: context)
+                        newMoodDay.id = newDay.id
+                        newMoodDay.dayDescription = newDay.moodDay?.description ?? ""
+                        newMoodDay.utcDate = newDay.utcDate
+                        
+                        var newMoodPoints = [MoodPoint]()
+                        
+                        for sqMoodPoint in newDay.moodDay?.moodPoints ?? [] {
+                            newMoodPoints.append(MoodPoint(utcTime: sqMoodPoint.utcTime, moodValue: sqMoodPoint.moodValue))
+                        }
+                        newMoodDay.moodPoints = newMoodPoints
+                        
+                        try context.save()
+                        
+                    } catch {
+                        print(error.localizedDescription)
+                    }
+                }
+            } catch {
+                print(error)
+            }
+            
+            
+        }
+        
         do {
             
-            db?.userVersion = 2
+            db?.userVersion = 3
             
             print("Database version \(String(describing: db?.userVersion))")
             
@@ -319,7 +361,7 @@ class MoodEventStorage: ObservableObject {
         }
     }
     
-    private func saveBackup() {
+    func saveBackup() {
 
         if let documentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             let dirPath = documentsDir.appendingPathComponent(Self.DIR_MOOD_EVENTS_DB)

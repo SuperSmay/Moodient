@@ -16,12 +16,29 @@ struct DeveloperOptionsView: View {
     var body: some View {
         
         Form {
-                
-                Toggle("Developer Mode", isOn: $developerMode)
- 
+            
+            Toggle("Developer Mode", isOn: $developerMode)
+            
+            NavigationLink {
+                if let documentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+                    
+                    let dirPath = documentsDir.appendingPathComponent(MoodEventStorage.DIR_MOOD_EVENTS_DB)
+                    
+                    BackupView(fileDir: dirPath)
+                } else {
+                    Text("Error accessing documents directory")
+                }
+            } label: {
+                Text("Backups")
             }
-            .navigationTitle("Developer")
-            .navigationBarTitleDisplayMode(.inline)
+            
+            
+            
+            
+            
+        }
+        .navigationTitle("Developer")
+        .navigationBarTitleDisplayMode(.inline)
         
     }
 }

@@ -27,6 +27,7 @@
 		9F7567FD2995B2D000341798 /* ShakeEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7567FC2995B2D000341798 /* ShakeEvent.swift */; };
 		9F7567FF2995BAA700341798 /* WindowSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7567FE2995BAA700341798 /* WindowSize.swift */; };
 		9F7568012995C41500341798 /* SelectedTabExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F7568002995C41500341798 /* SelectedTabExtension.swift */; };
+		9FA40BAE29F7295800AE2A78 /* BackupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA40BAD29F7295800AE2A78 /* BackupView.swift */; };
 		9FA40E8C29F1F2430002E44F /* MoodEventCoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA40E8B29F1F2430002E44F /* MoodEventCoreData.swift */; };
 		9FA40E8F29F1F24F0002E44F /* MoodDays.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9FA40E8D29F1F24F0002E44F /* MoodDays.xcdatamodeld */; };
 		9FA768F529EDC474009777D6 /* AuthenticateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA768F429EDC474009777D6 /* AuthenticateView.swift */; };
@@ -58,6 +59,7 @@
 		9F7567FC2995B2D000341798 /* ShakeEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeEvent.swift; sourceTree = "<group>"; };
 		9F7567FE2995BAA700341798 /* WindowSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowSize.swift; sourceTree = "<group>"; };
 		9F7568002995C41500341798 /* SelectedTabExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedTabExtension.swift; sourceTree = "<group>"; };
+		9FA40BAD29F7295800AE2A78 /* BackupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupView.swift; sourceTree = "<group>"; };
 		9FA40E8B29F1F2430002E44F /* MoodEventCoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodEventCoreData.swift; sourceTree = "<group>"; };
 		9FA40E8E29F1F24F0002E44F /* MoodEvent.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MoodEvent.xcdatamodel; sourceTree = "<group>"; };
 		9FA768F429EDC474009777D6 /* AuthenticateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticateView.swift; sourceTree = "<group>"; };
@@ -86,6 +88,7 @@
 			children = (
 				9FEFE18D29E202DC001C971F /* LabelStyle.swift */,
 				9FEFE18B29E1252E001C971F /* DeveloperOptionsView.swift */,
+				9FA40BAD29F7295800AE2A78 /* BackupView.swift */,
 				9FEFE18429DFB25D001C971F /* SearchTabView.swift */,
 				9F0CEC7729AD760D00AF756C /* BackgroundGradient.swift */,
 				9F0CEC7529A17CD800AF756C /* MoodTimelineControlView.swift */,
@@ -224,6 +227,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9FA40BAE29F7295800AE2A78 /* BackupView.swift in Sources */,
 				9FEFE18C29E1252E001C971F /* DeveloperOptionsView.swift in Sources */,
 				9FEFE18729E0D36B001C971F /* AboutView.swift in Sources */,
 				9F1829FC298C7EA900686202 /* ColorPoint.swift in Sources */,

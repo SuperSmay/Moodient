@@ -12,7 +12,9 @@ class DataController: ObservableObject {
     
     let container = NSPersistentContainer(name: "MoodDays")
     
-    init() {
+    static let shared = DataController()
+    
+    private init() {
         container.loadPersistentStores { description, error in
             if let error = error {
                 print("Error loading CoreData: \(error.localizedDescription)")
