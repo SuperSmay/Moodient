@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct MonthView: View {
     
@@ -17,7 +18,7 @@ struct MonthView: View {
     @State private var editUtcDate: Date? = nil
     
     @State private var deleteAlertShowing = false
-    @State private var deleteAlertMoodCalendarDay: SQMoodCalendarDay? = nil
+    @State private var deleteUtcDate: Date? = nil
     
 
     
@@ -58,9 +59,9 @@ struct MonthView: View {
                         
                         /// Add blank spots to the first part of the month
                         if weeks.first == week {
-                            WeekView(editUtcDate: $editUtcDate, deleteAlertMoodCalendarDay: $deleteAlertMoodCalendarDay, deleteAlertShowing: $deleteAlertShowing, week: week, daysToSkipInWeek: daysToSkipInFirstWeek)
+                            WeekView(editUtcDate: $editUtcDate, deleteUtcDate: $deleteUtcDate, deleteAlertShowing: $deleteAlertShowing, week: week, daysToSkipInWeek: daysToSkipInFirstWeek)
                         } else {
-                            WeekView(editUtcDate: $editUtcDate, deleteAlertMoodCalendarDay: $deleteAlertMoodCalendarDay, deleteAlertShowing: $deleteAlertShowing, week: week, daysToSkipInWeek: 0)
+                            WeekView(editUtcDate: $editUtcDate, deleteUtcDate: $deleteUtcDate, deleteAlertShowing: $deleteAlertShowing, week: week, daysToSkipInWeek: 0)
                         }
                     }
                 }
@@ -70,13 +71,25 @@ struct MonthView: View {
                 /// Force unwraps on moodDay ok because that value is checked for nil before this sheet is presented
                 EditEventView(utcDate: utcDate)
             }
-            .alert("Delete entry?", isPresented: $deleteAlertShowing, presenting: deleteAlertMoodCalendarDay) { moodCalendarDay in
+            .alert("Delete entry?", isPresented: $deleteAlertShowing, presenting: deleteUtcDate) { deleteUtcDate in
                 Button(role:.destructive) {
-                    if let utcDate = deleteAlertMoodCalendarDay?.utcDate {
-                        withAnimation {
-                            _ = MoodEventStorage.moodEventStore.delete(utcDate: utcDate)
-                        }
+                    let fetchRequest = MoodDay.fetchRequest()
+                    let predicate = NSPredicate(format: "utcDate == %@", deleteUtcDate as CVarArg)
+                    fetchRequest.predicate = predicate
+                    fetchRequest.includesPropertyValues = false
+                    
+                    let result = try? moc.fetch(fetchRequest)
+                    
+                    for moodDay in result ?? [] {
+                        moc.delete(moodDay as! NSManagedObject)
                     }
+                    
+                    do {
+                        try moc.save()
+                    } catch {
+                        print(error.localizedDescription)
+                    }
+
                 } label: {
                     Text("Delete")
                 }
@@ -96,7 +109,7 @@ struct MonthView: View {
         @Environment(\.currentUtcDate) private var currentUtcDate
         
         @Binding var editUtcDate: Date?
-        @Binding var deleteAlertMoodCalendarDay: SQMoodCalendarDay?
+        @Binding var deleteUtcDate: Date?
         @Binding var deleteAlertShowing: Bool
         
         //@ObservedObject private var moodDays = MoodEventStorage.moodEventStore
@@ -121,55 +134,8 @@ struct MonthView: View {
             
             ForEach(week, id: \.self) { utcDate in
                 
-                MonthDayView(utcDate: utcDate)
-                /// This *sucks.* The array change does not seem to be sufficient to trigger a reload of this view.
-                /// This text background does reload as expected, and when it reloads it triggers the rest of the view to reload.
-                /// This is probably a result of jank associated with how I'm fetching/storing this data.
-                /// Anyway, if reloadCount is not updated for some reason, these days won't update :D
-                    //.background(Text(String(moodDays.reloadCount))
-                    //    .foregroundColor(.clear))
-                    .contextMenu {
-                        
-                        Section {
-                            Button {
-                                
-                            } label: {
-                                Label(utcDateFormatter.string(from: utcDate), systemImage: "calendar")
-                            }
-                                .disabled(true)
-                        }
-                        
-                        Section {
-                            /// If the date should be able to be edited, then show the edit button
-                            if (currentUtcDate != nil && utcDate <= currentUtcDate!) {
-                                Button(action: {
-                                    
-                                    print(utcDate)
-                                    
-                                    editUtcDate = utcDate
-                                    
-                                }, label: {
-                                    Label("Edit", systemImage: "pencil")
-                                })
-                                
-//                                if (moodCalendarDay.moodDay != nil) {
-//                                    Button(role: .destructive) {
-//                                        deleteAlertMoodCalendarDay = moodCalendarDay
-//                                        deleteAlertShowing.toggle()
-//                                    } label: {
-//                                        Label("Delete", systemImage: "trash")
-//                                    }
-//                                }
-                                /// Otherwise, show a disabled button (Text doesn't work so this was the best option) that has a fun message
-                            } else {
-                                
-                                let daysAway = (Calendar.autoupdatingCurrent.dateComponents([.day], from: currentUtcDate ?? Date.now, to: utcDate).day ?? -1)
-                                let daysAwayText = daysAway == 1 ? "tomorrow!" : "\(daysAway) days from now"
-                                Button("That's \(daysAwayText)") {}
-                                    .disabled(true)
-                            }
-                        }
-                    }
+                MonthDayView(utcDate: utcDate, editUtcDate: $editUtcDate, deleteUtcDate: $deleteUtcDate, deleteAlertShowing: $deleteAlertShowing)
+                   
                 
             }
         }

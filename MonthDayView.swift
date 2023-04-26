@@ -23,20 +23,19 @@ struct MonthDayView: View {
     @Environment(\.managedObjectContext) var moc
     
     @FetchRequest var moodDays: FetchedResults<MoodDay>
+    
+    @Binding var deleteUtcDate: Date?
+    @Binding var editUtcDate: Date?
+    @Binding var deleteAlertShowing: Bool
 
-    init(utcDate: Date) {
+    init(utcDate: Date, editUtcDate: Binding<Date?>, deleteUtcDate: Binding<Date?>, deleteAlertShowing: Binding<Bool>) {
         self.utcDate = utcDate
+        self._deleteUtcDate = deleteUtcDate
+        self._editUtcDate = editUtcDate
+        self._deleteAlertShowing = deleteAlertShowing
         let predicate = NSPredicate(format: "utcDate == %@", utcDate as CVarArg)
         self._moodDays = FetchRequest(sortDescriptors: [], predicate: predicate) 
     }
-    
-    
-    
-    /// Sheets for creating/editing entries
-    @State private var editSheetShowing = false
-    @State private var newSheetShowing = false
-    @State private var deleteAlertShowing = false
-    @State private var deleteAlertUtcDate: Date? = nil
     
     /// The utcDate for this view
     let utcDate: Date
@@ -121,7 +120,48 @@ struct MonthDayView: View {
         /// Keep the thing locked to a square
         .aspectRatio(1, contentMode: .fit)
         /// Touch and hold menu
-        
+        .contextMenu {
+            
+            Section {
+                Button {
+                    
+                } label: {
+                    Label(utcDateFormatter.string(from: utcDate), systemImage: "calendar")
+                }
+                    .disabled(true)
+            }
+            
+            Section {
+                /// If the date should be able to be edited, then show the edit button
+                if (currentUtcDate != nil && utcDate <= currentUtcDate!) {
+                    Button(action: {
+                        
+                        print(utcDate)
+                        
+                        editUtcDate = utcDate
+                        
+                    }, label: {
+                        Label("Edit", systemImage: "pencil")
+                    })
+                    
+                    if (moodDays.first != nil) {
+                        Button(role: .destructive) {
+                            deleteUtcDate = utcDate
+                            deleteAlertShowing.toggle()
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
+                    /// Otherwise, show a disabled button (Text doesn't work so this was the best option) that has a fun message
+                } else {
+                    
+                    let daysAway = (Calendar.autoupdatingCurrent.dateComponents([.day], from: currentUtcDate ?? Date.now, to: utcDate).day ?? -1)
+                    let daysAwayText = daysAway == 1 ? "tomorrow!" : "\(daysAway) days from now"
+                    Button("That's \(daysAwayText)") {}
+                        .disabled(true)
+                }
+            }
+        }
         
         
     }
@@ -172,7 +212,7 @@ extension EnvironmentValues {
 struct MonthDayView_Previews: PreviewProvider {
     static var previews: some View {
         GeometryReader { geo in
-            MonthDayView(utcDate: Date.now.convertedUtcDate!)
+            MonthDayView(utcDate: Date.now.convertedUtcDate!, editUtcDate: Binding.constant(nil), deleteUtcDate: Binding.constant(nil), deleteAlertShowing: Binding.constant(true))
                 .environment(\.mainWindowSize, geo.size)
         }
     }
