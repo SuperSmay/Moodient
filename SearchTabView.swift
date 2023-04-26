@@ -11,13 +11,25 @@ struct SearchTabView: View {
     
     /// Env variables
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.managedObjectContext) var moc
     
+    @FetchRequest(sortDescriptors: []) var moodDays: FetchedResults<MoodDay>
     @State private var searchString = ""
-    @State private var searchResults = [MoodCalendarDay]()
+    var query: Binding<String> {
+        Binding {
+            searchString
+        } set: { newValue in
+            searchString = newValue
+            moodDays.nsPredicate = newValue.isEmpty ? nil : NSPredicate(format: "name CONTAINS %@", newValue)
+        }
+    }
+
     
-    @State private var sheetItem: MoodCalendarDay? = nil
+    @State private var sheetItem: MoodDay? = nil
     
     @FocusState private var searchFocused
+    
+    
     
     var body: some View {
         NavigationView {
@@ -31,29 +43,6 @@ struct SearchTabView: View {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(.secondary)
                     }
-                    .onSubmit {
-                        
-                        let searchWordList = searchString.split(separator: " ")
-                        
-                        print("Submit \(searchWordList)")
-                        
-                        
-                        withAnimation {
-                            
-                            if searchString.trimmingCharacters(in: .whitespacesAndNewlines) != "" {
-                                
-                                print("Running search")
-                                
-                                searchResults = Array(MoodEventStorage.moodEventStore.findMoodDay(searchDescriptionString: searchWordList.joined(separator: " OR ")).values)
-                                
-                                print(searchResults)
-                                
-                            } else {
-                                searchResults = []
-                            }
-                        }
-                    }
-                    
                     .focused($searchFocused)
                     .submitLabel(.search)
                 }
@@ -62,12 +51,12 @@ struct SearchTabView: View {
                 
                 Section {
                     
-                    ForEach(searchResults, id: \.utcDate) { moodCalendarDay in
+                    ForEach(moodDays, id: \.utcDate) { moodDay in
                         
                         Button {
-                            sheetItem = moodCalendarDay
+                            sheetItem = moodDay
                         } label: {
-                            SearchResultView(value: moodCalendarDay)
+                            SearchResultView(value: moodDay)
                         }
                         .foregroundColor(.primary)
                         
@@ -77,7 +66,7 @@ struct SearchTabView: View {
                     
                 }
                 .sheet(item: $sheetItem, content: { value in
-                    EditEventView(utcDate: value.utcDate, moodPoints: value.moodDay?.moodPoints ?? [], description: value.moodDay?.description ?? "")
+                    EditEventView(utcDate: value.utcDate ?? Date.now)
                 })
                 
             }
@@ -91,7 +80,7 @@ struct SearchTabView: View {
         /// These are supposedly expensive to make, so we will avoid making tons of them
         @Environment(\.utcDateFormatter) var utcDateFormatter
         
-        var value: MoodCalendarDay
+        var value: MoodDay
         
         var body: some View {
             NavigationLink {
@@ -100,17 +89,20 @@ struct SearchTabView: View {
                 VStack {
                     HStack {
                         
-                        Text(utcDateFormatter.string(from: value.utcDate))
+                        Text(utcDateFormatter.string(from: value.utcDate ?? Date.now))
                         
                         Spacer()
                         
                     }
-                    BackgroundGradient(moodPoints: value.moodDay?.moodPoints ?? [])
+                    
+                    let moodPointsArray = value.moodPoints
+                    
+                    BackgroundGradient(moodPoints: moodPointsArray)
                         .opacity(0.2)
                         .frame(height: 2)
                         .foregroundStyle(.thinMaterial)
                     HStack {
-                        Text(value.moodDay?.description ?? "")
+                        Text(value.dayDescription ?? "")
                             .font(Font.subheadline)
                         .lineLimit(5)
                         Spacer()

@@ -15,7 +15,7 @@ struct BackgroundGradient: View {
         var temp = [Color]()
         
         for i in moodPoints {
-            temp.append(MoodOptions.options.moodColors[i.moodValue])
+            temp.append(MoodOptions.options.moodColors[Int(i.moodValue)])
         }
         
         return temp

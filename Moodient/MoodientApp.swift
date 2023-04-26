@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct MoodientApp: App {
+    
+    @ObservedObject private var dataController = DataController.shared
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(\.managedObjectContext, dataController.container.viewContext)
         }
     }
 }

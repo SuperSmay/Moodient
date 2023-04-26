@@ -24,11 +24,6 @@ struct TodayView: View {
     
     @FocusState var textBoxFocused
     
-    /// Calculates the mood day to insert into the database
-    var convertedMoodDay: MoodDay {
-        MoodDay(moodPoints: moodPoints, description: description)
-    }
-    
     var completeUtcDateFormatter:  DateFormatter {
         let formatter = DateFormatter()
         formatter.timeZone = TimeZone.gmt
@@ -58,29 +53,29 @@ struct TodayView: View {
                             .foregroundColor(.secondary)
                         
                         /// Fake form row (can't use Form because it doesn't avoid the keyboard)
-                        MoodTimelineControlView(moodPoints: $moodPoints)
-                            .zIndex(10)
-                            .frame(height: 100)
-                            .padding()
-                            .background {
-                                Rectangle()
-                                    .foregroundColor(.clear)
-                                    .background(.ultraThickMaterial)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                                    .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
-                            }
-                            .padding()
-                            .onChange(of: moodPoints) { _ in
-                                
-                                if utcDate == nil || id == nil {
-                                    
-                                    showingDateErrorAlert.toggle()
-                                    
-                                    return
-                                }
-                                
-                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: utcDate!, moodDay: convertedMoodDay)
-                            }
+//                        MoodTimelineControlView(moodPoints: $moodPoints)
+//                            .zIndex(10)
+//                            .frame(height: 100)
+//                            .padding()
+//                            .background {
+//                                Rectangle()
+//                                    .foregroundColor(.clear)
+//                                    .background(.ultraThickMaterial)
+//                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+//                                    .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
+//                            }
+//                            .padding()
+//                            .onChange(of: moodPoints) { _ in
+//                                
+//                                if utcDate == nil || id == nil {
+//                                    
+//                                    showingDateErrorAlert.toggle()
+//                                    
+//                                    return
+//                                }
+//                                
+//                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: utcDate!, moodDay: convertedMoodDay)
+//                            }
                         
                         TextField("Description", text: $description, axis: .vertical)
                             .padding()
@@ -100,7 +95,7 @@ struct TodayView: View {
                                     return
                                 }
                                 
-                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: utcDate!, moodDay: convertedMoodDay)
+//                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: utcDate!, moodDay: convertedMoodDay)
                             }
                         
                         Spacer()
@@ -140,29 +135,29 @@ struct TodayView: View {
             /// Reload date and such when UI loads
             .onAppear() {
                 
-                id = nil
-                utcDate = Date.now.convertedUtcDate
-                moodPoints = []
-                description = ""
-                
-                if utcDate == nil {
-                    showingDateErrorAlert.toggle()
-                    return
-                }
-                
-                var today: MoodCalendarDay? = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate)
-                
-                if today == nil {
-                    
-                    id = MoodEventStorage.moodEventStore.insert(utcDate: utcDate!, moodDay: convertedMoodDay)
-                    today = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate!)
-                    
-                } else {
-                    id = today!.id
-                }
-                
-                moodPoints = today?.moodDay?.moodPoints ?? []
-                description = today?.moodDay?.description ?? ""
+//                id = nil
+//                utcDate = Date.now.convertedUtcDate
+//                moodPoints = []
+//                description = ""
+//
+//                if utcDate == nil {
+//                    showingDateErrorAlert.toggle()
+//                    return
+//                }
+//
+//                var today: SQMoodCalendarDay? = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate)
+//
+//                if today == nil {
+//
+//                 id = MoodEventStorage.moodEventStore.insert(utcDate: utcDate!, moodDay: convertedMoodDay)
+//                    today = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate!)
+//
+//                } else {
+//                    id = today!.id
+//                }
+//
+//                moodPoints = today?.moodDay?.moodPoints ?? []
+//                description = today?.moodDay?.description ?? ""
                 
             }
         }
