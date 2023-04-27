@@ -42,6 +42,7 @@ struct EditEventView: View {
     init(utcDate: Date) {
    
         self._utcDate = State(initialValue: utcDate)
+        self._utcDateOpenedTo = State(initialValue: utcDate)
         
         let predicate = NSPredicate(format: "utcDate == %@", utcDate as CVarArg)
         
@@ -220,8 +221,14 @@ struct EditEventView: View {
                         
                         let result = try? moc.fetch(fetchRequest)
                         
-                        for moodDay in result ?? [] {
-                            moc.delete(moodDay as! NSManagedObject)
+                        for conflictingMoodDay in result ?? [] {
+                            
+                            /// This is only so that extreme edge cases when this box shows for utcDate == utcDateOpenedTo, we don't delete the current entry
+                            guard conflictingMoodDay as? MoodDay != moodDay else {
+                                continue
+                            }
+                            
+                            moc.delete(conflictingMoodDay as! NSManagedObject)
                         }
                         
                         moodDay.utcDate = utcDate

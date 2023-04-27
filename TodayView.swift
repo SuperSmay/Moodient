@@ -11,18 +11,21 @@ struct TodayView: View {
     
     /// Env variables
     @Environment(\.colorScheme) var colorScheme
-    
-    @ObservedObject private var moodDays = MoodEventStorage.moodEventStore
+    @Environment(\.managedObjectContext) var moc
     
     /// Keep track of the state of the screen
     @State var id: UUID? = nil
-    @State var utcDate: Date? = Date.now.convertedUtcDate
+    @State var utcDate: Date?
     @State var moodPoints: [MoodPoint] = []
     @State var description: String = ""
+    
+    @State var moodDay: MoodDay?
 
     @State var showingDateErrorAlert = false
     
     @FocusState var textBoxFocused
+    
+    @State private var waitingForSave = false
     
     var completeUtcDateFormatter:  DateFormatter {
         let formatter = DateFormatter()
@@ -53,29 +56,23 @@ struct TodayView: View {
                             .foregroundColor(.secondary)
                         
                         /// Fake form row (can't use Form because it doesn't avoid the keyboard)
-//                        MoodTimelineControlView(moodPoints: $moodPoints)
-//                            .zIndex(10)
-//                            .frame(height: 100)
-//                            .padding()
-//                            .background {
-//                                Rectangle()
-//                                    .foregroundColor(.clear)
-//                                    .background(.ultraThickMaterial)
-//                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-//                                    .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
-//                            }
-//                            .padding()
-//                            .onChange(of: moodPoints) { _ in
-//                                
-//                                if utcDate == nil || id == nil {
-//                                    
-//                                    showingDateErrorAlert.toggle()
-//                                    
-//                                    return
-//                                }
-//                                
-//                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: utcDate!, moodDay: convertedMoodDay)
-//                            }
+                        MoodTimelineControlView(moodPoints: $moodPoints)
+                            .zIndex(10)
+                            .frame(height: 100)
+                            .padding()
+                            .background {
+                                Rectangle()
+                                    .foregroundColor(.clear)
+                                    .background(.ultraThickMaterial)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                    .shadow(color: colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.1), radius: 15)
+                            }
+                            .padding()
+                            .onChange(of: moodPoints) { _ in
+                                
+                                save()
+                                
+                            }
                         
                         TextField("Description", text: $description, axis: .vertical)
                             .padding()
@@ -88,14 +85,8 @@ struct TodayView: View {
                             /// Update database when the text is changed
                             .onChange(of: description) { _ in
                                 
-                                if utcDate == nil || id == nil {
-                                    
-                                    showingDateErrorAlert.toggle()
-                                    
-                                    return
-                                }
+                               save()
                                 
-//                                _ = MoodEventStorage.moodEventStore.update(id: id!, utcDate: utcDate!, moodDay: convertedMoodDay)
                             }
                         
                         Spacer()
@@ -132,36 +123,85 @@ struct TodayView: View {
             } message: {
                 Text("This really shouldn't happen and if it does something has gone very wrong. Please report this bug")
             }
-            /// Reload date and such when UI loads
-            .onAppear() {
+            
+            
+        }
+        /// Reload date and such when UI loads
+        .onAppear() {
+            
+            if let utcDate = Date.now.convertedUtcDate {
                 
-//                id = nil
-//                utcDate = Date.now.convertedUtcDate
-//                moodPoints = []
-//                description = ""
-//
-//                if utcDate == nil {
-//                    showingDateErrorAlert.toggle()
-//                    return
-//                }
-//
-//                var today: SQMoodCalendarDay? = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate)
-//
-//                if today == nil {
-//
-//                 id = MoodEventStorage.moodEventStore.insert(utcDate: utcDate!, moodDay: convertedMoodDay)
-//                    today = MoodEventStorage.moodEventStore.findMoodDay(searchUtcDate: utcDate!)
-//
-//                } else {
-//                    id = today!.id
-//                }
-//
-//                moodPoints = today?.moodDay?.moodPoints ?? []
-//                description = today?.moodDay?.description ?? ""
+                self.utcDate = utcDate
+                
+                let fetchRequest = MoodDay.fetchRequest()
+                let predicate = NSPredicate(format: "utcDate == %@", utcDate as CVarArg)
+                fetchRequest.predicate = predicate
+                fetchRequest.includesPropertyValues = false
+                
+                let result = try? moc.fetch(fetchRequest)
+                
+                
+                if let firstMoodDay = result?.first as? MoodDay {
+                    moodDay = firstMoodDay
+                    description = moodDay?.dayDescription ?? ""
+                    moodPoints = moodDay?.moodPoints ?? []
+                } else {
+                    let newMoodDay = MoodDay(context: moc)
+                    newMoodDay.utcDate = utcDate
+                    newMoodDay.dayDescription = ""
+                    newMoodDay.moodPoints = []
+                    moodDay = newMoodDay
+                }
+ 
+            } else {
+                print("Ruh roh utcDate is nil in TodayView onAppear")
+                description = ""
+                moodPoints = []
+                showingDateErrorAlert.toggle()
                 
             }
         }
+        
+        
+        
     }
+    
+    /// Simple batched updates
+    func save() {
+        
+        guard !waitingForSave else { return }
+        waitingForSave = true
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            if utcDate == nil || moodDay == nil {
+                
+                print("Save failed: utcDate:\(String(describing: utcDate)), moodDay: \(String(describing: moodDay)), date: \(Date.now)")
+                
+                showingDateErrorAlert.toggle()
+                
+                return
+            }
+            
+            moodDay?.utcDate = utcDate
+            moodDay?.dayDescription = description
+            moodDay?.moodPoints = moodPoints
+            
+            do {
+                try moc.save()
+                print("Saved")
+            } catch {
+                print(error.localizedDescription)
+            }
+            
+            waitingForSave = false
+            
+            if moodDay?.utcDate != utcDate || moodDay?.dayDescription != description || moodDay?.moodPoints != moodPoints {
+                save()
+            }
+            
+        }
+    }
+    
 }
 
 struct TodayView_Previews: PreviewProvider {
