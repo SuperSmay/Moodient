@@ -14,7 +14,6 @@ struct TodayView: View {
     @Environment(\.managedObjectContext) var moc
     
     /// Keep track of the state of the screen
-    @State var id: UUID? = nil
     @State var utcDate: Date?
     @State var moodPoints: [MoodPoint] = []
     @State var description: String = ""

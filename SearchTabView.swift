@@ -20,12 +20,12 @@ struct SearchTabView: View {
             searchString
         } set: { newValue in
             searchString = newValue
-            moodDays.nsPredicate = newValue.isEmpty ? nil : NSPredicate(format: "name CONTAINS %@", newValue)
+            moodDays.nsPredicate = newValue.isEmpty ? nil : NSPredicate(format: "dayDescription CONTAINS[cd] %@", newValue)
         }
     }
 
     
-    @State private var sheetItem: MoodDay? = nil
+    @State private var sheetUtcDate: Date? = nil
     
     @FocusState private var searchFocused
     
@@ -38,7 +38,7 @@ struct SearchTabView: View {
                 Section {
                     
                     LabeledContent {
-                        TextField("Search", text: $searchString)
+                        TextField("Search", text: query)
                     } label: {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(.secondary)
@@ -51,10 +51,10 @@ struct SearchTabView: View {
                 
                 Section {
                     
-                    ForEach(moodDays, id: \.utcDate) { moodDay in
+                    ForEach(moodDays, id: \.self) { moodDay in
                         
                         Button {
-                            sheetItem = moodDay
+                            sheetUtcDate = moodDay.utcDate
                         } label: {
                             SearchResultView(value: moodDay)
                         }
@@ -65,8 +65,8 @@ struct SearchTabView: View {
                     
                     
                 }
-                .sheet(item: $sheetItem, content: { value in
-                    EditEventView(utcDate: value.utcDate ?? Date.now)
+                .sheet(item: $sheetUtcDate, content: { value in
+                    EditEventView(utcDate: value)
                 })
                 
             }

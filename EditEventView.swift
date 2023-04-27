@@ -256,6 +256,8 @@ struct EditEventView: View {
         .task {
             
             let moodDay = moodDays.first
+            
+            print(moodDay)
 
             self.moodPoints = moodDay?.moodPoints ?? []
             self.description = moodDay?.dayDescription ?? ""
