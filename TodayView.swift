@@ -13,6 +13,8 @@ struct TodayView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.managedObjectContext) var moc
     
+    @AppStorage("hourOffset") var hourOffset = 0
+    
     /// Keep track of the state of the screen
     @State var utcDate: Date?
     @State var moodPoints: [MoodPoint] = []
@@ -128,7 +130,10 @@ struct TodayView: View {
         /// Reload date and such when UI loads
         .onAppear() {
             
-            if let utcDate = Date.now.convertedUtcDate {
+            
+            let dateAdjusted = Calendar.autoupdatingCurrent.date(byAdding: .hour, value: hourOffset, to: Date.now)
+            
+            if let utcDate = dateAdjusted?.convertedUtcDate {
                 
                 self.utcDate = utcDate
                 
@@ -204,7 +209,11 @@ struct TodayView: View {
 }
 
 struct TodayView_Previews: PreviewProvider {
+    
+    static var dataController = DataController.shared
+    
     static var previews: some View {
         TodayView()
+            .environment(\.managedObjectContext, dataController.container.viewContext)
     }
 }

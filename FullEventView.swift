@@ -49,6 +49,8 @@ struct FullEventView: View {
     /// The size of the window this view is being displayed in
     @Environment(\.mainWindowSize) var mainWindowSize
     
+    @AppStorage("hourOffset") var hourOffset = 0
+    
     var body: some View {
         
         NavigationView {
@@ -259,7 +261,7 @@ struct FullEventView: View {
         .environment(\.utcDateFormatter, utcDateFormatter)
         .onAppear() {
             /// Make sure this stays updated
-            currentUtcDate = Date.now.convertedUtcDate
+            currentUtcDate = Calendar.autoupdatingCurrent.date(byAdding: .hour, value: hourOffset * -1, to: Date.now)?.convertedUtcDate
         }
         
     }

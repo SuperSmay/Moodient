@@ -14,6 +14,7 @@ struct SettingsView: View {
     @AppStorage("passcodeLocked") var passcodeLocked = false
     @AppStorage("biometricLocked") var biometricLocked = false
     @AppStorage("unlockPasscode") var unlockPasscode = ""
+    @AppStorage("hourOffset") var hourOffset = 0
     
     @State private var enteredUnlockPasscode = ""
     @State private var confirmUnlockPasscode = ""
@@ -125,6 +126,16 @@ struct SettingsView: View {
                         }
                     }
                 }
+                
+                Section(footer: Text("It was as if you changed your clock by this amount")) {
+                    
+                    Stepper(value: $hourOffset, in: -24...24) {
+                        Text("Hour offset: \(hourOffset.signum() == 1 ? "+" : "")\(hourOffset)")
+                    }
+                    
+                        
+                }
+                
                 
                 Section {
                     NavigationLink {

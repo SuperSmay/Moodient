@@ -68,26 +68,58 @@ struct MoodTimelineControlView: View {
     }
     
     struct HourNumbers: View {
+        
+        @AppStorage("hourOffset") var hourOffset = 0
+        
+        private var hourRange: Array<String> {
+            let hourNumbers = Array(0-hourOffset..<24-hourOffset)
+            // let hourNumbers = Array(0..<24)
+            var adjustedHourNumbers = [String]()
+            
+            if Date.is24HoursFormat {
+                for num in hourNumbers {
+                    if num % 3 == 0 {
+                        adjustedHourNumbers.append(String(mod(dividend: num, divisor: 24)))
+                    } else {
+                        adjustedHourNumbers.append("")
+                    }
+                }
+            } else {
+                for num in hourNumbers {
+                    if num % 3 == 0 {
+                        if num < 0 || num > 11 {
+                            adjustedHourNumbers.append("\(mod(dividend: num-1, divisor: 12)+1)pm")
+                        } else {
+                            adjustedHourNumbers.append("\(mod(dividend: num-1, divisor: 12)+1)am")
+                        }
+                    } else {
+                        adjustedHourNumbers.append("")
+                    }
+                }
+            }
+            return adjustedHourNumbers
+        }
+        
         var body: some View {
             HStack(spacing: 0) {
-                ForEach(0..<24) { i in
+                ForEach(hourRange, id: \.self) { i in
                     
                     Color.clear
                         .overlay {
-                            if i % 3 == 0 {
-                                
-                                let hourInt = Date.is24HoursFormat ? i : i % 12
-                                
-                                Text(String(hourInt == 0 && !Date.is24HoursFormat ? 12 : hourInt))
+                            Text(i)
                                     .fontDesign(.rounded)
                                     .bold()
                                     .foregroundColor(.secondary.opacity(0.35))
                                     .contentShape(Rectangle())
                                     .frame(width: 100)
-                            }
+                            
                         }
                 }
             }
+        }
+        
+        func mod(dividend: Int, divisor: Int) -> Int {
+            return dividend - Int((floor(Double(dividend)/Double(divisor)))) * divisor
         }
     }
     

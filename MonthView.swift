@@ -14,22 +14,14 @@ struct MonthView: View {
     @Environment(\.mainWindowSize) var mainWindowSize
     /// Select tab env stuff to reload when the tab is changed
     @Environment(\.selectedTabTitle) var selectedTab
-
+    @Environment(\.managedObjectContext) var moc
+    
     @State private var editUtcDate: Date? = nil
     
     @State private var deleteAlertShowing = false
     @State private var deleteUtcDate: Date? = nil
-    
 
-    
-    
-    
-    @Environment(\.managedObjectContext) var moc
-    
     @FetchRequest(sortDescriptors: []) var cdMoodDays: FetchedResults<MoodDay>
-    
-    
-    
 
     private var weeks = [[Date]]()
     private var daysToSkipInFirstWeek = 0
